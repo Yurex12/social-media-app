@@ -13,7 +13,7 @@ import { SocialLogin } from '@/features/auth/components/SocialLogin';
 
 export default function Page() {
   return (
-    <div className='flex h-svh flex-col items-center justify-center p-2 md:p-10'>
+    <div className='flex h-svh flex-col items-center justify-center p-2'>
       <div className='flex w-full max-w-sm flex-col gap-6'>
         <Logo className='mx-auto' />
         <Card className='shadow-none'>
