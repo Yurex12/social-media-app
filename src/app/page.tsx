@@ -1,9 +1,10 @@
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function Home() {
   return (
     <div>
-      <Button>Click me</Button>
+      <Link href='/posts'>Click me</Link>
       Lorem ipsum dolor sit amet consectetur adipisicing elit. Ea, consequuntur
       optio, fugit libero dolor placeat error suscipit cumque accusamus non
       vitae pariatur? Autem facere neque, ipsa minima quis, et praesentium

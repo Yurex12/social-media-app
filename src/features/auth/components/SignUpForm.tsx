@@ -14,25 +14,40 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { signupSchema, SignupSchema } from '../schemas/SignupSchema';
+import { signUp } from '@/lib/auth-client';
+import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 export function SignupForm() {
   const form = useForm<SignupSchema>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
-      //   email: 'yusuf@gmail.com',
-      //   password: 'Adeyemi@17',
-      //   name: 'Ekungomi yusuf',
-      //   confirmPassword: 'Adeyemi@17',
+      email: 'yusuf@gmail.com',
+      password: 'Adeyemi@17',
+      name: 'Ekungomi yusuf',
+      confirmPassword: 'Adeyemi@17',
     },
   });
 
-  async function onSubmit(signupDetails: SignupSchema) {
-    console.log(signupDetails);
+  const router = useRouter();
+
+  async function onsubmit(signupDetails: SignupSchema) {
+    const res = await signUp.email({
+      email: signupDetails.email,
+      name: signupDetails.name,
+      password: signupDetails.password,
+    });
+
+    if (res.error) {
+      toast.error(res.error.message || 'Something went wrong.');
+    } else {
+      router.push('/');
+    }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+      <form onSubmit={form.handleSubmit(onsubmit)} className='space-y-6'>
         <FormField
           control={form.control}
           name='name'

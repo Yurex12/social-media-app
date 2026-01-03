@@ -16,66 +16,67 @@ import {
 import { Input } from '@/components/ui/input';
 
 import { LoginSchema, loginSchema } from '../schemas/LoginSchema';
+import { signIn } from '@/lib/auth-client';
+import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
+import { ErrorContext } from 'better-auth/react';
+import { Spinner } from '@/components/ui/spinner';
 
 export function LoginForm() {
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      identifier: '',
-      password: '',
+      identifier: 'yusuf2@gmail.com',
+      password: 'Adeyemi@17',
       rememberMe: false,
     },
   });
 
-  //   const router = useRouter();
+  const router = useRouter();
 
-  //   const handleSuccess = () => {
-  //     toast.success("Login successful.");
-  //     router.push("/");
-  //     form.reset();
-  //   };
-
-  //   const handleError = (ctx: ErrorContext) => {
-  //     toast.error(ctx.error.message || "Something went wrong");
-  //   };
-
-  //   async function onsubmit({ identifier, password, rememberMe }: LoginSchema) {
-  //     const identifierType = identifier.includes("@") ? "email" : "username";
-
-  //     if (identifierType === "email") {
-  //       await authClient.signIn.email({
-  //         email: identifier,
-  //         password,
-  //         rememberMe,
-  //         fetchOptions: {
-  //           onSuccess: handleSuccess,
-  //           onError: (ctx) => handleError(ctx),
-  //         },
-  //       });
-  //     }
-
-  //     if (identifierType === "username") {
-  //       await authClient.signIn.username({
-  //         username: identifier,
-  //         password,
-  //         rememberMe,
-  //         fetchOptions: {
-  //           onSuccess: handleSuccess,
-  //           onError: (ctx) => handleError(ctx),
-  //         },
-  //       });
-  //     }
-  //   }
-
-  async function onSubmit(loginDetails: LoginSchema) {
-    const { identifier, password, rememberMe } = loginDetails;
-
-    console.log(loginDetails);
+  async function handleSuccess() {
+    toast.success('Login successful.');
+    router.push('/');
+    form.reset();
   }
+
+  async function handleError(ctx: ErrorContext) {
+    toast.error(ctx.error.message || 'Something went wrong');
+  }
+
+  async function onsubmit({ identifier, password, rememberMe }: LoginSchema) {
+    const identifierType = identifier.includes('@') ? 'email' : 'username';
+
+    if (identifierType === 'email') {
+      await signIn.email({
+        email: identifier,
+        password,
+        rememberMe,
+        fetchOptions: {
+          onSuccess: handleSuccess,
+          onError: handleError,
+        },
+      });
+    }
+
+    // if (identifierType === 'username') {
+    //   await signIn.username({
+    //     username: identifier,
+    //     password,
+    //     rememberMe,
+    //     fetchOptions: {
+    //       onSuccess: handleSuccess,
+    //       onError: (ctx) => handleError(ctx),
+    //     },
+    //   });
+    // }
+  }
+
+  const isLoginIn = form.formState.isSubmitting;
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+      <form onSubmit={form.handleSubmit(onsubmit)} className='space-y-6'>
         <FormField
           control={form.control}
           name='identifier'
@@ -87,7 +88,7 @@ export function LoginForm() {
                   placeholder='johndoe@gmail.com'
                   type='text'
                   {...field}
-                  disabled={form.formState.isSubmitting}
+                  disabled={isLoginIn}
                   className='py-4 shadow-none placeholder:text-sm'
                 />
               </FormControl>
@@ -106,7 +107,7 @@ export function LoginForm() {
                   placeholder='********'
                   type='password'
                   {...field}
-                  disabled={form.formState.isSubmitting}
+                  disabled={isLoginIn}
                   className='py-4 shadow-none placeholder:text-sm'
                 />
               </FormControl>
@@ -125,7 +126,7 @@ export function LoginForm() {
                   checked={field.value}
                   onCheckedChange={(checked) => field.onChange(checked)}
                   onBlur={field.onBlur}
-                  disabled={form.formState.isSubmitting}
+                  disabled={isLoginIn}
                   className='shadow-none'
                 />
               </FormControl>
@@ -135,12 +136,8 @@ export function LoginForm() {
           )}
         />
 
-        <Button
-          type='submit'
-          className='w-full'
-          disabled={form.formState.isSubmitting}
-        >
-          Login
+        <Button type='submit' className='w-full' disabled={isLoginIn}>
+          {isLoginIn ? <Spinner /> : <span> Login</span>}
         </Button>
       </form>
     </Form>
