@@ -11,7 +11,7 @@ export function GoogleLoginButton() {
     startTransition(async () => {
       await signIn.social({
         provider: 'google',
-        callbackURL: '/',
+        callbackURL: '/posts',
         fetchOptions: {
           onError: (ctx) => {
             toast.error(ctx.error.message || 'Something went wrong');

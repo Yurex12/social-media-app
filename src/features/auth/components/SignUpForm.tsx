@@ -41,7 +41,7 @@ export function SignupForm() {
     if (res.error) {
       toast.error(res.error.message || 'Something went wrong.');
     } else {
-      router.replace('/');
+      router.replace('/posts');
     }
   }
 

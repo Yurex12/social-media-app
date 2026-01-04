@@ -4,6 +4,7 @@ import prisma from './prisma';
 
 import { nextCookies } from 'better-auth/next-js';
 import { generateUsername } from './username';
+import { username } from 'better-auth/plugins';
 
 const MAX_TRIES = 30;
 
@@ -76,7 +77,7 @@ export const auth = betterAuth({
   //     maxAge: 5 * 60,
   //   },
   // },
-  plugins: [nextCookies()],
+  plugins: [username(), nextCookies()],
 });
 
 // export type User = Omit<typeof auth.$Infer.Session.user, 'username'> & {

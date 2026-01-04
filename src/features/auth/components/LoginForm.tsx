@@ -15,12 +15,12 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
-import { LoginSchema, loginSchema } from '../schemas/LoginSchema';
-import { signIn } from '@/lib/auth-client';
-import { toast } from 'react-hot-toast';
-import { useRouter } from 'next/navigation';
-import { ErrorContext } from 'better-auth/react';
 import { Spinner } from '@/components/ui/spinner';
+import { signIn } from '@/lib/auth-client';
+import { ErrorContext } from 'better-auth/react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
+import { LoginSchema, loginSchema } from '../schemas/LoginSchema';
 
 export function LoginForm() {
   const form = useForm<LoginSchema>({
@@ -36,7 +36,7 @@ export function LoginForm() {
 
   async function handleSuccess() {
     toast.success('Login successful.');
-    router.push('/');
+    router.replace('/posts');
     form.reset();
   }
 
@@ -59,17 +59,17 @@ export function LoginForm() {
       });
     }
 
-    // if (identifierType === 'username') {
-    //   await signIn.username({
-    //     username: identifier,
-    //     password,
-    //     rememberMe,
-    //     fetchOptions: {
-    //       onSuccess: handleSuccess,
-    //       onError: (ctx) => handleError(ctx),
-    //     },
-    //   });
-    // }
+    if (identifierType === 'username') {
+      await signIn.username({
+        username: identifier,
+        password,
+        rememberMe,
+        fetchOptions: {
+          onSuccess: handleSuccess,
+          onError: handleError,
+        },
+      });
+    }
   }
 
   const isLoginIn = form.formState.isSubmitting;
