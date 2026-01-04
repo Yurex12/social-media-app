@@ -11,6 +11,7 @@ const getSession = cache(async () => {
 
 export const getRequiredSession = cache(async () => {
   const session = await getSession();
+
   if (!session) redirect('/login');
   return session;
 });

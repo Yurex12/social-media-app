@@ -1,13 +1,19 @@
 import type { Metadata } from 'next';
-import { Poppins } from 'next/font/google';
+// import { Poppins } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
+import { Outfit, Poppins } from 'next/font/google';
 
 import './globals.css';
 
-const poppins = Poppins({
+// const poppins = Poppins({
+//   subsets: ['latin'],
+//   variable: '--font-poppins',
+//   weight: '500',
+// });
+
+const outfit = Outfit({
   subsets: ['latin'],
-  variable: '--font-poppins',
-  weight: '500',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -26,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body
-        className={`${poppins.variable} antialiased max-w-400 mx-auto px-4 md:px-0`}
+        className={`${outfit.className} antialiased max-w-400 mx-auto px-4 md:px-0`}
       >
         <main>{children}</main>
         <Toaster />

@@ -3,5 +3,7 @@ import Post from './Post';
 
 export default async function Posts() {
   const session = await getRequiredSession();
-  return <Post name={session.user.name} />;
+
+  // session.user.username
+  return <Post name={session.user.username!} />;
 }
