@@ -80,11 +80,5 @@ export const auth = betterAuth({
   plugins: [username(), nextCookies()],
 });
 
-// export type User = Omit<typeof auth.$Infer.Session.user, 'username'> & {
-//   username: string;
-//   age: number
-// };
-
-// export type Session = Omit<typeof auth.$Infer.Session, 'user'> & {
-//   user: User;
-// };
+export type User = typeof auth.$Infer.Session.user;
+export type Session = typeof auth.$Infer.Session;
