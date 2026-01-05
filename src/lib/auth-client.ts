@@ -5,6 +5,13 @@ import {
 } from 'better-auth/client/plugins';
 import type { auth } from './auth';
 
-export const { signIn, signUp, signOut, useSession } = createAuthClient({
+export const {
+  signIn,
+  signUp,
+  signOut,
+  useSession,
+  updateUser,
+  isUsernameAvailable,
+} = createAuthClient({
   plugins: [usernameClient(), inferAdditionalFields<typeof auth>()],
 });

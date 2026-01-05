@@ -1,7 +1,17 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useDebounce } from 'use-debounce';
+import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+
 import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Form,
   FormControl,
@@ -9,40 +19,104 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Label } from '@radix-ui/react-label';
-import { useForm } from 'react-hook-form';
 import { usernameSchema, UsernameSchema } from '../schemas/usernameSchema';
 import { CurrentUsername } from './CurrentUsername';
 import { SuggestedUsernames } from './SuggestedUsernames';
+import { isUsernameAvailable, updateUser } from '@/lib/auth-client';
+import { UsernameFormProps } from '../types';
+import { Spinner } from '@/components/ui/spinner';
 
 export function UsernameForm({
   currentUsername,
   usernameSuggestions,
-}: {
-  currentUsername: string;
-  usernameSuggestions: string[];
-}) {
+}: UsernameFormProps) {
+  const router = useRouter();
+
+  const [availability, setAvailability] = useState<
+    'idle' | 'checking' | 'available' | 'taken'
+  >('idle');
+
   const form = useForm<UsernameSchema>({
     resolver: zodResolver(usernameSchema),
     mode: 'onChange',
-    defaultValues: {
-      username: '',
-    },
+    defaultValues: { username: '' },
   });
+
+  const watchedUsername = useWatch({
+    control: form.control,
+    name: 'username',
+  });
+
+  const [debouncedUsername] = useDebounce(watchedUsername, 500);
+
+  const isValid = form.formState.isValid;
+
+  const shouldCheck = debouncedUsername.length >= 4;
+
+  const displayStatus = !shouldCheck ? 'idle' : availability;
+
+  useEffect(() => {
+    if (!shouldCheck) {
+      return;
+    }
+
+    async function checkAvailability() {
+      setAvailability('checking');
+      try {
+        const { data: response } = await isUsernameAvailable({
+          username: debouncedUsername,
+        });
+
+        if (response?.available) {
+          setAvailability('available');
+        } else {
+          setAvailability('taken');
+        }
+      } catch {
+        setAvailability('idle');
+      }
+    }
+
+    checkAvailability();
+  }, [debouncedUsername, currentUsername, shouldCheck]);
 
   function handleSelectUsername(suggestion: string) {
     form.setValue('username', suggestion);
     form.trigger('username');
-
-    console.log(suggestion);
   }
 
   async function onSubmit({ username }: UsernameSchema) {
-    console.log(username);
+    if (username.toLowerCase() === currentUsername?.toLowerCase()) {
+      toast.error("That's already your current username!");
+      return;
+    }
+
+    if (displayStatus !== 'available') {
+      toast.error('Please wait for username availability check');
+      return;
+    }
+
+    const { error } = await updateUser({
+      username: username.toLowerCase(),
+      displayUsername: username,
+    });
+
+    if (error) {
+      toast.error(error.message || 'Failed to update username');
+      return;
+    }
+
+    toast.success('Username updated successfully!');
+    form.reset();
+    router.refresh();
+    router.replace('/');
   }
+
+  const handleSkip = () => router.replace('/');
+
+  const isUpdating = form.formState.isSubmitting;
+
   return (
     <CardContent className='space-y-6'>
       <CurrentUsername username={currentUsername} />
@@ -63,17 +137,40 @@ export function UsernameForm({
                     <Input
                       placeholder='your_username'
                       {...field}
-                      className='pr-10 pl-8'
+                      className={`pr-10 pl-8 transition-colors`}
+                      disabled={isUpdating}
                     />
-                    {/* {statusIcon && (
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                        {statusIcon}
-                      </div>
-                    )} */}
+
+                    <div className='absolute inset-y-0 right-0 flex items-center pr-3'>
+                      {displayStatus === 'checking' && (
+                        <Loader2 className='h-4 w-4 animate-spin text-gray-400' />
+                      )}
+                      {displayStatus === 'available' && (
+                        <CheckCircle2 className='h-4 w-4 text-green-500' />
+                      )}
+                      {displayStatus === 'taken' && (
+                        <XCircle className='h-4 w-4 text-red-500' />
+                      )}
+                    </div>
                   </div>
                 </FormControl>
 
-                <FormMessage />
+                {displayStatus === 'taken' && (
+                  <p className='text-[0.8rem] font-medium text-red-500'>
+                    This username is already taken.
+                  </p>
+                )}
+                {displayStatus === 'available' && (
+                  <p className='text-[0.8rem] font-medium text-green-500'>
+                    This username is available.
+                  </p>
+                )}
+                {displayStatus === 'checking' && (
+                  <p className='text-[0.8rem] font-medium text-muted-foreground'>
+                    Checking...
+                  </p>
+                )}
+                {watchedUsername.length > 0 && <FormMessage />}
               </FormItem>
             )}
           />
@@ -83,18 +180,32 @@ export function UsernameForm({
             suggestions={usernameSuggestions}
           />
 
-          <Button
-            type='submit'
-            className='w-full bg-linear-to-r from-blue-500 via-blue-600 to-indigo-700 text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.02] hover:from-blue-600 hover:via-blue-700 hover:to-indigo-800 hover:shadow-2xl disabled:from-gray-400 disabled:via-gray-500 disabled:to-gray-500 disabled:hover:translate-y-0 disabled:hover:scale-100 disabled:hover:shadow-lg'
-          >
-            Update Username
-          </Button>
-          {/* {form.formState.isSubmitting ? (
-                <Spinner  />
-              ) : (
-                "Update Username"
-              )}
-            </Button> */}
+          <div className='space-y-2 pt-2'>
+            <Button
+              type='submit'
+              disabled={
+                !isValid ||
+                displayStatus !== 'available' ||
+                isUpdating ||
+                watchedUsername.length === 0
+              }
+              className='w-full bg-linear-to-r from-blue-500 via-blue-600 to-indigo-700 text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.02] active:scale-100 disabled:opacity-40 disabled:hover:translate-y-0'
+            >
+              {isUpdating ? <Spinner /> : null}
+
+              {isUpdating ? 'Updating' : ' Update Username'}
+            </Button>
+
+            <Button
+              type='button'
+              variant='ghost'
+              className='w-full text-gray-500 hover:text-gray-800'
+              onClick={handleSkip}
+              disabled={isUpdating}
+            >
+              Skip for now
+            </Button>
+          </div>
         </form>
       </Form>
     </CardContent>
