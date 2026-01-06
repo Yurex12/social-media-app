@@ -31,10 +31,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en'>
-      <body
-        className={`${outfit.className} antialiased max-w-400 mx-auto px-4 md:px-0`}
-      >
-        <main>{children}</main>
+      <body className={`${outfit.className} antialiased max-w-400 mx-auto`}>
+        {children}
         <Toaster />
       </body>
     </html>
