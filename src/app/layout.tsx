@@ -31,7 +31,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en'>
-      <body className={`${outfit.className} antialiased max-w-7xl mx-auto`}>
+      <body className={`${outfit.className} antialiased max-w-6xl mx-auto`}>
         {children}
         <Toaster />
       </body>

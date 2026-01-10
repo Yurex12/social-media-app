@@ -30,8 +30,12 @@ model User {
   // mine
   posts     Post[]
   comments  Comment[]
-  followers Follower[]
   bookmarks Bookmark[]
+  postLikes PostLike[]
+
+  followers    Follow[]      @relation("followers")
+  following    Follow[]      @relation("following")
+  commentLikes CommentLike[]
 
   @@unique([email])
   @@unique([username])
@@ -87,38 +91,38 @@ model Verification {
 }
 
 model Post {
-  id      String  @id
-  content String?
-  images  Image[]
+  id      String  @id @default(cuid())
   userId  String
+  content String?
 
+  images    Image[]
   comments  Comment[]
   postLikes PostLike[]
   bookmarks Bookmark[]
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Comment {
-  id      String @id
-  postId  String
+  id      String @id @default(cuid())
   content String
+  postId  String
   userId  String
+
+  commentLikes CommentLike[]
 
   post Post @relation(fields: [postId], references: [id])
   user User @relation(fields: [userId], references: [id])
-
-  commentLikes CommentLike[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Image {
-  id     String @id
+  id     String @id @default(cuid())
   url    String
   fileId String
   postId String
@@ -129,43 +133,50 @@ model Image {
   updatedAt DateTime @updatedAt
 }
 
-model Follower {
-  id     String @id
-  userId String
+model Follow {
+  followerId  String
+  followingId String
+
+  follower  User @relation("following", fields: [followerId], references: [id])
+  following User @relation("followers", fields: [followingId], references: [id])
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([followerId, followingId])
 }
 
 model PostLike {
-  id     String @id
+  id     String @id @default(cuid())
   postId String
+  userId String
 
   post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model CommentLike {
-  id        String @id
+  id        String @id @default(cuid())
   commentId String
+  userId    String
 
   comment Comment @relation(fields: [commentId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Notification {
-  id        String   @id
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+// model Notification {
+//   id        String   @id
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+// }
 
 model Bookmark {
-  id     String @id
+  id     String @id @default(cuid())
   userId String
   postId String
 
@@ -174,4 +185,6 @@ model Bookmark {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, postId])
 }
