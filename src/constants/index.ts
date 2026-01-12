@@ -4,6 +4,8 @@ import { ForwardRefExoticComponent, RefAttributes } from 'react';
 export const MIN_USERNAME_LENGTH = 4;
 export const MAX_USERNAME_LENGTH = 15;
 
+export const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
 interface Link {
   href: string;
   label: string;

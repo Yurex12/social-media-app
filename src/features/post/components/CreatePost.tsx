@@ -10,56 +10,89 @@ import {
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ImageIcon, X } from 'lucide-react';
-import { useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { postSchema, type PostSchema } from '../schema';
+import { ImageIcon } from 'lucide-react';
 import Image from 'next/image';
+import { ChangeEvent, useRef } from 'react';
+import { ControllerRenderProps, useForm, useWatch } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { postSchema, type PostSchema } from '../schema';
+import ImagePreviews from './ImagePreviews';
+import { uploadImages } from '@/lib/imagekit';
+import { Spinner } from '@/components/ui/spinner';
 
 export function CreatePost() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [images, setImages] = useState<File[]>([]);
 
-  // 2. Hook form setup
   const form = useForm<PostSchema>({
     resolver: zodResolver(postSchema),
+    mode: 'onChange',
     defaultValues: {
       content: '',
       images: [],
     },
   });
 
-  // 3. Image selection
-  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    if (!files.length) return;
+  const images = useWatch({
+    control: form.control,
+    name: 'images',
+  });
+  const content = useWatch({
+    control: form.control,
+    name: 'content',
+  });
+
+  const isPosting = form.formState.isSubmitting;
+
+  function removeImage(file: File) {
+    const signature = `${file.name}-${file.size}-${file.lastModified}`;
+    const newImages = images.filter(
+      (img) => `${img.name}-${img.size}-${img.lastModified}` !== signature
+    );
+    form.setValue('images', newImages);
+    form.trigger('images');
+  }
+
+  async function onSubmit(values: PostSchema) {
+    const uploadImageRes = await uploadImages(values.images);
+
+    console.log(uploadImageRes);
+
+    form.reset();
+  }
+
+  function handleImageSelect(
+    e: ChangeEvent<HTMLInputElement>,
+    field: ControllerRenderProps<PostSchema, 'images'>
+  ) {
+    const files = e.target.files;
+    const prevImages = form.getValues('images');
+
+    if (!files) {
+      field.onChange([]);
+      return;
+    }
+
     if (files.length > 2) {
       toast.error('Please choose up to 2 images');
       return;
     }
 
-    const remainingSlots = 2 - images.length;
-    if (remainingSlots <= 0) return;
+    const existingSignatures = new Set(
+      prevImages.map(
+        (file: File) => `${file.name}-${file.size}-${file.lastModified}`
+      )
+    );
 
-    const selected = files.slice(0, remainingSlots);
-    setImages((prev) => [...prev, ...selected]);
-    form.setValue('images', [...images, ...selected]);
+    const uniqueNewFiles = Array.from(files).filter(
+      (file) =>
+        !existingSignatures.has(
+          `${file.name}-${file.size}-${file.lastModified}`
+        )
+    );
+
+    field.onChange([...prevImages, ...uniqueNewFiles].slice(0, 2));
+
     e.target.value = '';
-  }
-
-  function removeImage(index: number) {
-    const updated = images.filter((_, i) => i !== index);
-    setImages(updated);
-    form.setValue('images', updated);
-  }
-
-  // 4. Form submission
-  function onSubmit(values: PostSchema) {
-    console.log('Post submitted', values);
-    // handle your API call here
-    form.reset();
-    setImages([]);
   }
 
   return (
@@ -78,7 +111,6 @@ export function CreatePost() {
             />
           </div>
 
-          {/* Input */}
           <div className='flex-1'>
             <FormField
               control={form.control}
@@ -90,6 +122,7 @@ export function CreatePost() {
                       {...field}
                       placeholder='What’s happening?'
                       className='max-h-[50vh] min-h-5 resize-none border-none bg-transparent px-0 text-base shadow-none focus-visible:ring-0 overflow-y-auto'
+                      disabled={isPosting}
                     />
                   </FormControl>
                   <FormMessage />
@@ -97,95 +130,55 @@ export function CreatePost() {
               )}
             />
 
-            {/* Image previews */}
-            {images.length > 0 && (
-              <div className='mt-3 grid grid-cols-2 gap-2'>
-                {images.map((file, index) => (
-                  <div
-                    key={index}
-                    className='relative aspect-video overflow-hidden rounded-lg bg-muted'
-                  >
-                    <Image
-                      src={URL.createObjectURL(file)}
-                      alt='Preview'
-                      //   fill
-                      className='h-full w-full object-cover absolute'
-                      width={100}
-                      height={100}
-                    />
-                    <button
-                      type='button'
-                      onClick={() => removeImage(index)}
-                      className='absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white hover:bg-black/80'
-                    >
-                      <X className='h-4 w-4' />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+            <ImagePreviews
+              images={images}
+              removeImage={removeImage}
+              disabled={isPosting}
+            />
 
-            {/* Actions */}
             <div className='mt-3 flex items-center gap-2 justify-end border-t py-1'>
-              {/* image */}
               <FormField
                 control={form.control}
                 name='images'
                 render={({ field }) => (
                   <FormItem>
-                    <div className='grid grid-cols-2 gap-3'>
-                      {images.map((file, index) => (
-                        <div key={index} className='relative aspect-square'>
-                          <Image
-                            src={URL.createObjectURL(file)}
-                            alt={`Preview ${index + 1}`}
-                            fill
-                            className='rounded-lg border object-cover'
-                          />
-                          <button
-                            type='button'
-                            onClick={() =>
-                              field.onChange(
-                                images.filter((_, i) => i !== index)
-                              )
-                            }
-                            className='absolute top-1 right-1 rounded-full bg-black/50 p-1'
-                          >
-                            <X className='h-4 w-4 text-white' />
-                          </button>
-                        </div>
-                      ))}
+                    <FormControl>
+                      <div className='flex items-center gap-1'>
+                        <input
+                          ref={fileInputRef}
+                          type='file'
+                          accept='image/*'
+                          multiple
+                          hidden
+                          onChange={(e) => {
+                            handleImageSelect(e, field);
+                          }}
+                        />
 
-                      {images.length < 4 && (
-                        <label className='hover:bg-muted/40 flex aspect-square cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed'>
-                          <span className='text-2xl font-bold'>+</span>
-                          <span className='text-muted-foreground text-sm'>
-                            Upload
-                          </span>
-                          <input
-                            type='file'
-                            accept='image/png'
-                            multiple
-                            className='hidden'
-                            onChange={(e) => {
-                              const newFiles = Array.from(e.target.files || []);
-                              field.onChange(
-                                [...images, ...newFiles].slice(0, 4)
-                              );
-                              e.target.value = '';
-                            }}
-                          />
-                        </label>
-                      )}
-                    </div>
-
+                        <Button
+                          type='button'
+                          variant='ghost'
+                          size='icon'
+                          className='text-primary hover:bg-primary/5 hover:text-primary/90'
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={images.length >= 2 || isPosting}
+                        >
+                          <ImageIcon className='size-6' />
+                        </Button>
+                      </div>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <Button type='submit' size='sm' className='rounded-full px-4'>
-                Post
+              <Button
+                type='submit'
+                size='sm'
+                className='rounded-full px-4 w-18'
+                disabled={(!content.length && !images.length) || isPosting}
+              >
+                {isPosting ? <Spinner /> : <span> Post</span>}
               </Button>
             </div>
           </div>
