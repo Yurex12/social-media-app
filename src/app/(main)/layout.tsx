@@ -1,8 +1,9 @@
+import { ReactNode } from 'react';
+
+import { getRequiredSession } from '@/lib/session';
+
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
-import { CreatePost } from '@/features/post/components/CreatePost';
-import { getRequiredSession } from '@/lib/session';
-import { ReactNode } from 'react';
 
 export default function MainLayout({
   children,
@@ -12,18 +13,13 @@ export default function MainLayout({
   getRequiredSession();
 
   return (
-    <div className='grid h-svh overflow-hidden bg-background md:grid-cols-[250px_1fr]'>
+    <div className='grid h-svh overflow-hidden md:grid-cols-[250px_1fr]'>
       <Sidebar />
 
-      <main className='h-full overflow-y-auto border-x'>
+      <main className='h-full overflow-y-auto border-x space-y-4'>
         <Header />
-        <section>
-          <CreatePost />
-          {children}
-        </section>
+        <section className='mx-auto max-w-xl '>{children}</section>
       </main>
-
-      {/* <WhoToFollow /> */}
     </div>
   );
 }

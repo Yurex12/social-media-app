@@ -1,4 +1,10 @@
 'use client';
+import { ChangeEvent, useRef } from 'react';
+import Image from 'next/image';
+import toast from 'react-hot-toast';
+import { ControllerRenderProps, useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ImageIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -9,18 +15,15 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { ImageIcon } from 'lucide-react';
-import Image from 'next/image';
-import { ChangeEvent, useRef } from 'react';
-import { ControllerRenderProps, useForm, useWatch } from 'react-hook-form';
-import toast from 'react-hot-toast';
-import { postSchema, type PostSchema } from '../schema';
-import ImagePreviews from './ImagePreviews';
-import { uploadImages } from '@/lib/imagekit';
 import { Spinner } from '@/components/ui/spinner';
-import { ImageUploadResponse } from '@/types';
+
+import { ImagePreviews } from './ImagePreviews';
+
+import { uploadImages } from '@/lib/imagekit';
 import { createPost } from '../actions';
+
+import { postSchema, type PostSchema } from '../schema';
+import { ImageUploadResponse } from '@/types';
 
 export function CreatePost() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -136,7 +139,7 @@ export function CreatePost() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className='border mt-2 rounded-xl px-4 py-3 max-w-xl mx-auto'
+        className='border rounded-xl px-4 py-2 max-w-140'
       >
         <div className='flex gap-3'>
           <div className='relative w-10 h-10'>

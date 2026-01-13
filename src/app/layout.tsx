@@ -4,6 +4,7 @@ import { Outfit } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 
 import './globals.css';
+import Providers from './Providers';
 
 // const poppins = Poppins({
 //   subsets: ['latin'],
@@ -31,9 +32,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en'>
-      <body className={`${outfit.className} antialiased max-w-6xl mx-auto`}>
-        {children}
+      <body
+        className={`${outfit.className} antialiased h-screen overflow-hidden max-w-6xl mx-auto`}
+      >
         <Toaster />
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

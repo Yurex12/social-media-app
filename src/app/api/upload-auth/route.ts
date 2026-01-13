@@ -6,7 +6,7 @@ export async function GET() {
   const session = await getSession();
 
   if (!session) {
-    Response.json(
+    return Response.json(
       { message: 'Session expired. Please log in again.' },
       { status: 401 }
     );

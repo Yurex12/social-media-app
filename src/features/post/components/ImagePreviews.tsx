@@ -5,7 +5,7 @@ import { X } from 'lucide-react';
 
 import { MAX_FILE_SIZE } from '@/constants';
 
-export default function ImagePreviews({
+export function ImagePreviews({
   images,
   disabled,
   removeImage,

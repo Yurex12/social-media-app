@@ -19,7 +19,7 @@ export default function Navbar() {
             key={href}
             href={href}
             className={cn(
-              'flex items-center gap-3 rounded-full px-4 w-fit py-2 text-sm font-medium transition-colors hover:bg-primary/10 hover:text-primary',
+              'flex items-center gap-3 rounded-full px-4 w-fit py-2 font-medium transition-colors hover:bg-primary/10 hover:text-primary',
               isActive && 'bg-primary/15 text-primary'
             )}
           >

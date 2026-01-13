@@ -2,8 +2,8 @@
 
 import z from 'zod';
 import prisma from '@/lib/prisma';
-import { getSession } from '@/lib/session';
 
+import { getSession } from '@/lib/session';
 import { postServerSchema, PostServerSchema } from './schema';
 
 import { ActionResponse } from '@/types';
@@ -19,7 +19,6 @@ export async function createPost(
       success: false,
       message: 'Invalid data',
       error: z.treeifyError(result.error),
-      //   error: result.error.flatten().fieldErrors,
     };
   }
 
