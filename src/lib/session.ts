@@ -3,7 +3,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
 
-const getSession = cache(async () => {
+export const getSession = cache(async () => {
   return await auth.api.getSession({
     headers: await headers(),
   });

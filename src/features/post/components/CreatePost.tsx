@@ -19,6 +19,8 @@ import { postSchema, type PostSchema } from '../schema';
 import ImagePreviews from './ImagePreviews';
 import { uploadImages } from '@/lib/imagekit';
 import { Spinner } from '@/components/ui/spinner';
+import { ImageUploadResponse } from '@/types';
+import { createPost } from '../actions';
 
 export function CreatePost() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -53,11 +55,46 @@ export function CreatePost() {
   }
 
   async function onSubmit(values: PostSchema) {
-    const uploadImageRes = await uploadImages(values.images);
+    if (!values.content.trim() && !values.images.length) {
+      toast.error('Please provide either content or at least one image');
+      return;
+    }
 
-    console.log(uploadImageRes);
+    const toastId = toast.loading('Uploading your post...', {
+      duration: Infinity,
+    });
 
-    form.reset();
+    let uploadedImages: ImageUploadResponse[] = [];
+
+    if (values.images.length) {
+      const res = await uploadImages(values.images);
+
+      if (!res.success) {
+        toast.error('Post could not be uploaded, try again', {
+          id: toastId,
+          duration: 3000,
+        });
+        return;
+      }
+
+      if (res.success) uploadedImages = res.data;
+    }
+
+    const res = await createPost({
+      content: content,
+      images: uploadedImages,
+    });
+
+    if (res.success) {
+      toast.success(res.message, {
+        id: toastId,
+      });
+      form.reset();
+    } else {
+      toast.error(res.message, {
+        id: toastId,
+      });
+    }
   }
 
   function handleImageSelect(
@@ -176,7 +213,7 @@ export function CreatePost() {
                 type='submit'
                 size='sm'
                 className='rounded-full px-4 w-18'
-                disabled={(!content.length && !images.length) || isPosting}
+                disabled={(!content.trim() && !images.length) || isPosting}
               >
                 {isPosting ? <Spinner /> : <span> Post</span>}
               </Button>

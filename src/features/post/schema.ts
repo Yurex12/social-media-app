@@ -1,5 +1,6 @@
-import { MAX_FILE_SIZE } from '@/constants';
 import z from 'zod';
+
+import { MAX_FILE_SIZE } from '@/constants';
 
 const ACCEPTED_IMAGE_TYPES = [
   'image/jpeg',
@@ -8,21 +9,22 @@ const ACCEPTED_IMAGE_TYPES = [
   'image/webp',
 ];
 
-export const postSchema = z
-  .object({
-    content: z
-      .string()
-      .trim()
-      .max(1000, 'Content should not be more than 1000 characters'),
+const basePostSchema = z.object({
+  content: z
+    .string()
+    .trim()
+    .max(1000, 'Content should not be more than 1000 characters'),
+});
+
+export const postSchema = basePostSchema
+  .extend({
     images: z
       .array(z.instanceof(File))
       .max(2, 'Maximum 2 images allowed')
       .refine(
         (files) =>
           files.every((file) => file.size > 0 && file.size <= MAX_FILE_SIZE),
-        {
-          message: 'Each file should be less than 5MB',
-        }
+        { message: 'Each file should be less than 5MB' }
       )
       .refine(
         (files) =>
@@ -31,8 +33,24 @@ export const postSchema = z
       ),
   })
   .refine((data) => data.content.trim().length > 0 || data.images.length > 0, {
-    error: 'Please provide either content or at least one image',
-    // path: ['']
+    message: 'Please provide either content or at least one image',
+    // path: ['content'],
+  });
+
+export const postServerSchema = basePostSchema
+  .extend({
+    images: z
+      .array(
+        z.object({
+          fileId: z.string(),
+          url: z.url(),
+        })
+      )
+      .max(2, 'Maximum 2 images allowed'),
+  })
+  .refine((data) => data.content.trim().length > 0 || data.images.length > 0, {
+    message: 'Please provide either content or at least one image',
   });
 
 export type PostSchema = z.infer<typeof postSchema>;
+export type PostServerSchema = z.infer<typeof postServerSchema>;

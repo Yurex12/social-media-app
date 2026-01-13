@@ -6,8 +6,9 @@ export type ActionResponse<T = void> =
     }
   | {
       success: boolean;
-      error: string;
-      errors?: Record<string, string[]>;
+      message: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      error?: any;
     };
 
 export type ImageUploadResponse = { fileId: string; url: string };

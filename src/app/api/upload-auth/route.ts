@@ -1,9 +1,9 @@
 // File: app/api/upload-auth/route.ts
+import { getSession } from '@/lib/session';
 import { getUploadAuthParams } from '@imagekit/next/server';
-import { getSession } from 'better-auth/api';
 
 export async function GET() {
-  const session = getSession();
+  const session = await getSession();
 
   if (!session) {
     Response.json(
