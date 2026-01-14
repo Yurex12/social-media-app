@@ -10,5 +10,6 @@ export function usePosts() {
     queryKey: ['posts'],
     queryFn: getPosts,
   });
+
   return { posts, isPending, error };
 }

@@ -15,8 +15,9 @@ export type PostWithRelations = Prisma.PostGetPayload<{
         image: true;
       };
     };
+    _count: { select: { bookmarks: true } };
   };
-}>;
+}> & { isBookmarked: boolean };
 
 export type PostHeaderProps = {
   user: { image: string | null; name: string; username: string };

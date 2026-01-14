@@ -13,7 +13,7 @@ export function useDeletePost() {
   } = useMutation({
     mutationFn: deletePostAction,
     onMutate: async (postId) => {
-      await queryClient.cancelQueries({ queryKey: ['post'] });
+      await queryClient.cancelQueries({ queryKey: ['posts'] });
 
       const previousPosts = queryClient.getQueryData(['posts']);
 

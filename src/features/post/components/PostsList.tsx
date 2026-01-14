@@ -19,6 +19,8 @@ export default function PostsList() {
 
   if (!posts?.length) return <p>No posts yet</p>;
 
+  console.log(posts);
+
   return (
     <ul className='space-y-2 sm:space-y-4'>
       {posts.map((post) => (

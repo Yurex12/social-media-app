@@ -21,16 +21,16 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDeletePost } from '../hooks/useDeletePost';
 import { usePost } from '../PostProvider';
+import { useToggleBookmark } from '@/features/bookmark/hooks/useToggleBookmark';
 
 export function PostOptions() {
   const { post } = usePost();
-  const { deletePost, isDeleting } = useDeletePost();
-
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-
-  const isBookmarked = false;
-
+  const { deletePost, isDeleting } = useDeletePost();
+  const { toggleBookmark, isToggling } = useToggleBookmark();
   const { data } = useSession();
+
+  const isOwner = data?.user?.id === post.user.id;
 
   const handleDelete = () => deletePost(post.id);
 
@@ -43,8 +43,6 @@ export function PostOptions() {
       toast.error('Could not copy link');
     }
   }
-
-  const isOwner = data?.user?.id === post.user.id;
 
   return (
     <>
@@ -66,16 +64,17 @@ export function PostOptions() {
           </DropdownMenuItem>
 
           <DropdownMenuItem
-            onClick={() => {}}
             className='cursor-pointer rounded-md px-3 py-2 text-sm'
+            onClick={() => toggleBookmark(post.id)}
+            disabled={isToggling}
           >
             <Bookmark
               className={cn(
                 'h-4 w-4 opacity-70',
-                isBookmarked && 'fill-current text-sky-500'
+                post.isBookmarked && 'fill-current text-sky-500'
               )}
             />
-            <span>{isBookmarked ? 'Saved' : 'Bookmark'}</span>
+            <span>{post.isBookmarked ? 'Saved' : 'Bookmark'}</span>
           </DropdownMenuItem>
 
           {isOwner && (
@@ -106,6 +105,7 @@ export function PostOptions() {
         onConfirm={handleDelete}
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
+        disabled={isDeleting}
         title='Delete Post'
         description='Are you sure you want to delete this post'
       ></ConfirmDialog>
