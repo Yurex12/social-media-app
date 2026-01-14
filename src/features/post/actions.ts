@@ -8,6 +8,7 @@ import { postServerSchema, PostServerSchema } from './schema';
 
 import { ActionResponse } from '@/types';
 import { CreatePostResponse } from './types';
+import { Prisma } from '@/generated/prisma/client';
 
 export async function createPost(
   data: PostServerSchema
@@ -72,4 +73,76 @@ export async function createPost(
 }
 // export async function updatePost() {}
 
-// export async function deletePostPost(postId: string) {}
+export async function deletePostAction(
+  postId: string
+): Promise<ActionResponse<string>> {
+  try {
+    if (!postId || typeof postId !== 'string') {
+      throw new Error('Valid Post ID is required');
+    }
+    const session = await getSession();
+
+    if (!session) throw new Error('Session expired. Please log in again.');
+
+    await prisma.post.delete({
+      where: {
+        id: postId,
+        userId: session.user.id,
+      },
+    });
+
+    return {
+      success: true,
+      data: postId,
+      message: 'Post deleted successfully.',
+    };
+  } catch (error: unknown) {
+    let message = 'Post could not be deleted.';
+
+    if (error instanceof Error) {
+      message = error.message;
+    }
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        message = 'Post not found';
+      }
+    }
+
+    return {
+      success: false,
+      message,
+    };
+  }
+}
+
+export async function likePost(postId: string) {
+  try {
+    if (!postId || typeof postId !== 'string') {
+      throw new Error('Valid Post ID is required');
+    }
+
+    const session = await getSession();
+
+    if (!session) throw new Error('Session expired. Please log in again.');
+
+    await prisma.post.delete({
+      where: {
+        id: postId,
+        userId: session.user.id,
+      },
+    });
+
+    return {
+      success: true,
+      data: postId,
+      message: 'Post deleted successfully.',
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error,
+      message: 'Post could not be deleted.',
+    };
+  }
+}

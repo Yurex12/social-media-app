@@ -24,7 +24,7 @@ export function TextExpander({
   if (!content?.trim()) return null;
 
   return (
-    <div className={cn('px-3 leading-relaxed text-foreground/75', className)}>
+    <div className={cn('px-4 leading-relaxed text-foreground/75', className)}>
       <p className='whitespace-pre-wrap wrap-break-word inline'>
         {isExpanded ? (
           content

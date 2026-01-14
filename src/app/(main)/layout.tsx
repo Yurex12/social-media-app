@@ -13,12 +13,12 @@ export default function MainLayout({
   getRequiredSession();
 
   return (
-    <div className='grid h-svh overflow-hidden md:grid-cols-[250px_1fr]'>
+    <div className='grid h-full max-w-6xl mx-auto overflow-hidden md:grid-cols-[250px_1fr]'>
       <Sidebar />
 
       <main className='h-full overflow-y-auto border-x space-y-4'>
         <Header />
-        <section className='mx-auto max-w-xl '>{children}</section>
+        <section className='mx-auto max-w-xl'>{children}</section>
       </main>
     </div>
   );

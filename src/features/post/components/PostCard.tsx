@@ -1,20 +1,24 @@
 import { MediaGallery } from '@/components/MediaGallery';
 import { TextExpander } from '@/components/TextExpander';
-import { PostWithRelations } from '../types';
 
+import { usePost } from '../PostProvider';
 import { PostHeader } from './PostHeader';
 import { PostInteractions } from './PostInteractions';
 
-export function PostCard(post: PostWithRelations) {
+export function PostCard() {
+  const {
+    post: { content, images },
+  } = usePost();
+
   return (
     <div className='max-w-140 w-full space-y-2 border rounded-lg py-4'>
-      <PostHeader user={post.user} />
+      <PostHeader />
 
-      {post.content && <TextExpander content={post.content} />}
+      {content && <TextExpander content={content} />}
 
-      {post.images.length > 0 && <MediaGallery images={post.images} />}
+      {images.length > 0 && <MediaGallery images={images} />}
 
-      <PostInteractions post={post} />
+      <PostInteractions />
     </div>
   );
 }

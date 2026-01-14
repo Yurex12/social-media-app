@@ -1,10 +1,12 @@
 import Image from 'next/image';
-import { MoreVertical } from 'lucide-react';
 
-import { PostHeaderProps } from '../types';
+import { usePost } from '../PostProvider';
 import { PostOptions } from './PostOptions';
 
-export function PostHeader({ user }: PostHeaderProps) {
+export function PostHeader() {
+  const {
+    post: { user },
+  } = usePost();
   return (
     <div className='flex items-center justify-between px-4'>
       <div className='flex items-center gap-3 min-w-0'>
@@ -19,7 +21,7 @@ export function PostHeader({ user }: PostHeaderProps) {
         </div>
 
         <div className='flex flex-col min-w-0'>
-          <h2 className='text-sm font-semibold leading-none tracking-tight truncate'>
+          <h2 className='font-semibold leading-none tracking-tight truncate'>
             {user.name}
           </h2>
           <p className='text-xs font-medium text-muted-foreground truncate'>
@@ -28,15 +30,7 @@ export function PostHeader({ user }: PostHeaderProps) {
         </div>
       </div>
 
-      {/* Right Side: Options Icon */}
-      <PostOptions
-        isOwner={true}
-        onBookmark={() => {}}
-        onCopyLink={() => {}}
-        onDelete={() => {}}
-        onEdit={() => {}}
-        isBookmarked={true}
-      />
+      <PostOptions />
     </div>
   );
 }

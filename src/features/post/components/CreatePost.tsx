@@ -24,9 +24,11 @@ import { createPost } from '../actions';
 
 import { postSchema, type PostSchema } from '../schema';
 import { ImageUploadResponse } from '@/types';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function CreatePost() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
 
   const form = useForm<PostSchema>({
     resolver: zodResolver(postSchema),
@@ -89,13 +91,16 @@ export function CreatePost() {
     });
 
     if (res.success) {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
       toast.success(res.message, {
         id: toastId,
+        duration: 3000,
       });
       form.reset();
     } else {
       toast.error(res.message, {
         id: toastId,
+        duration: 3000,
       });
     }
   }

@@ -3,6 +3,7 @@
 import { Spinner } from '@/components/ui/spinner';
 import { usePosts } from '../hooks/usePosts';
 import { PostCard } from './PostCard';
+import { PostProvider } from '../PostProvider';
 
 export default function PostsList() {
   const { posts, isPending, error } = usePosts();
@@ -19,10 +20,14 @@ export default function PostsList() {
   if (!posts?.length) return <p>No posts yet</p>;
 
   return (
-    <div className='space-y-2 sm:space-y-4'>
+    <ul className='space-y-2 sm:space-y-4'>
       {posts.map((post) => (
-        <PostCard key={post.id} {...post} />
+        <li key={post.id}>
+          <PostProvider post={post}>
+            <PostCard />
+          </PostProvider>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }

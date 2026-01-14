@@ -1,7 +1,9 @@
 import { formatDistanceToNowStrict } from 'date-fns';
 import { Heart, MessageSquare } from 'lucide-react';
+import { usePost } from '../PostProvider';
 
-export function PostInteractions({ post }) {
+export function PostInteractions() {
+  const { post } = usePost();
   const postTimeStamp = formatDistanceToNowStrict(post.createdAt, {
     addSuffix: true,
   });
