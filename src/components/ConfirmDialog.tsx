@@ -16,11 +16,13 @@ interface ConfirmDialogProps {
   description?: string;
   onConfirm: () => void;
   isDestructive?: boolean;
+  disabled: boolean;
 }
 
 export function ConfirmDialog({
   title = 'Are you absolutely sure?',
   open,
+  disabled,
   onOpenChange,
   description = 'This action cannot be undone. This will permanently delete your data.',
   onConfirm,
@@ -33,10 +35,11 @@ export function ConfirmDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className='flex-row justify-end gap-3'>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={disabled}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className='bg-destructive/80 text-background hover:bg-destructive/70'
+            disabled={disabled}
           >
             Delete
           </AlertDialogAction>

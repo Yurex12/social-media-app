@@ -10,8 +10,8 @@ export default function PostsList() {
 
   if (isPending)
     return (
-      <div className='mx-auto'>
-        <Spinner />
+      <div className='flex items-center justify-center'>
+        <Spinner className='size-6 text-primary' />
       </div>
     );
 

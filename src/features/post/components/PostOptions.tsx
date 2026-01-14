@@ -1,5 +1,6 @@
 'use client';
 
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,18 +8,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useSession } from '@/lib/auth-client';
+import { cn } from '@/lib/utils';
 import {
-  Link2,
   Bookmark,
+  Link2,
+  MoreHorizontal,
   PencilLine,
   Trash2,
-  MoreHorizontal,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useDeletePost } from '../hooks/useDeletePost';
 import { usePost } from '../PostProvider';
-import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { useState } from 'react';
 
 export function PostOptions() {
   const { post } = usePost();
@@ -27,9 +29,22 @@ export function PostOptions() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const isBookmarked = false;
-  const isOwner = true;
+
+  const { data } = useSession();
 
   const handleDelete = () => deletePost(post.id);
+
+  async function copyLink() {
+    const url = `${window.location.origin}/posts/${post.id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied to clipboard');
+    } catch {
+      toast.error('Could not copy link');
+    }
+  }
+
+  const isOwner = data?.user?.id === post.user.id;
 
   return (
     <>
@@ -43,7 +58,7 @@ export function PostOptions() {
 
         <DropdownMenuContent align='end' className='w-52 p-1.5 shadow-xl'>
           <DropdownMenuItem
-            onClick={() => {}}
+            onClick={copyLink}
             className='cursor-pointer rounded-md px-3 py-2 text-sm'
           >
             <Link2 className='h-4 w-4' />
