@@ -155,6 +155,8 @@ model PostLike {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([postId, userId])
 }
 
 model CommentLike {
@@ -167,6 +169,8 @@ model CommentLike {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([commentId, userId])
 }
 
 // model Notification {

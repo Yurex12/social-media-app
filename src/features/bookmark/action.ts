@@ -6,7 +6,7 @@ import { ActionResponse } from '@/types';
 
 export async function toggleBookmarkAction(
   postId: string
-): Promise<ActionResponse<boolean>> {
+): Promise<ActionResponse<{ isBookmarked: boolean }>> {
   try {
     if (!postId || typeof postId !== 'string') {
       throw new Error('Valid Post ID is required');
@@ -29,12 +29,20 @@ export async function toggleBookmarkAction(
           userId_postId: { userId, postId },
         },
       });
-      return { success: true, data: false, message: 'Removed from bookmarks' };
+      return {
+        success: true,
+        data: { isBookmarked: false },
+        message: 'Removed from bookmarks',
+      };
     } else {
       await prisma.bookmark.create({
         data: { userId, postId },
       });
-      return { success: true, data: true, message: 'Added to bookmarks' };
+      return {
+        success: true,
+        data: { isBookmarked: true },
+        message: 'Added to bookmarks',
+      };
     }
   } catch {
     return { success: false, message: 'Failed to update bookmark' };

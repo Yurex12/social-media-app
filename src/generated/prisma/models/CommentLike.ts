@@ -198,6 +198,7 @@ export type CommentLikeOrderByWithRelationInput = {
 
 export type CommentLikeWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  commentId_userId?: Prisma.CommentLikeCommentIdUserIdCompoundUniqueInput
   AND?: Prisma.CommentLikeWhereInput | Prisma.CommentLikeWhereInput[]
   OR?: Prisma.CommentLikeWhereInput[]
   NOT?: Prisma.CommentLikeWhereInput | Prisma.CommentLikeWhereInput[]
@@ -207,7 +208,7 @@ export type CommentLikeWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"CommentLike"> | Date | string
   comment?: Prisma.XOR<Prisma.CommentScalarRelationFilter, Prisma.CommentWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "id">
+}, "id" | "commentId_userId">
 
 export type CommentLikeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -293,6 +294,11 @@ export type CommentLikeListRelationFilter = {
 
 export type CommentLikeOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type CommentLikeCommentIdUserIdCompoundUniqueInput = {
+  commentId: string
+  userId: string
 }
 
 export type CommentLikeCountOrderByAggregateInput = {

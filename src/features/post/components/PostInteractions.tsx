@@ -1,37 +1,56 @@
 import { formatDistanceToNowStrict } from 'date-fns';
 import { Heart, MessageSquare } from 'lucide-react';
 import { usePost } from '../PostProvider';
+import { useToggleLike } from '../hooks/useToggleLike';
+import { cn } from '@/lib/utils';
 
 export function PostInteractions() {
   const { post } = usePost();
-  const postTimeStamp = formatDistanceToNowStrict(post.createdAt, {
+  const { toggleLike } = useToggleLike();
+
+  const postTimeStamp = formatDistanceToNowStrict(new Date(post.createdAt), {
     addSuffix: true,
   });
 
-  const postLikes = 125;
-  const postComments = 42;
-
   return (
     <div className='border-t border-border/40 px-4 pt-2 flex justify-between items-center'>
-      {/* Left: Actions */}
       <div className='flex items-center gap-4'>
-        {/* Like */}
-        <button className='group flex items-center gap-1 text-muted-foreground transition-colors hover:text-red-500'>
-          <div className='rounded-full p-2 group-hover:bg-red-500/10 transition-colors'>
-            <Heart className='h-4.5 w-4.5' strokeWidth={2} />
+        <button
+          onClick={() => toggleLike(post.id)}
+          className={cn(
+            'group flex items-center gap-1 transition-colors',
+            post.isLiked
+              ? 'text-red-500'
+              : 'text-muted-foreground hover:text-red-500'
+          )}
+        >
+          <div
+            className={cn(
+              'rounded-full p-2 transition-colors',
+              post.isLiked ? 'bg-red-500/10' : 'group-hover:bg-red-500/10'
+            )}
+          >
+            <Heart
+              className={cn(
+                'h-4.5 w-4.5 transition-all',
+                post.isLiked && 'fill-current'
+              )}
+              strokeWidth={2}
+            />
           </div>
           <span className='text-xs font-medium tabular-nums'>
-            {postLikes.toLocaleString()}
+            {post.likesCount ?? 0}
           </span>
         </button>
 
-        {/* Comment */}
+        {/* Comment Button */}
         <button className='group flex items-center gap-1 text-muted-foreground transition-colors hover:text-sky-500'>
           <div className='rounded-full p-2 group-hover:bg-sky-500/10 transition-colors'>
             <MessageSquare className='h-4.5 w-4.5' strokeWidth={2} />
           </div>
           <span className='text-xs font-medium tabular-nums'>
-            {postComments.toLocaleString()}
+            {/* Replace with post.commentsCount if available */}
+            {0}
           </span>
         </button>
       </div>

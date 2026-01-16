@@ -14,20 +14,33 @@ export async function GET() {
       include: {
         user: { select: { id: true, name: true, image: true, username: true } },
         images: { select: { id: true, url: true, fileId: true } },
+
+        postLikes: {
+          where: { userId: session.user.id },
+          select: { userId: true },
+        },
+
+        bookmarks: {
+          where: { userId: session.user.id },
+          select: { userId: true },
+        },
+
         _count: {
-          select: {
-            bookmarks: {
-              where: { userId: session.user.id },
-            },
-          },
+          select: { postLikes: true },
         },
       },
     })) as PostWithRelations[];
 
-    const transformedPosts = posts.map((p) => ({
-      ...p,
-      isBookmarked: p._count.bookmarks > 0,
-    }));
+    const transformedPosts = posts.map((p) => {
+      const { postLikes, bookmarks, _count, ...rest } = p;
+
+      return {
+        ...rest,
+        isBookmarked: bookmarks.length > 0,
+        isLiked: postLikes.length > 0,
+        likesCount: _count.postLikes,
+      };
+    });
 
     return NextResponse.json(transformedPosts);
   } catch {

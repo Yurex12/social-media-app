@@ -15,9 +15,11 @@ export type PostWithRelations = Prisma.PostGetPayload<{
         image: true;
       };
     };
-    _count: { select: { bookmarks: true } };
+    bookmarks: { select: { id: true } };
+    postLikes: { select: { id: true } };
+    _count: { select: { bookmarks: true; postLikes: true } };
   };
-}> & { isBookmarked: boolean };
+}> & { isBookmarked: boolean; isLiked: boolean; likesCount: number };
 
 export type PostHeaderProps = {
   user: { image: string | null; name: string; username: string };

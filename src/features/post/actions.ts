@@ -4,7 +4,12 @@ import z from 'zod';
 import prisma from '@/lib/prisma';
 
 import { getSession } from '@/lib/session';
-import { postServerSchema, PostServerSchema } from './schema';
+import {
+  postEditServerSchema,
+  PostEditServerSchema,
+  postServerSchema,
+  PostServerSchema,
+} from './schema';
 
 import { ActionResponse } from '@/types';
 import { CreatePostResponse } from './types';
@@ -26,9 +31,7 @@ export async function createPost(
   try {
     const session = await getSession();
 
-    if (!session) {
-      throw new Error('Session expired. Please log in again.');
-    }
+    if (!session) throw new Error('unauthorized');
 
     const { content, images } = result.data;
 
@@ -71,7 +74,79 @@ export async function createPost(
     };
   }
 }
-// export async function updatePost() {}
+
+export async function updatePost(
+  postId: string | undefined,
+  data: PostEditServerSchema
+): Promise<ActionResponse<{ id: string }>> {
+  const result = postEditServerSchema.safeParse(data);
+
+  if (!result.success) {
+    return {
+      success: false,
+      message: 'Invalid data',
+      error: z.treeifyError(result.error),
+    };
+  }
+
+  try {
+    if (!postId || typeof postId !== 'string') {
+      throw new Error('Valid Post ID is required');
+    }
+    const session = await getSession();
+
+    if (!session) throw new Error('unauthorized');
+
+    const { content, images, imagesToDeleteId } = result.data;
+
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { userId: true },
+    });
+
+    if (!post || post.userId !== session.user.id) {
+      throw new Error('Post not found or unauthorized');
+    }
+
+    await prisma.$transaction(
+      async (tx) => {
+        if (imagesToDeleteId.length > 0) {
+          await tx.image.deleteMany({
+            where: {
+              postId,
+              fileId: { in: imagesToDeleteId },
+            },
+          });
+        }
+
+        await tx.post.update({
+          where: { id: postId },
+          data: {
+            content,
+            images: {
+              createMany: {
+                data: images.map((img) => ({
+                  url: img.url,
+                  fileId: img.fileId,
+                })),
+              },
+            },
+          },
+        });
+      },
+      { timeout: 10_000 }
+    );
+    return {
+      success: true,
+      data: { id: postId },
+      message: 'Post edited successfully',
+    };
+  } catch (err) {
+    console.log(err);
+
+    return { success: false, message: 'Could not edit post' };
+  }
+}
 
 export async function deletePostAction(
   postId: string
@@ -82,7 +157,7 @@ export async function deletePostAction(
     }
     const session = await getSession();
 
-    if (!session) throw new Error('Session expired. Please log in again.');
+    if (!session) throw new Error('unauthorized');
 
     await prisma.post.delete({
       where: {
@@ -116,33 +191,35 @@ export async function deletePostAction(
   }
 }
 
-export async function likePost(postId: string) {
+export async function toggleLikeAction(
+  postId: string
+): Promise<ActionResponse<{ liked: boolean }>> {
   try {
-    if (!postId || typeof postId !== 'string') {
-      throw new Error('Valid Post ID is required');
-    }
-
     const session = await getSession();
+    if (!session) throw new Error('Unauthorized');
 
-    if (!session) throw new Error('Session expired. Please log in again.');
+    const userId = session.user.id;
 
-    await prisma.post.delete({
+    const existingLike = await prisma.postLike.findUnique({
       where: {
-        id: postId,
-        userId: session.user.id,
+        postId_userId: { postId, userId },
       },
     });
 
-    return {
-      success: true,
-      data: postId,
-      message: 'Post deleted successfully.',
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error,
-      message: 'Post could not be deleted.',
-    };
+    if (existingLike) {
+      await prisma.postLike.delete({
+        where: {
+          postId_userId: { postId, userId },
+        },
+      });
+      return { success: true, data: { liked: false }, message: 'Unliked post' };
+    } else {
+      await prisma.postLike.create({
+        data: { userId, postId },
+      });
+      return { success: true, data: { liked: true }, message: 'Liked post' };
+    }
+  } catch {
+    return { success: false, message: 'Could not update like' };
   }
 }
