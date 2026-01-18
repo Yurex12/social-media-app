@@ -17,12 +17,12 @@ export async function GET() {
 
         postLikes: {
           where: { userId: session.user.id },
-          select: { userId: true },
+          select: { id: true },
         },
 
         bookmarks: {
           where: { userId: session.user.id },
-          select: { userId: true },
+          select: { id: true },
         },
 
         _count: {

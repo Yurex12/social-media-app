@@ -3,7 +3,7 @@ import Navbar from './Navbar';
 
 export function Sidebar() {
   return (
-    <aside className='hidden space-y-1 md:block border-r'>
+    <aside className='hidden space-y-1 md:block'>
       <Logo className='px-6 py-3 ' />
 
       <Navbar />

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { signOut } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import { BackButton } from '@/components/BackButton';
 
 export default function PostsList() {
   const { posts, isPending, error } = usePosts();
@@ -44,6 +45,7 @@ export default function PostsList() {
       >
         Logout
       </Button>
+
       {posts.map((post) => (
         <li key={post.id}>
           <PostProvider post={post}>

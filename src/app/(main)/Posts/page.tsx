@@ -3,7 +3,7 @@ import PostsList from '@/features/post/components/PostsList';
 
 export default async function Posts() {
   return (
-    <div className='space-y-4'>
+    <div>
       <CreatePost />
 
       <PostsList />

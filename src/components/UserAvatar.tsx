@@ -28,7 +28,7 @@ export function UserAvatar({ className }: UserAvatarProps) {
   return (
     <Avatar className={cn('h-10 w-10 border', className)}>
       <AvatarImage
-        src={user?.image || undefined}
+        src={user?.image || '/avatar-placeholder.png'}
         alt={user?.name || 'User Avatar'}
         className='object-cover'
       />

@@ -50,6 +50,8 @@ export function CreatePost() {
 
   const isPosting = form.formState.isSubmitting;
 
+  const isValid = form.formState.isValid;
+
   async function onSubmit(values: PostSchema) {
     if (!values.content.trim() && !values.images.length) {
       toast.error('Please provide either content or at least one image');
@@ -98,7 +100,7 @@ export function CreatePost() {
 
   function handleImageSelect(
     e: ChangeEvent<HTMLInputElement>,
-    field: ControllerRenderProps<PostSchema, 'images'>
+    field: ControllerRenderProps<PostSchema, 'images'>,
   ) {
     const files = e.target.files;
     const prevImages = form.getValues('images');
@@ -198,7 +200,9 @@ export function CreatePost() {
                 type='submit'
                 size='sm'
                 className='rounded-full px-4 w-18'
-                disabled={(!content.trim() && !images.length) || isPosting}
+                disabled={
+                  (!content.trim() && !images.length) || isPosting || !isValid
+                }
               >
                 {isPosting ? <Spinner /> : <span> Post</span>}
               </Button>

@@ -11,7 +11,7 @@ export function PostCard() {
   } = usePost();
 
   return (
-    <div className='max-w-140 w-full space-y-2 border rounded-lg py-4'>
+    <div className='max-w-140 mx-auto w-full space-y-2 border rounded-lg py-4'>
       <PostHeader />
 
       {content && <TextExpander content={content} />}

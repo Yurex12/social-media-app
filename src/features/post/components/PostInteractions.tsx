@@ -1,8 +1,9 @@
+import { cn } from '@/lib/utils';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { Heart, MessageSquare } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { usePost } from '../PostProvider';
 import { useToggleLike } from '../hooks/useToggleLike';
-import { cn } from '@/lib/utils';
 
 export function PostInteractions() {
   const { post } = usePost();
@@ -11,6 +12,8 @@ export function PostInteractions() {
   const postTimeStamp = formatDistanceToNowStrict(new Date(post.createdAt), {
     addSuffix: true,
   });
+
+  const router = useRouter();
 
   return (
     <div className='border-t border-border/40 px-4 pt-2 flex justify-between items-center'>
@@ -21,19 +24,19 @@ export function PostInteractions() {
             'group flex items-center gap-1 transition-colors',
             post.isLiked
               ? 'text-red-500'
-              : 'text-muted-foreground hover:text-red-500'
+              : 'text-muted-foreground hover:text-red-500',
           )}
         >
           <div
             className={cn(
               'rounded-full p-2 transition-colors',
-              post.isLiked ? 'bg-red-500/10' : 'group-hover:bg-red-500/10'
+              post.isLiked ? 'bg-red-500/10' : 'group-hover:bg-red-500/10',
             )}
           >
             <Heart
               className={cn(
                 'h-4.5 w-4.5 transition-all',
-                post.isLiked && 'fill-current'
+                post.isLiked && 'fill-current',
               )}
               strokeWidth={2}
             />
@@ -44,14 +47,15 @@ export function PostInteractions() {
         </button>
 
         {/* Comment Button */}
-        <button className='group flex items-center gap-1 text-muted-foreground transition-colors hover:text-sky-500'>
+
+        <button
+          className='group flex items-center gap-1 text-muted-foreground transition-colors hover:text-sky-500'
+          onClick={() => router.push(`/posts/${post.id}`)}
+        >
           <div className='rounded-full p-2 group-hover:bg-sky-500/10 transition-colors'>
             <MessageSquare className='h-4.5 w-4.5' strokeWidth={2} />
           </div>
-          <span className='text-xs font-medium tabular-nums'>
-            {/* Replace with post.commentsCount if available */}
-            {0}
-          </span>
+          <span className='text-xs font-medium tabular-nums'>{0}</span>
         </button>
       </div>
 
