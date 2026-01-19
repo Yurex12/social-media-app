@@ -130,7 +130,7 @@ export function CreatePost() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className='border rounded-xl px-4 py-2 max-w-140'
+        className='border rounded-xl px-4 py-2 max-w-140 mx-auto'
       >
         <div className='flex gap-3'>
           <UserAvatar />

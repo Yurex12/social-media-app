@@ -1,23 +1,10 @@
 import { Heart } from 'lucide-react';
 import Image from 'next/image';
 import { formatDistanceToNowStrict } from 'date-fns';
+import { CommentWithRelations } from '../types';
+import { useToggleCommentLike } from '../hooks/useToggleCommentLike';
 
-interface CommentItemProps {
-  comment: {
-    id: string;
-    content: string;
-    createdAt: Date;
-    user: {
-      name: string;
-      image: string | null;
-      username: string;
-    };
-    likesCount: number;
-    isLiked: boolean;
-  };
-}
-
-export function CommentItem({ comment }: CommentItemProps) {
+export function CommentItem({ comment }: { comment: CommentWithRelations }) {
   // Helper to get '5m' or '2h'
   const shortTime = formatDistanceToNowStrict(new Date(comment.createdAt))
     .replace(' minutes', 'm')
@@ -28,6 +15,8 @@ export function CommentItem({ comment }: CommentItemProps) {
     .replace(' day', 'd')
     .replace(' seconds', 's')
     .replace(' second', 's');
+
+  const { toggleCommentLike } = useToggleCommentLike();
 
   return (
     <div className='flex gap-3 py-2 border-b border-border/50 last:border-0'>
@@ -62,13 +51,16 @@ export function CommentItem({ comment }: CommentItemProps) {
         </div>
 
         {/* Content */}
-        <p className='text-sm text-foreground leading-relaxed break-words'>
+        <p className='text-sm text-foreground leading-relaxed wrap-break-words'>
           {comment.content}
         </p>
 
         {/* Interaction: Like Button aligned to the right */}
         <div className='flex justify-end mt-1'>
-          <button className='flex items-center gap-1 group'>
+          <button
+            className='flex items-center gap-1 group'
+            onClick={() => toggleCommentLike(comment.id)}
+          >
             <div className='p-1.5 rounded-full group-hover:bg-rose-500/10 transition-colors'>
               <Heart
                 className={`size-4 transition-colors ${

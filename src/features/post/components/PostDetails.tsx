@@ -22,13 +22,13 @@ export function PostDetails() {
   return (
     <div className='flex flex-col h-full pb-2'>
       <Header />
-      <div className='flex-1 overflow-y-scroll py-4 space-y-2'>
-        <PostProvider post={post}>
+      <PostProvider post={post}>
+        <div className='flex-1 overflow-y-scroll py-4 space-y-2'>
           <PostCard />
-        </PostProvider>
-        <CommentList />
-      </div>
-      <CommentInputBar user={post.user} />
+          <CommentList />
+        </div>
+        <CommentInputBar />
+      </PostProvider>
     </div>
   );
 }

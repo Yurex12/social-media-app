@@ -2,19 +2,11 @@
 
 import { Spinner } from '@/components/ui/spinner';
 import { usePosts } from '../hooks/usePosts';
-import { PostCard } from './PostCard';
 import { PostProvider } from '../PostProvider';
-import { Button } from '@/components/ui/button';
-import { signOut } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
-import { BackButton } from '@/components/BackButton';
+import { PostCard } from './PostCard';
 
 export default function PostsList() {
   const { posts, isPending, error } = usePosts();
-
-  const router = useRouter();
-  const queryClient = useQueryClient();
 
   if (isPending)
     return (
@@ -31,21 +23,6 @@ export default function PostsList() {
 
   return (
     <ul className='space-y-2 sm:space-y-4'>
-      <Button
-        onClick={async () => {
-          await signOut({
-            fetchOptions: {
-              onSuccess() {
-                router.replace('/login');
-                queryClient.clear();
-              },
-            },
-          });
-        }}
-      >
-        Logout
-      </Button>
-
       {posts.map((post) => (
         <li key={post.id}>
           <PostProvider post={post}>

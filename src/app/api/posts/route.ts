@@ -26,7 +26,7 @@ export async function GET() {
         },
 
         _count: {
-          select: { postLikes: true },
+          select: { postLikes: true, comments: true },
         },
       },
     })) as PostWithRelations[];
@@ -39,6 +39,7 @@ export async function GET() {
         isBookmarked: bookmarks.length > 0,
         isLiked: postLikes.length > 0,
         likesCount: _count.postLikes,
+        commentsCount: _count.comments,
       };
     });
 
@@ -46,7 +47,7 @@ export async function GET() {
   } catch {
     return NextResponse.json(
       { message: 'Failed to fetch posts' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

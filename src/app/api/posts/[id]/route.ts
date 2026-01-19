@@ -15,7 +15,7 @@ export async function GET(
 
   try {
     const post = (await prisma.post.findUnique({
-      where: { id: id },
+      where: { id },
       include: {
         user: { select: { id: true, name: true, image: true, username: true } },
         images: { select: { id: true, url: true, fileId: true } },

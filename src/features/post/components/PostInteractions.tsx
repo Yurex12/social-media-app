@@ -55,7 +55,9 @@ export function PostInteractions() {
           <div className='rounded-full p-2 group-hover:bg-sky-500/10 transition-colors'>
             <MessageSquare className='h-4.5 w-4.5' strokeWidth={2} />
           </div>
-          <span className='text-xs font-medium tabular-nums'>{0}</span>
+          <span className='text-xs font-medium tabular-nums'>
+            {post.commentsCount ?? 0}
+          </span>
         </button>
       </div>
 
