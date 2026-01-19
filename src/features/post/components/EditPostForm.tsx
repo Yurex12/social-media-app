@@ -42,11 +42,13 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
   });
 
   const images = useWatch({ control: form.control, name: 'images' });
+  const content = useWatch({ control: form.control, name: 'content' });
   const isUpdating = form.formState.isSubmitting;
+  const isValid = form.formState.isValid;
 
   function handleImageSelect(
     e: ChangeEvent<HTMLInputElement>,
-    field: ControllerRenderProps<PostEditSchema, 'images'>
+    field: ControllerRenderProps<PostEditSchema, 'images'>,
   ) {
     const files = e.target.files;
     const prevImages = form.getValues('images');
@@ -78,11 +80,11 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
 
     try {
       const filesToUpload = values.images.filter(
-        (img) => img instanceof File
+        (img) => img instanceof File,
       ) as File[];
 
       const keptImages = values.images.filter(
-        (img) => !(img instanceof File)
+        (img) => !(img instanceof File),
       ) as { fileId: string; url: string }[];
 
       const keptFileIds = new Set(keptImages.map((img) => img.fileId));
@@ -187,7 +189,15 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
               />
 
               <div className='flex gap-2'>
-                <Button type='submit' disabled={isUpdating} className='w-24'>
+                <Button
+                  type='submit'
+                  disabled={
+                    isUpdating ||
+                    (!content.trim() && !images.length) ||
+                    !isValid
+                  }
+                  className='w-24'
+                >
                   {isUpdating ? <Spinner /> : 'Edit Post'}
                 </Button>
               </div>

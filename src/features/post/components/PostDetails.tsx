@@ -20,15 +20,12 @@ export function PostDetails() {
   if (!post) return <p>No post found</p>;
 
   return (
-    <div className='flex flex-col h-full pb-2'>
-      <Header />
-      <PostProvider post={post}>
-        <div className='flex-1 overflow-y-scroll py-4 space-y-2'>
-          <PostCard />
-          <CommentList />
-        </div>
-        <CommentInputBar />
-      </PostProvider>
-    </div>
+    <PostProvider post={post}>
+      <div className='flex-1 overflow-y-scroll py-4 space-y-2'>
+        <PostCard />
+        <CommentList />
+      </div>
+      <CommentInputBar />
+    </PostProvider>
   );
 }
