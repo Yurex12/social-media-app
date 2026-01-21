@@ -15,6 +15,8 @@ export function useToggleLike() {
         'posts',
       ]);
 
+      console.log(previousPosts);
+
       queryClient.setQueryData<PostWithRelations[]>(['posts'], (oldPosts) => {
         return (
           oldPosts?.map((p) => {
@@ -42,6 +44,7 @@ export function useToggleLike() {
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
     },
   });
 

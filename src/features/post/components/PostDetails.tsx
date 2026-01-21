@@ -1,13 +1,12 @@
 'use client';
 
 import { Spinner } from '@/components/ui/spinner';
+import { CommentInputBar } from '@/features/comment/components/CommentInputBar';
+import { CommentList } from '@/features/comment/components/CommentList';
 import { useParams } from 'next/navigation';
 import { usePostDetail } from '../hooks/usePostDetails';
 import { PostProvider } from '../PostProvider';
 import { PostCard } from './PostCard';
-import { CommentList } from '@/features/comment/components/CommentList';
-import { CommentInputBar } from '@/features/comment/components/CommentInputBar';
-import { Header } from '@/components/Header';
 
 export function PostDetails() {
   const { id } = useParams();
@@ -17,15 +16,15 @@ export function PostDetails() {
 
   if (error) return <p>{error.message}</p>;
 
-  if (!post) return <p>No post found</p>;
+  if (!post) return <p className='px-4'>No post found - nothing to see here</p>;
 
   return (
     <PostProvider post={post}>
-      <div className='flex-1 overflow-y-scroll py-4 space-y-2'>
+      <div className='space-y-4 px-4'>
         <PostCard />
+        <CommentInputBar />
         <CommentList />
       </div>
-      <CommentInputBar />
     </PostProvider>
   );
 }

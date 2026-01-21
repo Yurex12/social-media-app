@@ -55,7 +55,7 @@ export function CommentInputBar() {
   });
 
   return (
-    <div className='border border-foreground/20 rounded-md w-full max-w-140 mx-auto px-4 py-3'>
+    <div className='border rounded-md w-full max-w-140 mx-auto px-4 py-3'>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className='flex gap-3'>
           <div className='relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-border bg-muted mb-1'>

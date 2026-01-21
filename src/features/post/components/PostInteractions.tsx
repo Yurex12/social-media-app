@@ -13,6 +13,8 @@ export function PostInteractions() {
     addSuffix: true,
   });
 
+  console.log(post);
+
   const router = useRouter();
 
   return (

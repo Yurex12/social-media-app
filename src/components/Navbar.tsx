@@ -36,7 +36,7 @@ export default function Navbar() {
         );
       })}
 
-      <Button
+      {/* <Button
         onClick={async () => {
           await signOut({
             fetchOptions: {
@@ -49,7 +49,7 @@ export default function Navbar() {
         }}
       >
         Logout
-      </Button>
+      </Button> */}
     </nav>
   );
 }
