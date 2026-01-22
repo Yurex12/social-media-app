@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   const session = await getSession();
   if (!session)
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
     const posts = (await prisma.post.findMany({
@@ -38,15 +38,15 @@ export async function GET() {
         ...rest,
         isBookmarked: bookmarks.length > 0,
         isLiked: postLikes.length > 0,
-        likesCount: _count.postLikes,
-        commentsCount: _count.comments,
+        likeCount: _count.postLikes,
+        commentCount: _count.comments,
       };
     });
 
     return NextResponse.json(transformedPosts);
   } catch {
     return NextResponse.json(
-      { message: 'Failed to fetch posts' },
+      { message: 'Internal server error' },
       { status: 500 },
     );
   }

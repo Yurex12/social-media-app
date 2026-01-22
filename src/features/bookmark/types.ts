@@ -23,6 +23,6 @@ export type BookmarkWithRelations = Prisma.BookmarkGetPayload<{
 }> & {
   isBookmarked: boolean;
   isLiked: boolean;
-  likesCount: number;
-  commentsCount: number;
+  likeCount: number;
+  commentCount: number;
 };

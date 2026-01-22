@@ -3,15 +3,16 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { cn } from '@/lib/utils';
 import { links } from '@/constants';
+import { cn } from '@/lib/utils';
+import { signOut, useSession } from '@/lib/auth-client';
 import { Button } from './ui/button';
-import { signOut } from '@/lib/auth-client';
-
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function Navbar() {
   const pathname = usePathname();
+  const session = useSession();
+  const username = session.data?.user?.username;
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -19,12 +20,19 @@ export default function Navbar() {
   return (
     <nav className='flex flex-col gap-3 p-3'>
       {links.map(({ href, label, Icon }) => {
-        const isActive = pathname === href;
+        const isProfilePath = href === '/profile';
+
+        const finalHref =
+          isProfilePath && username ? `/profile/${username}` : href;
+
+        const isActive =
+          pathname === finalHref ||
+          (isProfilePath && pathname.startsWith('/profile'));
 
         return (
           <Link
             key={href}
-            href={href}
+            href={finalHref}
             className={cn(
               'flex items-center gap-3 rounded-full px-4 w-fit py-2 font-medium transition-colors hover:bg-primary/10 hover:text-primary',
               isActive && 'bg-primary/15 text-primary',
@@ -35,8 +43,7 @@ export default function Navbar() {
           </Link>
         );
       })}
-
-      {/* <Button
+      <Button
         onClick={async () => {
           await signOut({
             fetchOptions: {
@@ -49,7 +56,7 @@ export default function Navbar() {
         }}
       >
         Logout
-      </Button> */}
+      </Button>
     </nav>
   );
 }

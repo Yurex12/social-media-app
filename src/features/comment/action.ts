@@ -61,11 +61,14 @@ export async function createCommentAction(
   }
 }
 
-export async function toggleCommentLikeAction(
-  commentId: string,
-): Promise<ActionResponse<{ liked: boolean }>> {
+export async function toggleCommentLikeAction({
+  commentId,
+}: {
+  commentId: string;
+  postId: string;
+}): Promise<ActionResponse<{ liked: boolean }>> {
   try {
-    if (!commentId) throw new Error('Post ID is required');
+    if (!commentId) throw new Error('Comment ID is required');
 
     const session = await getSession();
     if (!session) throw new Error('Unauthorized');

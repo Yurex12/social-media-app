@@ -44,7 +44,7 @@ export function PostInteractions() {
             />
           </div>
           <span className='text-xs font-medium tabular-nums'>
-            {post.likesCount ?? 0}
+            {post.likeCount ?? 0}
           </span>
         </button>
 
@@ -52,13 +52,15 @@ export function PostInteractions() {
 
         <button
           className='group flex items-center gap-1 text-muted-foreground transition-colors hover:text-sky-500'
-          onClick={() => router.push(`/posts/${post.id}`)}
+          onClick={() =>
+            router.push(`/${post.user.username!}/status/${post.id}`)
+          }
         >
           <div className='rounded-full p-2 group-hover:bg-sky-500/10 transition-colors'>
             <MessageSquare className='h-4.5 w-4.5' strokeWidth={2} />
           </div>
           <span className='text-xs font-medium tabular-nums'>
-            {post.commentsCount ?? 0}
+            {post.commentCount ?? 0}
           </span>
         </button>
       </div>

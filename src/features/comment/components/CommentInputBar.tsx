@@ -11,7 +11,6 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 
 import { usePost } from '@/features/post/PostProvider';
-import { User } from '@/lib/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { SendHorizonal } from 'lucide-react';

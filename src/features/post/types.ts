@@ -13,6 +13,8 @@ export type PostWithRelations = Prisma.PostGetPayload<{
         name: true;
         username: true;
         image: true;
+        bio: true;
+        _count: { select: { followers: true; following: true } };
       };
     };
     bookmarks: { select: { id: true } };
@@ -22,6 +24,13 @@ export type PostWithRelations = Prisma.PostGetPayload<{
 }> & {
   isBookmarked: boolean;
   isLiked: boolean;
-  likesCount: number;
-  commentsCount: number;
+  likeCount: number;
+  commentCount: number;
 };
+
+export interface PostFeedProps {
+  posts: PostWithRelations[] | undefined;
+  isPending: boolean;
+  error: Error | null;
+  emptyMessage?: string;
+}

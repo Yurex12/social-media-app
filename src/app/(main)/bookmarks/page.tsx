@@ -1,6 +1,8 @@
-import { BackButton } from '@/components/BackButton';
 import { Header } from '@/components/Header';
+import { BackButton } from '@/components/BackButton';
+
 import { BookmarkList } from '@/features/bookmark/components/BookmarkList';
+import { RightSidebar } from '@/components/RightSidebar';
 
 export default function Page() {
   return (
@@ -15,6 +17,8 @@ export default function Page() {
           <BookmarkList />
         </div>
       </div>
+
+      <RightSidebar />
     </div>
   );
 }

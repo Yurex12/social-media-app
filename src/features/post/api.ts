@@ -18,8 +18,10 @@ export async function getPostById(postId: string) {
     const post = await axios.get<PostWithRelations>(`/api/posts/${postId}`);
     return post.data;
   } catch (error: unknown) {
+    console.log(error);
+
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Failed to fetch post');
+      throw new Error(error.response.data.error || 'Failed to fetch post');
     }
     throw error;
   }

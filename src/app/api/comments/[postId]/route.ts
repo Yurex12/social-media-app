@@ -9,7 +9,7 @@ export async function GET(
 ) {
   const session = await getSession();
   if (!session)
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { postId } = await params;
 
@@ -40,14 +40,14 @@ export async function GET(
       return {
         ...rest,
         isLiked: commentLikes.length > 0,
-        likesCount: _count.commentLikes,
+        likeCount: _count.commentLikes,
       };
     });
 
     return NextResponse.json(transformedComments);
   } catch {
     return NextResponse.json(
-      { message: 'Failed to fetch Comments' },
+      { error: 'Internal server error' },
       { status: 500 },
     );
   }

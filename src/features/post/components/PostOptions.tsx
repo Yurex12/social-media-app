@@ -38,7 +38,7 @@ export function PostOptions() {
   const handleDelete = () => deletePost(post.id);
 
   async function copyLink() {
-    const url = `${window.location.origin}/posts/${post.id}`;
+    const url = `${window.location.origin}/${post.user.username!}/status/${post.id}`;
     try {
       await navigator.clipboard.writeText(url);
       toast.success('Link copied to clipboard');
@@ -74,7 +74,7 @@ export function PostOptions() {
             <Bookmark
               className={cn(
                 'h-4 w-4 opacity-70',
-                post.isBookmarked && 'fill-current text-sky-500'
+                post.isBookmarked && 'fill-current text-sky-500',
               )}
             />
             <span>{post.isBookmarked ? 'Saved' : 'Bookmark'}</span>

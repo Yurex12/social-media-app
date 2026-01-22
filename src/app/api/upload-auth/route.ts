@@ -7,8 +7,8 @@ export async function GET() {
 
   if (!session) {
     return Response.json(
-      { message: 'Session expired. Please log in again.' },
-      { status: 401 }
+      { error: 'Session expired. Please log in again.' },
+      { status: 401 },
     );
   }
 

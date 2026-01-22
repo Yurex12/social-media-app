@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body
-        className={`${outfit.className} antialiased h-screen overflow-y-auto`}
+        className={`${outfit.className} antialiased h-screen overflow-y-scroll`}
       >
         <Toaster />
         <Providers>{children}</Providers>

@@ -21,14 +21,17 @@ import { ImagePreviews } from './ImagePreviews';
 import { uploadImages } from '@/lib/imagekit';
 import { createPost } from '../actions';
 
-import { UserAvatar } from '@/components/UserAvatar';
+import { UserAvatar } from '@/features/profile/components/UserAvatar';
 import { ImageUploadResponse } from '@/types';
 import { useQueryClient } from '@tanstack/react-query';
 import { postSchema, type PostSchema } from '../schema';
+import { useSession } from '@/lib/auth-client';
 
 export function CreatePost() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
+
+  const session = useSession();
 
   const form = useForm<PostSchema>({
     resolver: zodResolver(postSchema),
@@ -133,7 +136,11 @@ export function CreatePost() {
         className='border rounded-xl px-4 py-2'
       >
         <div className='flex gap-3'>
-          <UserAvatar />
+          <UserAvatar
+            image={session.data?.user.image}
+            name={session.data?.user.name}
+            isPending={session.isPending}
+          />
 
           <div className='flex-1'>
             <FormField

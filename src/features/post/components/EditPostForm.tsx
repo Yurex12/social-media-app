@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/form';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
-import { UserAvatar } from '@/components/UserAvatar';
+import { UserAvatar } from '@/features/profile/components/UserAvatar';
 import { ImagePreviews } from './ImagePreviews';
 
 import { postEditSchema, type PostEditSchema } from '../schema';
@@ -26,11 +26,14 @@ import { ImageUploadResponse } from '@/types';
 import { uploadImages } from '@/lib/imagekit';
 import { updatePost } from '../actions';
 import { useQueryClient } from '@tanstack/react-query';
+import { useSession } from '@/lib/auth-client';
 
 export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { post } = usePost();
+
+  const session = useSession();
 
   const form = useForm<PostEditSchema>({
     resolver: zodResolver(postEditSchema),
@@ -127,7 +130,11 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
         <div className='flex gap-3'>
-          <UserAvatar />
+          <UserAvatar
+            image={session.data?.user.image}
+            name={session.data?.user.name}
+            isPending={session.isPending}
+          />
           <div className='flex-1'>
             <FormField
               control={form.control}

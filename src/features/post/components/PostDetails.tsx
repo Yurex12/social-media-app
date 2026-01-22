@@ -3,18 +3,28 @@
 import { Spinner } from '@/components/ui/spinner';
 import { CommentInputBar } from '@/features/comment/components/CommentInputBar';
 import { CommentList } from '@/features/comment/components/CommentList';
-import { useParams } from 'next/navigation';
-import { usePostDetail } from '../hooks/usePostDetails';
-import { PostProvider } from '../PostProvider';
+
 import { PostCard } from './PostCard';
 
-export function PostDetails() {
-  const { id } = useParams();
-  const { post, isPending, error } = usePostDetail(id as string);
+import { PostProvider } from '../PostProvider';
+import { PostWithRelations } from '../types';
 
-  if (isPending) return <Spinner />;
+interface PostDetailsProps {
+  post: PostWithRelations | undefined;
+  isPending: boolean;
+  error: Error | null;
+}
 
-  if (error) return <p>{error.message}</p>;
+export function PostDetails({ post, isPending, error }: PostDetailsProps) {
+  if (isPending) {
+    return (
+      <div className='flex items-center justify-center mt-4'>
+        <Spinner className='size-6 text-primary' />
+      </div>
+    );
+  }
+
+  if (error) return <p className='px-4'>{error.message}</p>;
 
   if (!post) return <p className='px-4'>No post found - nothing to see here</p>;
 

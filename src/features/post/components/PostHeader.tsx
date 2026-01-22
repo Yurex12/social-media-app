@@ -1,7 +1,6 @@
-import Image from 'next/image';
-
 import { usePost } from '../PostProvider';
 import { PostOptions } from './PostOptions';
+import { UserAvatar } from '@/features/profile/components/UserAvatar';
 
 export function PostHeader() {
   const {
@@ -10,15 +9,7 @@ export function PostHeader() {
   return (
     <div className='flex items-center justify-between px-4'>
       <div className='flex items-center gap-3 min-w-0'>
-        <div className='relative h-10 w-10 shrink-0 overflow-hidden rounded-full border border-border bg-muted'>
-          <Image
-            src={user?.image || '/avatar-placeholder.png'}
-            alt={user.name ?? 'User'}
-            fill
-            className='object-cover'
-            referrerPolicy='no-referrer'
-          />
-        </div>
+        <UserAvatar image={user.image} name={user.name} />
 
         <div className='flex flex-col min-w-0'>
           <h2 className='font-semibold leading-none tracking-tight truncate'>

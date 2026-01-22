@@ -16,14 +16,9 @@ interface Link {
 
 export const links: Link[] = [
   {
-    href: '/posts',
+    href: '/home',
     label: 'Home',
     Icon: Home,
-  },
-  {
-    href: '/search',
-    label: 'Search',
-    Icon: Search,
   },
   {
     href: '/notifications',

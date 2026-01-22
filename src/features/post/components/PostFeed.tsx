@@ -1,16 +1,9 @@
 'use client';
 
+import { Spinner } from '@/components/ui/spinner';
 import { PostProvider } from '@/features/post/PostProvider';
 import { PostCard } from '@/features/post/components/PostCard';
-import { Spinner } from '@/components/ui/spinner';
-import { PostWithRelations } from '@/features/post/types';
-
-interface PostFeedProps {
-  posts: PostWithRelations[] | undefined;
-  isPending: boolean;
-  error: Error | null;
-  emptyMessage?: string;
-}
+import { PostFeedProps } from '@/features/post/types';
 
 export function PostFeed({
   posts,
