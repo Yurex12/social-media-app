@@ -10,6 +10,7 @@ interface UserAvatarProps {
   image?: string | null;
   isPending?: boolean;
   className?: string;
+  textClassName?: string;
 }
 
 export function UserAvatar({
@@ -17,6 +18,7 @@ export function UserAvatar({
   image,
   isPending,
   className,
+  textClassName,
 }: UserAvatarProps) {
   if (isPending) {
     return (
@@ -43,7 +45,7 @@ export function UserAvatar({
           referrerPolicy='no-referrer'
         />
       ) : (
-        <span className='text-lg select-none uppercase'>
+        <span className={cn('text-lg select-none uppercase', textClassName)}>
           {initial || <User className='h-5 w-5' />}
         </span>
       )}

@@ -1,16 +1,22 @@
-import { Header } from '@/components/Header';
+import { ReactNode } from 'react';
+
+import { RightSidebar } from '@/components/RightSidebar';
+
 import { ProfileHeader } from '@/features/profile/components/ProfileHeader';
-import { ProfileTabs } from '@/features/profile/components/ProfileTab';
-import React, { ReactNode } from 'react';
+import { ProfileHero } from '@/features/profile/components/ProfileHero';
+import { ProfileNav } from '@/features/profile/components/ProfileNav';
 
 export default function ProfileLayout({ children }: { children: ReactNode }) {
   return (
-    <div className='flex flex-col h-full pb-2'>
-      <Header />
-      <ProfileHeader />
-      <ProfileTabs username='ekungomiyusuf' />
+    <div className='grid grid-cols-[1.2fr_0.8fr]'>
+      <div className='border-r'>
+        <ProfileHeader />
+        <ProfileHero />
+        <ProfileNav />
+        <section>{children}</section>
+      </div>
 
-      <main>{children}</main>
+      <RightSidebar />
     </div>
   );
 }

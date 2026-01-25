@@ -1,9 +1,5 @@
-import PostsList from '@/features/post/components/PostsList';
+import { ProfileLikedPosts } from '@/features/profile/components/ProfileLikedPosts';
 
 export default function Page() {
-  return (
-    <div>
-      <PostsList />
-    </div>
-  );
+  return <ProfileLikedPosts />;
 }

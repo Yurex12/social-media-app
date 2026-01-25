@@ -19,13 +19,10 @@ export function PostFeed({
     );
   }
 
-  if (error)
-    return <p className='text-center mt-4 text-destructive'>{error.message}</p>;
+  if (error) return <p className='px-4 mt-4'>{error.message}</p>;
 
   if (!posts?.length)
-    return (
-      <p className='text-center mt-4 text-muted-foreground'>{emptyMessage}</p>
-    );
+    return <p className='px-4 mt-4 text-muted-foreground'>{emptyMessage}</p>;
 
   return (
     <ul className='pb-4'>

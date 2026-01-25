@@ -36,7 +36,7 @@ export function LoginForm() {
 
   async function handleSuccess() {
     toast.success('Login successful.');
-    router.replace('/posts');
+    router.replace('/home');
     form.reset();
   }
 

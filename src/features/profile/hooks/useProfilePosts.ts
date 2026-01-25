@@ -1,18 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProfile } from '../api';
+import { getUserPosts } from '../api';
 import { useParams } from 'next/navigation';
 
-export function useProfile() {
+export function useProfilePosts() {
   const { username } = useParams<{ username: string }>();
   const {
-    data: user,
+    data: posts,
     isPending,
     error,
   } = useQuery({
-    queryKey: ['user', username],
-    queryFn: () => getProfile(username),
+    queryKey: ['posts', 'user', username],
+    queryFn: () => getUserPosts(username),
     enabled: !!username,
   });
 
-  return { user, isPending, error };
+  return { posts, isPending, error };
 }
