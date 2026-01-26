@@ -1,6 +1,7 @@
+import toast from 'react-hot-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toggleFollowAction } from '../action';
-import toast from 'react-hot-toast';
+
 import { PostWithRelations } from '@/features/post/types';
 import { SuggestedUsers, UserWithRelations } from '../types';
 
@@ -100,22 +101,23 @@ export function useToggleFollow() {
       return { snapshots: [...userSnapshots, ...postSnapshots] };
     },
 
-    onSuccess: (response) => {
-      if (response.success) {
-        toast.success(response.message);
-      }
-    },
-
     onError: (err, _, context) => {
       context?.snapshots?.forEach(([key, data]) => {
         queryClient.setQueryData(key, data);
       });
+
+      console.log(err);
+
       toast.error('Something went wrong');
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'], type: 'active' });
       queryClient.invalidateQueries({ queryKey: ['posts'], type: 'active' });
+
+      queryClient.invalidateQueries({
+        queryKey: ['users', 'profile'],
+        type: 'active',
+      });
     },
   });
 

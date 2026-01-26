@@ -44,6 +44,8 @@ interface Author {
   image: string | null;
   username: string;
   bio: string | null;
+  isFollowing: boolean;
+  // isCurrentUser: boolean;
   _count: {
     followers: number;
     following: number;

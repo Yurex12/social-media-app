@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useSuggestedUsers } from '../hooks/useSuggestedUser';
 import { UserAvatar } from './UserAvatar';
+import { useToggleFollow } from '../hooks/useToggleFollow';
 
 const LIMIT = 3;
 
 export function WhoToFollow() {
   const { users, isPending, error } = useSuggestedUsers(LIMIT);
+  const { toggleFollow } = useToggleFollow();
   if (isPending) {
     return (
       <div className='flex items-center justify-center mt-4'>
@@ -55,8 +57,12 @@ export function WhoToFollow() {
               </div>
             </div>
 
-            <Button className='rounded-full text-sm cursor-pointer'>
-              Follow
+            <Button
+              className='rounded-full cursor-pointer'
+              variant={user.isFollowing ? 'outline' : 'default'}
+              onClick={() => toggleFollow(user.id)}
+            >
+              {user.isFollowing ? 'Following' : 'Follow'}
             </Button>
           </div>
         ))}

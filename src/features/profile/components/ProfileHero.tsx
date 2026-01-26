@@ -6,10 +6,12 @@ import { format } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
 import Image from 'next/image';
 import { useProfile } from '../hooks/useProfile';
+import { useToggleFollow } from '../hooks/useToggleFollow';
 import { UserAvatar } from './UserAvatar';
 
 export function ProfileHero() {
   const { user, isPending, error } = useProfile();
+  const { toggleFollow } = useToggleFollow();
 
   if (isPending)
     return (
@@ -48,11 +50,19 @@ export function ProfileHero() {
 
           <div className='mt-3'>
             {user.isCurrentUser ? (
-              <Button variant='outline' className='rounded-full'>
+              <Button variant='outline' className='rounded-full cursor-pointer'>
                 Edit profile
               </Button>
             ) : (
-              <Button className='rounded-full'>Follow</Button>
+              <>
+                <Button
+                  className='rounded-full cursor-pointer'
+                  variant={user.isFollowing ? 'outline' : 'default'}
+                  onClick={() => toggleFollow(user.id)}
+                >
+                  {user.isFollowing ? 'Following' : 'Follow'}
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -92,7 +102,9 @@ export function ProfileHero() {
               <span className='font-bold text-foreground'>
                 {user._count.followers}
               </span>
-              <span className='text-muted-foreground'>Followers</span>
+              <span className='text-muted-foreground'>
+                {user._count.followers > 1 ? 'Followers' : 'Follower'}
+              </span>
             </div>
           </div>
         </div>

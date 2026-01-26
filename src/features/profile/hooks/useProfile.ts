@@ -9,7 +9,7 @@ export function useProfile() {
     isPending,
     error,
   } = useQuery({
-    queryKey: ['users', username],
+    queryKey: ['users', 'profile', username],
     queryFn: () => getProfile(username),
     enabled: !!username,
   });

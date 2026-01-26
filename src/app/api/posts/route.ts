@@ -22,6 +22,7 @@ export async function GET() {
             image: true,
             username: true,
             bio: true,
+            _count: { select: { followers: true, following: true } },
             followers: {
               where: { followerId: userId },
               select: { followerId: true },
