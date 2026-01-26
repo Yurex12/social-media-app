@@ -4,53 +4,62 @@ export type CreatePostResponse = { id: string };
 
 export type GetPostsResponse = { content: string; id: string }[];
 
-export type PostWithRelations = Prisma.PostGetPayload<{
+export type TPostFromDB = Prisma.PostGetPayload<{
   include: {
-    images: { select: { id: true; url: true; fileId: true } };
     user: {
       select: {
         id: true;
         name: true;
-        username: true;
         image: true;
+        username: true;
         bio: true;
+        followers: { select: { followerId: true } };
         _count: { select: { followers: true; following: true } };
       };
     };
-    bookmarks: { select: { id: true } };
+    images: { select: { id: true; url: true; fileId: true } };
     postLikes: { select: { id: true } };
-    _count: { select: { comments: true; postLikes: true } };
+    bookmarks: { select: { id: true } };
+    _count: { select: { postLikes: true; comments: true } };
   };
-}> & {
+}>;
+
+export type PostWithRelations = Omit<
+  TPostFromDB,
+  'postLikes' | 'bookmarks' | '_count' | 'user'
+> & {
   isBookmarked: boolean;
   isLiked: boolean;
   likeCount: number;
   commentCount: number;
+  user: TPostFromDB['user'] & { isFollowing: boolean };
 };
 
-export type PostLikeWithRelations = Prisma.PostLikeGetPayload<{
+export type TPostLikeFromDB = Prisma.PostLikeGetPayload<{
   include: {
     post: {
       include: {
-        images: { select: { id: true; url: true; fileId: true } };
         user: {
           select: {
             id: true;
             name: true;
-            username: true;
             image: true;
+            username: true;
             bio: true;
             _count: { select: { followers: true; following: true } };
+            followers: {
+              select: { followerId: true };
+            };
           };
         };
-        bookmarks: { select: { id: true } };
+        images: { select: { id: true; url: true; fileId: true } };
         postLikes: { select: { id: true } };
-        _count: { select: { comments: true; postLikes: true } };
+        bookmarks: { select: { id: true } };
+        _count: { select: { postLikes: true; comments: true } };
       };
     };
   };
 }>;
-
 export interface PostFeedProps {
   posts: PostWithRelations[] | undefined;
   isPending: boolean;

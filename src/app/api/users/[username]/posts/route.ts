@@ -1,4 +1,4 @@
-import { PostWithRelations } from '@/features/post/types';
+import { PostWithRelations, TPostFromDB } from '@/features/post/types';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { NextResponse } from 'next/server';
@@ -13,12 +13,27 @@ export async function GET(
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+  const userId = session.user.id;
+
   try {
     const posts = (await prisma.post.findMany({
       orderBy: { createdAt: 'desc' },
       where: { user: { username } },
       include: {
-        user: { select: { id: true, name: true, image: true, username: true } },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            username: true,
+            bio: true,
+            _count: { select: { followers: true, following: true } },
+            followers: {
+              where: { followerId: userId },
+              select: { followerId: true },
+            },
+          },
+        },
         images: { select: { id: true, url: true, fileId: true } },
 
         postLikes: {
@@ -35,19 +50,21 @@ export async function GET(
           select: { postLikes: true, comments: true },
         },
       },
-    })) as PostWithRelations[];
+    })) as TPostFromDB[];
 
     const transformedPosts = posts.map((post) => {
-      const { postLikes, bookmarks, _count, ...rest } = post;
-
       return {
-        ...rest,
-        isBookmarked: bookmarks.length > 0,
-        isLiked: postLikes.length > 0,
-        likeCount: _count.postLikes,
-        commentCount: _count.comments,
+        ...post,
+        user: {
+          ...post.user,
+          isFollowing: post.user.followers.length > 0,
+        },
+        isBookmarked: post.bookmarks.length > 0,
+        isLiked: post.postLikes.length > 0,
+        likeCount: post._count.postLikes,
+        commentCount: post._count.comments,
       };
-    });
+    }) satisfies PostWithRelations[];
 
     return NextResponse.json(transformedPosts);
   } catch {

@@ -43,11 +43,11 @@ export function useDeletePost() {
       toast.success('Post deleted successfully');
     },
 
-    onError: (err, _, context) => {
+    onError: (error, _, context) => {
       context?.snapshots?.forEach(([key, data]) => {
         queryClient.setQueryData(key, data);
       });
-      toast.error(err instanceof Error ? err.message : 'Could not delete post');
+      toast.error(error.message || 'Could not delete post');
     },
 
     onSettled: () => {

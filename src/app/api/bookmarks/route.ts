@@ -1,4 +1,5 @@
-import { BookmarkWithRelations } from '@/features/bookmark/types';
+import { TBookmarkFromDB } from '@/features/bookmark/types';
+import { PostWithRelations } from '@/features/post/types';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { NextResponse } from 'next/server';
@@ -18,12 +19,23 @@ export async function GET() {
         post: {
           include: {
             user: {
-              select: { id: true, name: true, image: true, username: true },
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+                bio: true,
+                _count: { select: { followers: true, following: true } },
+                followers: {
+                  where: { followerId: userId },
+                  select: { followerId: true },
+                },
+              },
             },
             images: { select: { id: true, url: true, fileId: true } },
 
             postLikes: {
-              where: { userId: session.user.id },
+              where: { userId: userId },
               select: { id: true },
             },
 
@@ -33,19 +45,25 @@ export async function GET() {
           },
         },
       },
-    })) as BookmarkWithRelations[];
+    })) as TBookmarkFromDB[];
 
-    const data = bookmarks.map((bookmark) => {
+    const transformedBookmarks = bookmarks.map((bookmark) => {
+      const post = bookmark.post;
+
       return {
-        ...bookmark.post,
+        ...post,
         isBookmarked: true,
-        isLiked: bookmark.post.postLikes.length > 0,
-        likeCount: bookmark.post._count.postLikes,
-        commentCount: bookmark.post._count.comments,
+        isLiked: post.postLikes.length > 0,
+        likeCount: post._count.postLikes,
+        commentCount: post._count.comments,
+        user: {
+          ...post.user,
+          isFollowing: post.user.followers.length > 0,
+        },
       };
-    });
+    }) satisfies PostWithRelations[];
 
-    return NextResponse.json(data);
+    return NextResponse.json(transformedBookmarks);
   } catch {
     return NextResponse.json(
       { error: 'Internal server error' },

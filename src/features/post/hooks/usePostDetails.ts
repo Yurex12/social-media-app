@@ -16,12 +16,19 @@ export function usePostDetails() {
     queryFn: () => getPostById(postId),
 
     initialData: () => {
-      const posts = queryClient.getQueryData<PostWithRelations[]>([
-        'posts',
-        'feed',
-        'home',
-      ]);
-      return posts?.find((post) => post.id === postId);
+      const postQueries = queryClient.getQueriesData<
+        PostWithRelations[] | PostWithRelations
+      >({ queryKey: ['posts'] });
+
+      for (const [_, queryData] of postQueries) {
+        if (Array.isArray(queryData)) {
+          const post = queryData?.find((post) => post.id === postId);
+
+          if (post) return post;
+        }
+      }
+
+      return undefined;
     },
   });
 

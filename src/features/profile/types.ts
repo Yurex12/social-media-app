@@ -1,6 +1,6 @@
 import { Prisma } from '@/generated/prisma/client';
 
-export type UserWithRelation = Prisma.UserGetPayload<{
+export type UserWithRelations = Prisma.UserGetPayload<{
   include: {
     _count: {
       select: {
@@ -10,7 +10,33 @@ export type UserWithRelation = Prisma.UserGetPayload<{
       };
     };
   };
-}> & { isCurrentUser: boolean };
+}> & { isCurrentUser: boolean; isFollowing: boolean };
+
+export type TPostLikeFromDB = Prisma.PostLikeGetPayload<{
+  include: {
+    post: {
+      include: {
+        user: {
+          select: {
+            id: true;
+            name: true;
+            image: true;
+            username: true;
+            bio: true;
+            _count: { select: { followers: true; following: true } };
+            followers: {
+              select: { followerId: true };
+            };
+          };
+        };
+        images: { select: { id: true; url: true; fileId: true } };
+        postLikes: { select: { id: true } };
+        bookmarks: { select: { id: true } };
+        _count: { select: { postLikes: true; comments: true } };
+      };
+    };
+  };
+}>;
 
 interface Author {
   name: string;
@@ -29,6 +55,7 @@ export interface SuggestedUsers {
   image: string | null;
   username: string;
   bio: string | null;
+  isFollowing: boolean;
 }
 
 export interface AuthorCardProps {

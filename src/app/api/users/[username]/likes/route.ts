@@ -1,7 +1,5 @@
-import {
-  PostLikeWithRelations,
-  PostWithRelations,
-} from '@/features/post/types';
+import { PostWithRelations } from '@/features/post/types';
+import { TPostLikeFromDB } from '@/features/profile/types';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { NextResponse } from 'next/server';
@@ -16,14 +14,13 @@ export async function GET(
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const userId = session?.user.id;
-
   if (session.user.username !== username)
     return NextResponse.json(
       { error: 'You do not have permission to view these likes' },
       { status: 403 },
     );
 
+  const userId = session.user.id;
   try {
     const posts = (await prisma.postLike.findMany({
       where: { user: { username } },
@@ -32,7 +29,18 @@ export async function GET(
         post: {
           include: {
             user: {
-              select: { id: true, name: true, image: true, username: true },
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+                bio: true,
+                _count: { select: { followers: true, following: true } },
+                followers: {
+                  where: { followerId: userId },
+                  select: { followerId: true },
+                },
+              },
             },
             images: { select: { id: true, url: true, fileId: true } },
 
@@ -52,20 +60,23 @@ export async function GET(
           },
         },
       },
-    })) as PostLikeWithRelations[];
+    })) as TPostLikeFromDB[];
 
     const transformedPosts = posts.map((postLikeData) => {
-      const { postLikes, bookmarks, _count, ...rest } = postLikeData.post;
+      const post = postLikeData.post;
 
       return {
-        ...rest,
-        isBookmarked: bookmarks.length > 0,
-        isLiked: postLikes.length > 0,
-        likeCount: _count.postLikes,
-        commentCount: _count.comments,
+        ...post,
+        isBookmarked: post.bookmarks.length > 0,
+        isLiked: true,
+        likeCount: post._count.postLikes,
+        commentCount: post._count.comments,
+        user: {
+          ...post.user,
+          isFollowing: post.user.followers.length > 0,
+        },
       };
-    });
-
+    }) satisfies PostWithRelations[];
     return NextResponse.json(transformedPosts);
   } catch {
     return NextResponse.json(

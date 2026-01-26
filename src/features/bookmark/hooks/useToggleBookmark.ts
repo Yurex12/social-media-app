@@ -23,7 +23,6 @@ export function useToggleBookmark() {
         PostWithRelations[] | PostWithRelations
       >({ queryKey: ['posts'] });
 
-      // Use the manual loop so we can check the queryKey
       snapshots.forEach(([queryKey]) => {
         queryClient.setQueryData<PostWithRelations[] | PostWithRelations>(
           queryKey,

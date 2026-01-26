@@ -14,6 +14,8 @@ export async function GET(
 
     const { username } = await params;
 
+    const userId = session.user.id;
+
     if (!username) {
       return NextResponse.json(
         { message: 'Username is required' },
@@ -31,6 +33,10 @@ export async function GET(
             following: true,
           },
         },
+        followers: {
+          where: { followerId: userId },
+          select: { followerId: true },
+        },
       },
     });
 
@@ -43,6 +49,7 @@ export async function GET(
     return NextResponse.json({
       ...user,
       isCurrentUser,
+      isFollowing: user.followers.length > 0,
     });
   } catch {
     return NextResponse.json(

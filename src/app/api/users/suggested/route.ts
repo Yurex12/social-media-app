@@ -15,10 +15,9 @@ export async function GET(req: Request) {
 
     const userId = session.user.id;
 
-    const users = await prisma.user.findMany({
+    const result = await prisma.user.findMany({
       where: {
         id: { not: userId },
-
         followers: {
           none: {
             followerId: userId,
@@ -28,11 +27,16 @@ export async function GET(req: Request) {
       take: 50,
     });
 
-    const shuffled = users.sort(() => 0.5 - Math.random());
+    const shuffled = result.sort(() => 0.5 - Math.random());
 
-    const result = limit ? shuffled.slice(0, limit) : shuffled;
+    const users = limit ? shuffled.slice(0, limit) : shuffled;
 
-    return NextResponse.json(result);
+    const transformedUsers = users.map((user) => ({
+      ...user,
+      isFollowing: false,
+    }));
+
+    return NextResponse.json(transformedUsers);
   } catch {
     return NextResponse.json(
       { error: 'Internal server error' },

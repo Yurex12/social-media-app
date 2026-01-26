@@ -115,7 +115,7 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
       if (res.success) {
         toast.success('Post updated!', { id: toastId });
 
-        queryClient.invalidateQueries({ queryKey: ['posts'] });
+        queryClient.invalidateQueries({ queryKey: ['posts'], type: 'active' });
 
         onClose();
       } else {
