@@ -25,7 +25,7 @@ export function ProfilePosts() {
         posts={posts}
         isPending={isLoadingProfilePosts}
         error={profilePostsError}
-        emptyMessage="You haven't bookmarked anything yet."
+        emptyMessage="You haven't made any post"
       />
     </div>
   );

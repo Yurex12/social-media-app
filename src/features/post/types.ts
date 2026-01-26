@@ -28,6 +28,29 @@ export type PostWithRelations = Prisma.PostGetPayload<{
   commentCount: number;
 };
 
+export type PostLikeWithRelations = Prisma.PostLikeGetPayload<{
+  include: {
+    post: {
+      include: {
+        images: { select: { id: true; url: true; fileId: true } };
+        user: {
+          select: {
+            id: true;
+            name: true;
+            username: true;
+            image: true;
+            bio: true;
+            _count: { select: { followers: true; following: true } };
+          };
+        };
+        bookmarks: { select: { id: true } };
+        postLikes: { select: { id: true } };
+        _count: { select: { comments: true; postLikes: true } };
+      };
+    };
+  };
+}>;
+
 export interface PostFeedProps {
   posts: PostWithRelations[] | undefined;
   isPending: boolean;

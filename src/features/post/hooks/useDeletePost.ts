@@ -6,36 +6,54 @@ import { PostWithRelations } from '../types';
 
 export function useDeletePost() {
   const queryClient = useQueryClient();
-  const {
-    mutate: deletePost,
-    isPending: isDeleting,
-    error,
-  } = useMutation({
+
+  const { mutate: deletePost, isPending: isDeleting } = useMutation({
     mutationFn: deletePostAction,
-    onMutate: async (postId) => {
+
+    onMutate: async (postId: string) => {
       await queryClient.cancelQueries({ queryKey: ['posts'] });
 
-      const previousPosts = queryClient.getQueryData(['posts']);
+      const snapshots = queryClient.getQueriesData<
+        PostWithRelations[] | PostWithRelations
+      >({ queryKey: ['posts'] });
 
-      queryClient.setQueryData<PostWithRelations[]>(['posts'], (oldPosts) => {
-        return oldPosts?.filter((post) => post.id !== postId) ?? [];
+      snapshots.forEach(([queryKey]) => {
+        queryClient.setQueryData<PostWithRelations[] | PostWithRelations>(
+          queryKey,
+          (oldData) => {
+            if (!oldData) return oldData;
+
+            if (Array.isArray(oldData)) {
+              return oldData.filter((post) => post.id !== postId);
+            }
+
+            if (oldData.id === postId) {
+              return undefined;
+            }
+
+            return oldData;
+          },
+        );
       });
 
-      return { previousPosts };
+      return { snapshots };
     },
 
-    onSuccess() {
+    onSuccess: () => {
       toast.success('Post deleted successfully');
     },
 
-    onError(err, postId, context) {
-      queryClient.setQueryData(['posts'], context?.previousPosts);
-      toast.error(err.message || 'Post could not be deleted');
+    onError: (err, _, context) => {
+      context?.snapshots?.forEach(([key, data]) => {
+        queryClient.setQueryData(key, data);
+      });
+      toast.error(err instanceof Error ? err.message : 'Could not delete post');
     },
 
-    onSettled() {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'], type: 'active' });
     },
   });
-  return { deletePost, isDeleting, error };
+
+  return { deletePost, isDeleting };
 }

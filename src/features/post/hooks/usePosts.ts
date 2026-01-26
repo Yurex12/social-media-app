@@ -7,7 +7,7 @@ export function usePosts() {
     isPending,
     error,
   } = useQuery({
-    queryKey: ['posts'],
+    queryKey: ['posts', 'feed', 'home'],
     queryFn: getPosts,
   });
 

@@ -3,7 +3,7 @@ import { getPostById } from '../api';
 import { PostWithRelations } from '../types';
 import { useParams } from 'next/navigation';
 
-export function usePostDetail() {
+export function usePostDetails() {
   const { id: postId } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
 
@@ -12,11 +12,15 @@ export function usePostDetail() {
     isPending,
     error,
   } = useQuery({
-    queryKey: ['posts', postId],
+    queryKey: ['posts', 'details', postId],
     queryFn: () => getPostById(postId),
 
     initialData: () => {
-      const posts = queryClient.getQueryData<PostWithRelations[]>(['posts']);
+      const posts = queryClient.getQueryData<PostWithRelations[]>([
+        'posts',
+        'feed',
+        'home',
+      ]);
       return posts?.find((post) => post.id === postId);
     },
   });

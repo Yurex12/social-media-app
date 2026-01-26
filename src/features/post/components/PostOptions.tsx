@@ -23,6 +23,7 @@ import { useDeletePost } from '../hooks/useDeletePost';
 import { usePost } from '../PostProvider';
 import { useToggleBookmark } from '@/features/bookmark/hooks/useToggleBookmark';
 import EditPostDialog from './EditPostDialog';
+import { usePathname, useRouter } from 'next/navigation';
 
 export function PostOptions() {
   const { post } = usePost();
@@ -33,9 +34,17 @@ export function PostOptions() {
   const { toggleBookmark, isToggling } = useToggleBookmark();
   const { data } = useSession();
 
+  const pathname = usePathname();
+
+  const router = useRouter();
+
   const isOwner = data?.user?.id === post.user.id;
 
-  const handleDelete = () => deletePost(post.id);
+  function handleDelete() {
+    const isDetailPage = pathname.includes(`/status/${post.id}`);
+    if (isDetailPage) router.replace('/home');
+    deletePost(post.id);
+  }
 
   async function copyLink() {
     const url = `${window.location.origin}/${post.user.username!}/status/${post.id}`;

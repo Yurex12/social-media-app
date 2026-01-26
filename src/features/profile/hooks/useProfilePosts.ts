@@ -9,7 +9,7 @@ export function useProfilePosts() {
     isPending,
     error,
   } = useQuery({
-    queryKey: ['posts', 'user', username],
+    queryKey: ['posts', 'feed', 'user', username],
     queryFn: () => getUserPosts(username),
     enabled: !!username,
   });

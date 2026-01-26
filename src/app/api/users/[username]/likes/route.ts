@@ -1,4 +1,7 @@
-import { PostWithRelations } from '@/features/post/types';
+import {
+  PostLikeWithRelations,
+  PostWithRelations,
+} from '@/features/post/types';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { NextResponse } from 'next/server';
@@ -22,31 +25,37 @@ export async function GET(
     );
 
   try {
-    const posts = (await prisma.post.findMany({
+    const posts = (await prisma.postLike.findMany({
+      where: { user: { username } },
       orderBy: { createdAt: 'desc' },
-      where: { postLikes: { some: { userId } } },
       include: {
-        user: { select: { id: true, name: true, image: true, username: true } },
-        images: { select: { id: true, url: true, fileId: true } },
+        post: {
+          include: {
+            user: {
+              select: { id: true, name: true, image: true, username: true },
+            },
+            images: { select: { id: true, url: true, fileId: true } },
 
-        postLikes: {
-          where: { userId: session.user.id },
-          select: { id: true },
-        },
+            postLikes: {
+              where: { userId },
+              select: { id: true },
+            },
 
-        bookmarks: {
-          where: { userId: session.user.id },
-          select: { id: true },
-        },
+            bookmarks: {
+              where: { userId },
+              select: { id: true },
+            },
 
-        _count: {
-          select: { postLikes: true, comments: true },
+            _count: {
+              select: { postLikes: true, comments: true },
+            },
+          },
         },
       },
-    })) as PostWithRelations[];
+    })) as PostLikeWithRelations[];
 
-    const transformedPosts = posts.map((p) => {
-      const { postLikes, bookmarks, _count, ...rest } = p;
+    const transformedPosts = posts.map((postLikeData) => {
+      const { postLikes, bookmarks, _count, ...rest } = postLikeData.post;
 
       return {
         ...rest,

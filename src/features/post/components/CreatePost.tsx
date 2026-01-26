@@ -154,6 +154,12 @@ export function CreatePost() {
                       placeholder='What’s happening?'
                       className='max-h-[50vh] min-h-5 resize-none border-none bg-transparent px-0 shadow-none focus-visible:ring-0 overflow-y-auto text-foreground/75'
                       disabled={isPosting}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          form.handleSubmit(onSubmit)();
+                        }
+                      }}
                     />
                   </FormControl>
                   <FormMessage />

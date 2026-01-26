@@ -5,10 +5,10 @@ import { RightSidebar } from '@/components/RightSidebar';
 
 import { PostDetails } from '@/features/post/components/PostDetails';
 import { AuthorCard } from '@/features/profile/components/AuthorCard';
-import { usePostDetail } from '../hooks/usePostDetails';
+import { usePostDetails } from '../hooks/usePostDetails';
 
 export function PostPage() {
-  const { post, isPending, error } = usePostDetail();
+  const { post, isPending, error } = usePostDetails();
 
   return (
     <div className='grid grid-cols-[1.2fr_0.8fr] h-full'>

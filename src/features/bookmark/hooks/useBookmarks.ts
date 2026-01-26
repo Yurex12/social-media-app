@@ -7,7 +7,7 @@ export function useBookmarks() {
     isPending,
     error,
   } = useQuery({
-    queryKey: ['bookmarks'],
+    queryKey: ['posts', 'feed', 'bookmarks'],
     queryFn: getBookmarks,
   });
 

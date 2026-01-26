@@ -2,6 +2,16 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toggleLikeAction } from '../actions';
 import { PostWithRelations } from '../types';
 
+function updatePost(post: PostWithRelations) {
+  return {
+    ...post,
+    isLiked: !post.isLiked,
+    likeCount: !post.isLiked
+      ? post.likeCount + 1
+      : Math.max(0, post.likeCount - 1),
+  };
+}
+
 export function useToggleLike() {
   const queryClient = useQueryClient();
 
@@ -9,58 +19,47 @@ export function useToggleLike() {
     mutationFn: toggleLikeAction,
 
     onMutate: async (postId) => {
-      await Promise.all([
-        queryClient.cancelQueries({ queryKey: ['posts'] }),
-        queryClient.cancelQueries({ queryKey: ['bookmarks'] }),
-        queryClient.cancelQueries({ queryKey: ['posts', postId] }),
-      ]);
+      await queryClient.cancelQueries({ queryKey: ['posts'] });
 
-      const prevPosts = queryClient.getQueryData(['posts']);
-      const prevBookmarks = queryClient.getQueryData(['bookmarks']);
-      const prevDetail = queryClient.getQueryData(['posts', postId]);
+      const snapshots = queryClient.getQueriesData<
+        PostWithRelations[] | PostWithRelations
+      >({ queryKey: ['posts'] });
 
-      function updatePost(post: PostWithRelations) {
-        return {
-          ...post,
-          isLiked: !post.isLiked,
-          likeCount: !post.isLiked
-            ? post.likeCount + 1
-            : Math.max(0, post.likeCount - 1),
-        };
-      }
+      snapshots.forEach(([queryKey]) => {
+        queryClient.setQueryData<PostWithRelations[] | PostWithRelations>(
+          queryKey,
+          (oldData) => {
+            if (!oldData) return oldData;
 
-      queryClient.setQueryData<PostWithRelations[]>(['posts'], (oldPosts) => {
-        return oldPosts?.map((post) =>
-          post.id === postId ? updatePost(post) : post,
+            if (Array.isArray(oldData)) {
+              if (queryKey.includes('likes'))
+                return oldData.filter((post) => post.id !== postId);
+
+              return oldData.map((post) =>
+                post.id === postId ? updatePost(post) : post,
+              );
+            }
+
+            if (oldData?.id === postId) {
+              return updatePost(oldData);
+            }
+
+            return oldData;
+          },
         );
       });
 
-      queryClient.setQueryData<PostWithRelations[]>(
-        ['bookmarks'],
-        (oldBookmarks) =>
-          oldBookmarks?.map((post) =>
-            post.id === postId ? updatePost(post) : post,
-          ),
-      );
-
-      queryClient.setQueryData<PostWithRelations>(
-        ['posts', postId],
-        (oldPost) => (oldPost ? updatePost(oldPost) : oldPost),
-      );
-
-      return { prevPosts, prevBookmarks, prevDetail };
+      return { snapshots };
     },
 
     onError: (err, postId, context) => {
-      queryClient.setQueryData(['posts'], context?.prevPosts);
-      queryClient.setQueryData(['bookmark'], context?.prevBookmarks);
-      queryClient.setQueryData(['posts', postId], context?.prevDetail);
+      context?.snapshots?.forEach(([queryKey, oldData]) => {
+        queryClient.setQueryData(queryKey, oldData);
+      });
     },
 
-    onSettled: (data, err, postId) => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-      queryClient.invalidateQueries({ queryKey: ['bookmark'] });
-      queryClient.invalidateQueries({ queryKey: ['posts', postId] });
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'], type: 'active' });
     },
   });
 

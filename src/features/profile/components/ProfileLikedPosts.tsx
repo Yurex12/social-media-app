@@ -23,7 +23,7 @@ export function ProfileLikedPosts() {
         posts={likedPosts}
         isPending={isLoadingProfileLikes}
         error={profileErrorLikes}
-        emptyMessage="You haven't bookmarked anything yet."
+        emptyMessage='No liked post.'
       />
     </div>
   );

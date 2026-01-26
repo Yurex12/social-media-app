@@ -146,6 +146,12 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
                       {...field}
                       className='max-h-[40vh] min-h-5 resize-none border-none bg-transparent px-0 shadow-none focus-visible:ring-0 overflow-y-auto text-foreground/75'
                       placeholder='Edit your post...'
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          form.handleSubmit(onSubmit)();
+                        }
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
