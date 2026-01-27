@@ -1,7 +1,12 @@
 import { Prisma } from '@/generated/prisma/client';
 
-export type UserWithRelations = Prisma.UserGetPayload<{
+export type TUserFromDB = Prisma.UserGetPayload<{
   include: {
+    followers: {
+      select: {
+        followerId: true;
+      };
+    };
     _count: {
       select: {
         followers: true;
@@ -10,7 +15,12 @@ export type UserWithRelations = Prisma.UserGetPayload<{
       };
     };
   };
-}> & { isCurrentUser: boolean; isFollowing: boolean };
+}>;
+
+export type UserWithRelations = TUserFromDB & {
+  isCurrentUser: boolean;
+  isFollowing: boolean;
+};
 
 export type TPostLikeFromDB = Prisma.PostLikeGetPayload<{
   include: {

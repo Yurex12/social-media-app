@@ -16,9 +16,7 @@ export function CommentList() {
 
   if (error) return <p>{error.message}</p>;
 
-  if (!comments?.length) return <p>No comments yet</p>;
-
-  console.log(comments);
+  if (!comments?.length) return null;
 
   return (
     <div className='w-full max-w-140 mx-auto space-y-2'>

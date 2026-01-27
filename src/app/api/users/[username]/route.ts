@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
+import { TUserFromDB, UserWithRelations } from '@/features/profile/types';
 
 export async function GET(
   request: Request,
@@ -23,7 +24,7 @@ export async function GET(
       );
     }
 
-    const user = await prisma.user.findUnique({
+    const user = (await prisma.user.findUnique({
       where: { username },
       include: {
         _count: {
@@ -38,19 +39,20 @@ export async function GET(
           select: { followerId: true },
         },
       },
-    });
+    })) as TUserFromDB;
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-
     const isCurrentUser = session.user.id === user.id;
 
-    return NextResponse.json({
+    const transFormedUser = {
       ...user,
       isCurrentUser,
       isFollowing: user.followers.length > 0,
-    });
+    } satisfies UserWithRelations;
+
+    return NextResponse.json(transFormedUser);
   } catch {
     return NextResponse.json(
       { error: 'Internal server error' },

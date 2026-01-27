@@ -1,4 +1,5 @@
 import { Prisma } from '@/generated/prisma/client';
+import { ReactNode } from 'react';
 
 export type CreatePostResponse = { id: string };
 
@@ -35,34 +36,9 @@ export type PostWithRelations = Omit<
   user: TPostFromDB['user'] & { isFollowing: boolean };
 };
 
-export type TPostLikeFromDB = Prisma.PostLikeGetPayload<{
-  include: {
-    post: {
-      include: {
-        user: {
-          select: {
-            id: true;
-            name: true;
-            image: true;
-            username: true;
-            bio: true;
-            _count: { select: { followers: true; following: true } };
-            followers: {
-              select: { followerId: true };
-            };
-          };
-        };
-        images: { select: { id: true; url: true; fileId: true } };
-        postLikes: { select: { id: true } };
-        bookmarks: { select: { id: true } };
-        _count: { select: { postLikes: true; comments: true } };
-      };
-    };
-  };
-}>;
 export interface PostFeedProps {
   posts: PostWithRelations[] | undefined;
   isPending: boolean;
   error: Error | null;
-  emptyMessage?: string;
+  emptyMessage?: string | ReactNode;
 }
