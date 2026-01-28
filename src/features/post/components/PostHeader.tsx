@@ -15,9 +15,9 @@ export function PostHeader() {
           <h2 className='font-semibold leading-none tracking-tight truncate'>
             {user.name}
           </h2>
-          <p className='text-xs font-medium text-muted-foreground truncate'>
+          <span className='text-sm font-medium text-muted-foreground truncate'>
             @{user.username}
-          </p>
+          </span>
         </div>
       </div>
 

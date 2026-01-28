@@ -1,7 +1,13 @@
 import { Prisma } from '@/generated/prisma/client';
 
 export type TUserFromDB = Prisma.UserGetPayload<{
-  include: {
+  select: {
+    id: true;
+    name: true;
+    image: true;
+    username: true;
+    createdAt: true;
+    bio: true;
     followers: {
       select: {
         followerId: true;
@@ -32,7 +38,9 @@ export type TPostLikeFromDB = Prisma.PostLikeGetPayload<{
             name: true;
             image: true;
             username: true;
+            createdAt: true;
             bio: true;
+
             _count: { select: { followers: true; following: true } };
             followers: {
               select: { followerId: true };
@@ -48,6 +56,58 @@ export type TPostLikeFromDB = Prisma.PostLikeGetPayload<{
   };
 }>;
 
+export type TFollowersFromBD = Prisma.FollowGetPayload<{
+  select: {
+    follower: {
+      select: {
+        id: true;
+        name: true;
+        username: true;
+        image: true;
+        bio: true;
+        createdAt: true;
+        followers: {
+          where: { followerId: 'some-user-id' };
+          select: { followerId: true };
+        };
+        _count: {
+          select: {
+            posts: true;
+            followers: true;
+            following: true;
+          };
+        };
+      };
+    };
+  };
+}>;
+
+export type TFollowingFromBD = Prisma.FollowGetPayload<{
+  select: {
+    following: {
+      select: {
+        id: true;
+        name: true;
+        username: true;
+        image: true;
+        bio: true;
+        createdAt: true;
+        followers: {
+          where: { followerId: 'some-user-id' };
+          select: { followerId: true };
+        };
+        _count: {
+          select: {
+            posts: true;
+            followers: true;
+            following: true;
+          };
+        };
+      };
+    };
+  };
+}>;
+
 interface Author {
   name: string;
   id: string;
@@ -55,19 +115,11 @@ interface Author {
   username: string;
   bio: string | null;
   isFollowing: boolean;
-  // isCurrentUser: boolean;
+  isCurrentUser: boolean;
   _count: {
     followers: number;
     following: number;
   };
-}
-export interface SuggestedUsers {
-  name: string;
-  id: string;
-  image: string | null;
-  username: string;
-  bio: string | null;
-  isFollowing: boolean;
 }
 
 export interface AuthorCardProps {

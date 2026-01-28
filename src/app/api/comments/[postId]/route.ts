@@ -20,7 +20,15 @@ export async function GET(
       where: { postId },
       orderBy: { createdAt: 'desc' },
       include: {
-        user: { select: { id: true, name: true, image: true, username: true } },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            username: true,
+            createdAt: true,
+          },
+        },
         commentLikes: {
           where: {
             userId,

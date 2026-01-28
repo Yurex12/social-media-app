@@ -25,7 +25,7 @@ export function UserCard({ user }: { user: UserWithRelations }) {
         </div>
 
         <Button
-          className='rounded-full cursor-pointer'
+          className='rounded-full cursor-pointer transition-none'
           variant={user.isFollowing ? 'outline' : 'default'}
           onClick={() => toggleFollow(user.id)}
         >

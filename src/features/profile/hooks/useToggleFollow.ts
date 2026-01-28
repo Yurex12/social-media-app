@@ -1,24 +1,25 @@
-import toast from 'react-hot-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { toggleFollowAction } from '../action';
 
 import { PostWithRelations } from '@/features/post/types';
-import { SuggestedUsers, UserWithRelations } from '../types';
+import { UserWithRelations } from '../types';
 
 // shape for user data -> userWithRelations - object, SuggestedUser - array
 
 function updatePostUserData(post: PostWithRelations) {
-  const isNowFollowing = !post.user.isFollowing;
-  const followerAdjustment = isNowFollowing ? 1 : -1;
+  const isFollowing = !post.user.isFollowing;
 
   return {
     ...post,
     user: {
       ...post.user,
-      isFollowing: isNowFollowing,
+      isFollowing,
       _count: {
         ...post.user._count,
-        followers: post.user._count.followers + followerAdjustment,
+        followers: isFollowing
+          ? post.user._count.followers + 1
+          : post.user._count.followers - 1,
       },
     },
   };
@@ -26,7 +27,6 @@ function updatePostUserData(post: PostWithRelations) {
 
 export function useToggleFollow() {
   const queryClient = useQueryClient();
-
   const { mutate: toggleFollow } = useMutation({
     mutationFn: toggleFollowAction,
 
@@ -35,7 +35,7 @@ export function useToggleFollow() {
       await queryClient.cancelQueries({ queryKey: ['posts'] });
 
       const userSnapshots = queryClient.getQueriesData<
-        SuggestedUsers[] | UserWithRelations
+        UserWithRelations[] | UserWithRelations
       >({ queryKey: ['users'] });
       const postSnapshots = queryClient.getQueriesData<
         PostWithRelations | PostWithRelations[]
@@ -43,7 +43,7 @@ export function useToggleFollow() {
 
       // --- UPDATE USERS CACHE ---
       userSnapshots.forEach(([queryKey]) => {
-        queryClient.setQueryData<SuggestedUsers[] | UserWithRelations>(
+        queryClient.setQueryData<UserWithRelations[] | UserWithRelations>(
           queryKey,
           (oldData) => {
             if (!oldData) return oldData;
@@ -52,7 +52,16 @@ export function useToggleFollow() {
             if (Array.isArray(oldData)) {
               return oldData.map((user) =>
                 user.id === followingId
-                  ? { ...user, isFollowing: !user.isFollowing }
+                  ? {
+                      ...user,
+                      isFollowing: !user.isFollowing,
+                      _count: {
+                        ...user._count,
+                        followers: user.isFollowing
+                          ? user._count.followers + 1
+                          : user._count.followers - 1,
+                      },
+                    }
                   : user,
               );
             }
@@ -113,7 +122,6 @@ export function useToggleFollow() {
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'], type: 'active' });
-
       queryClient.invalidateQueries({
         queryKey: ['users', 'profile'],
         type: 'active',

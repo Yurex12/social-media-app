@@ -11,7 +11,10 @@ export type TBookmarkFromDB = Prisma.BookmarkGetPayload<{
             image: true;
             username: true;
             bio: true;
-            _count: { select: { followers: true; following: true } };
+            createdAt: true;
+            _count: {
+              select: { followers: true; following: true; posts: true };
+            };
             followers: { select: { followerId: true } };
           };
         };

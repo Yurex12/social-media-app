@@ -23,16 +23,22 @@ export async function GET(req: Request) {
         ],
         NOT: { id: userId },
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        username: true,
+        createdAt: true,
+        bio: true,
         _count: {
-          select: { followers: true, following: true },
+          select: { followers: true, following: true, posts: true },
         },
         followers: {
           where: { followerId: userId },
           select: { followerId: true },
         },
       },
-    })) as TUserFromDB[];
+    })) as unknown as TUserFromDB[];
 
     const transformedUsers = users.map((user) => ({
       ...user,

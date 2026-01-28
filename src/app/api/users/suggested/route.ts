@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
+import { TUserFromDB, UserWithRelations } from '@/features/profile/types';
 
 export async function GET(req: Request) {
   try {
@@ -15,7 +16,7 @@ export async function GET(req: Request) {
 
     const userId = session.user.id;
 
-    const result = await prisma.user.findMany({
+    const result = (await prisma.user.findMany({
       where: {
         id: { not: userId },
         followers: {
@@ -24,17 +25,33 @@ export async function GET(req: Request) {
           },
         },
       },
+
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        image: true,
+        bio: true,
+        createdAt: true,
+        _count: {
+          select: {
+            posts: true,
+            followers: true,
+            following: true,
+          },
+        },
+      },
       take: 50,
-    });
+    })) as TUserFromDB[];
 
     const shuffled = result.sort(() => 0.5 - Math.random());
-
     const users = limit ? shuffled.slice(0, limit) : shuffled;
 
     const transformedUsers = users.map((user) => ({
       ...user,
       isFollowing: false,
-    }));
+      isCurrentUser: false,
+    })) satisfies UserWithRelations[];
 
     return NextResponse.json(transformedUsers);
   } catch {

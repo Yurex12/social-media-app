@@ -21,8 +21,11 @@ export async function GET() {
             name: true,
             image: true,
             username: true,
+            createdAt: true,
             bio: true,
-            _count: { select: { followers: true, following: true } },
+            _count: {
+              select: { followers: true, following: true, posts: true },
+            },
             followers: {
               where: { followerId: userId },
               select: { followerId: true },
@@ -53,6 +56,7 @@ export async function GET() {
         user: {
           ...post.user,
           isFollowing: post.user.followers.length > 0,
+          isCurrentUser: post.user.id === userId,
         },
         isBookmarked: post.bookmarks.length > 0,
         isLiked: post.postLikes.length > 0,

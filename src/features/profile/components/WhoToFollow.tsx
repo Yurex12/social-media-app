@@ -48,17 +48,17 @@ export function WhoToFollow() {
               <UserAvatar image={user.image} name={user.name} />
 
               <div className='flex flex-col min-w-0'>
-                <span className='font-bold text-sm truncate group-hover:underline'>
+                <h2 className='font-semibold leading-none tracking-tight truncate'>
                   {user.name}
-                </span>
-                <span className='text-muted-foreground text-xs truncate'>
+                </h2>
+                <span className='text-sm font-medium text-muted-foreground truncate'>
                   @{user.username}
                 </span>
               </div>
             </div>
 
             <Button
-              className='rounded-full cursor-pointer'
+              className='rounded-full cursor-pointer transition-none'
               variant={user.isFollowing ? 'outline' : 'default'}
               onClick={() => toggleFollow(user.id)}
             >
