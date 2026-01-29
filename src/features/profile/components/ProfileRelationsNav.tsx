@@ -3,15 +3,12 @@ import { useParams, usePathname } from 'next/navigation';
 
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import { useSession } from '@/lib/auth-client';
 import { useProfile } from '../hooks/useProfile';
 
-export function ProfileNav() {
+export function ProfileRelationsNav() {
   const { username } = useParams<{ username: string }>();
 
   const pathname = usePathname();
-
-  const session = useSession();
 
   const {
     error: profileError,
@@ -22,11 +19,9 @@ export function ProfileNav() {
   if (profileError || isLoadingProfile || !user) return null;
 
   const tabs = [
-    { label: 'Posts', href: `/profile/${username}` },
-    { label: 'Likes', href: `/profile/${username}/likes` },
+    { label: 'Following', href: `/profile/${username}/following` },
+    { label: 'Followers', href: `/profile/${username}/followers` },
   ];
-
-  if (session.data?.user.username !== username) return null;
 
   return (
     <div className='flex border-b border-gray-200'>

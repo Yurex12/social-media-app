@@ -40,8 +40,9 @@ export type TPostLikeFromDB = Prisma.PostLikeGetPayload<{
             username: true;
             createdAt: true;
             bio: true;
-
-            _count: { select: { followers: true; following: true } };
+            _count: {
+              select: { followers: true; following: true; posts: true };
+            };
             followers: {
               select: { followerId: true };
             };

@@ -43,6 +43,7 @@ export async function GET(
             username: true,
             image: true,
             bio: true,
+            createdAt: true,
             followers: {
               where: { followerId: userId },
               select: { followerId: true },
@@ -69,7 +70,7 @@ export async function GET(
       } satisfies UserWithRelations;
     });
 
-    NextResponse.json(transformedFollowers);
+    return NextResponse.json(transformedFollowers);
   } catch {
     return NextResponse.json(
       { error: 'Internal server error' },

@@ -16,7 +16,7 @@ export type TPostFromDB = Prisma.PostGetPayload<{
         bio: true;
         createdAt: true;
         followers: { select: { followerId: true } };
-        _count: { select: { followers: true; following: true } };
+        _count: { select: { followers: true; following: true; posts: true } };
       };
     };
     images: { select: { id: true; url: true; fileId: true } };

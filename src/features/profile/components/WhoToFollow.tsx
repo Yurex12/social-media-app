@@ -5,6 +5,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { useSuggestedUsers } from '../hooks/useSuggestedUser';
 import { UserAvatar } from './UserAvatar';
 import { useToggleFollow } from '../hooks/useToggleFollow';
+import Link from 'next/link';
 
 const LIMIT = 3;
 
@@ -68,9 +69,9 @@ export function WhoToFollow() {
         ))}
       </div>
 
-      <button className='w-full text-left px-4 py-3 text-sm text-primary hover:bg-muted/50 transition-colors'>
+      <Link className='text-sm text-primary px-4' href='/users/suggestion'>
         Show more
-      </button>
+      </Link>
     </div>
   );
 }

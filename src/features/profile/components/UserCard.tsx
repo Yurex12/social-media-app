@@ -8,7 +8,7 @@ export function UserCard({ user }: { user: UserWithRelations }) {
   return (
     <div
       key={user.id}
-      className='p-4 hover:bg-muted/50 transition-colors cursor-pointer group'
+      className='p-4 hover:bg-muted/10 transition-colors cursor-pointer group'
     >
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-3 min-w-0'>
@@ -24,13 +24,15 @@ export function UserCard({ user }: { user: UserWithRelations }) {
           </div>
         </div>
 
-        <Button
-          className='rounded-full cursor-pointer transition-none'
-          variant={user.isFollowing ? 'outline' : 'default'}
-          onClick={() => toggleFollow(user.id)}
-        >
-          {user.isFollowing ? 'Following' : 'Follow'}
-        </Button>
+        {!user.isCurrentUser && (
+          <Button
+            className='rounded-full cursor-pointer transition-none shadow-none'
+            variant={user.isFollowing ? 'outline' : 'default'}
+            onClick={() => toggleFollow(user.id)}
+          >
+            {user.isFollowing ? 'Following' : 'Follow'}
+          </Button>
+        )}
       </div>
     </div>
   );

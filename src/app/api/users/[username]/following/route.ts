@@ -43,6 +43,7 @@ export async function GET(
             username: true,
             image: true,
             bio: true,
+            createdAt: true,
             followers: {
               where: { followerId: userId },
               select: { followerId: true },
@@ -59,7 +60,7 @@ export async function GET(
       },
     })) as TFollowingFromBD[];
 
-    const transformedFollowers = followingList.map((f) => {
+    const transformedFollowing = followingList.map((f) => {
       const user = f.following;
 
       return {
@@ -69,7 +70,7 @@ export async function GET(
       };
     }) satisfies UserWithRelations[];
 
-    NextResponse.json(transformedFollowers);
+    return NextResponse.json(transformedFollowing);
   } catch {
     return NextResponse.json(
       { error: 'Internal server error' },

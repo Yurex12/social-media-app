@@ -60,3 +60,35 @@ export async function getSuggestedUsers(limit?: number) {
     throw error;
   }
 }
+
+export async function getUserFollowers(username: string) {
+  try {
+    const user = await axios.get<UserWithRelations[]>(
+      `/api/users/${username}/followers`,
+    );
+    console.log(user.data);
+    return user.data;
+  } catch (error: unknown) {
+    console.log(error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error || 'Failed to fetch user');
+    }
+    throw error;
+  }
+}
+export async function getUserFollowing(username: string) {
+  try {
+    const user = await axios.get<UserWithRelations[]>(
+      `/api/users/${username}/following`,
+    );
+    console.log(user.data);
+
+    return user.data;
+  } catch (error: unknown) {
+    console.log(error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error || 'Failed to fetch user');
+    }
+    throw error;
+  }
+}
