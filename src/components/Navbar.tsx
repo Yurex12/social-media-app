@@ -25,9 +25,9 @@ export default function Navbar() {
         const finalHref =
           isProfilePath && username ? `/profile/${username}` : href;
 
-        const isActive =
-          pathname === finalHref ||
-          (isProfilePath && pathname.startsWith('/profile'));
+        const isActive = isProfilePath
+          ? pathname.startsWith(finalHref)
+          : pathname === href;
 
         return (
           <Link

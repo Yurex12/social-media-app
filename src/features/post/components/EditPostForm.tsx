@@ -113,10 +113,8 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
       });
 
       if (res.success) {
-        toast.success('Post updated!', { id: toastId });
-
         queryClient.invalidateQueries({ queryKey: ['posts'], type: 'active' });
-
+        toast.success('Post updated!', { id: toastId });
         onClose();
       } else {
         toast.error(res.message, { id: toastId });

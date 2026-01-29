@@ -42,7 +42,8 @@
     "tailwind-merge": "^3.4.0",
     "use-debounce": "^10.0.6",
     "yet-another-react-lightbox": "^3.28.0",
-    "zod": "^4.3.4"
+    "zod": "^4.3.4",
+    "zustand": "^5.0.10"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

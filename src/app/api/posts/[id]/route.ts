@@ -67,7 +67,7 @@ export async function GET(
       user: {
         ...post.user,
         isFollowing: post.user.followers.length > 0,
-        isCurrentUser: session.user.id === userId,
+        isCurrentUser: post.userId === userId,
       },
     } satisfies PostWithRelations;
 

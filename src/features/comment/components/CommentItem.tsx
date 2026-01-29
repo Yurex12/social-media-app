@@ -1,7 +1,9 @@
-import { UserAvatar } from '@/features/profile/components/UserAvatar';
 import { Heart } from 'lucide-react';
-import { formatDate } from '../helper';
+import Link from 'next/link';
+
+import { UserAvatar } from '@/features/profile/components/UserAvatar';
 import { useToggleCommentLike } from '../hooks/useToggleCommentLike';
+import { formatDate } from '../helper';
 import { CommentWithRelations } from '../types';
 
 export function CommentItem({ comment }: { comment: CommentWithRelations }) {
@@ -9,20 +11,27 @@ export function CommentItem({ comment }: { comment: CommentWithRelations }) {
 
   const { toggleCommentLike } = useToggleCommentLike();
 
+  const profileUrl = `/profile/${comment.user.username}`;
+
   return (
     <div className='flex gap-3 py-2 border-b border-border/50 last:border-0'>
-      <UserAvatar image={comment.user.image} name={comment.user.name} />
+      <Link href={profileUrl}>
+        <UserAvatar image={comment.user.image} name={comment.user.name} />
+      </Link>
 
       <div className='flex flex-col gap-1 w-full min-w-0'>
         <div className='flex items-center gap-1.5 w-full min-w-0'>
-          <div className='flex items-center gap-1 min-w-0'>
-            <span className='font-semibold text-sm hover:underline cursor-pointer truncate'>
+          <Link
+            href={profileUrl}
+            className='flex items-center gap-1 min-w-0 group/name'
+          >
+            <span className='font-semibold text-sm text-foreground/80 group-hover/name:underline truncate'>
               {comment.user.name}
             </span>
             <span className='text-xs text-muted-foreground truncate'>
               @{comment.user.username}
             </span>
-          </div>
+          </Link>
 
           <span className='text-xs text-muted-foreground shrink-0'>•</span>
 
@@ -31,7 +40,7 @@ export function CommentItem({ comment }: { comment: CommentWithRelations }) {
           </span>
         </div>
 
-        <p className='text-sm text-foreground leading-relaxed wrap-break-words'>
+        <p className='text-sm leading-relaxed wrap-break-words'>
           {comment.content}
         </p>
 

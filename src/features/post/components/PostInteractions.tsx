@@ -19,9 +19,12 @@ export function PostInteractions() {
     <div className='border-t border-border/40 px-4 pt-2 flex justify-between items-center'>
       <div className='flex items-center gap-4'>
         <button
-          onClick={() => toggleLike(post.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleLike(post.id);
+          }}
           className={cn(
-            'group flex items-center gap-1 transition-colors',
+            'group flex items-center gap-1 transition-colors hover:cursor-pointer',
             post.isLiked
               ? 'text-red-500'
               : 'text-muted-foreground hover:text-red-500',
@@ -49,10 +52,11 @@ export function PostInteractions() {
         {/* Comment Button */}
 
         <button
-          className='group flex items-center gap-1 text-muted-foreground transition-colors hover:text-sky-500'
-          onClick={() =>
-            router.push(`/${post.user.username!}/status/${post.id}`)
-          }
+          className='group flex items-center gap-1 text-muted-foreground transition-colors hover:text-sky-500 hover:cursor-pointer'
+          onClick={(e) => {
+            e.stopPropagation();
+            router.push(`/${post.user.username!}/status/${post.id}`);
+          }}
         >
           <div className='rounded-full p-2 group-hover:bg-sky-500/10 transition-colors'>
             <MessageSquare className='h-4.5 w-4.5' strokeWidth={2} />

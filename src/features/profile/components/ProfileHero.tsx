@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { useProfile } from '../hooks/useProfile';
 import { useToggleFollow } from '../hooks/useToggleFollow';
 import { UserAvatar } from './UserAvatar';
+import Link from 'next/link';
 
 export function ProfileHero() {
   const { user, isPending, error } = useProfile();
@@ -92,20 +93,27 @@ export function ProfileHero() {
 
           {/* Stats Row */}
           <div className='flex gap-4 text-sm'>
-            <div className='hover:underline cursor-pointer flex gap-1'>
+            <Link
+              href={`/profile/${user.username}/following`}
+              className='hover:underline cursor-pointer flex gap-1 items-center'
+            >
               <span className='font-bold text-foreground'>
                 {user._count.following}
               </span>
               <span className='text-muted-foreground'>Following</span>
-            </div>
-            <div className='hover:underline cursor-pointer flex gap-1'>
+            </Link>
+
+            <Link
+              href={`/profile/${user.username}/followers`}
+              className='hover:underline cursor-pointer flex gap-1 items-center'
+            >
               <span className='font-bold text-foreground'>
                 {user._count.followers}
               </span>
               <span className='text-muted-foreground'>
-                {user._count.followers > 1 ? 'Followers' : 'Follower'}
+                {user._count.followers === 1 ? 'Follower' : 'Followers'}
               </span>
-            </div>
+            </Link>
           </div>
         </div>
       </div>

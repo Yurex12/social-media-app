@@ -17,7 +17,7 @@ export default function EditPostDialog({
   const handleClose = () => onOpenChange(false);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle>Edit post</DialogTitle>
         </DialogHeader>

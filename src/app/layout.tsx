@@ -5,6 +5,8 @@ import { Toaster } from 'react-hot-toast';
 
 import './globals.css';
 import Providers from './Providers';
+import { GlobalLightBox } from '@/components/GlobalLightbox';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 // const poppins = Poppins({
 //   subsets: ['latin'],
@@ -36,6 +38,8 @@ export default function RootLayout({
         className={`${outfit.className} antialiased h-screen overflow-y-scroll`}
       >
         <Toaster />
+        <GlobalLightBox />
+        <ConfirmDialog />
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,38 +10,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { useConfirmDialogStore } from '@/store/useConfirmDialogStore';
 
-interface ConfirmDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  title?: string;
-  description?: string;
-  onConfirm: () => void;
-  isDestructive?: boolean;
-  disabled: boolean;
-}
+export function ConfirmDialog() {
+  const { isOpen, title, description, onConfirm, closeConfirm, isLoading } =
+    useConfirmDialogStore();
 
-export function ConfirmDialog({
-  title = 'Are you absolutely sure?',
-  open,
-  disabled,
-  onOpenChange,
-  description = 'This action cannot be undone. This will permanently delete your data.',
-  onConfirm,
-}: ConfirmDialogProps) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+    <AlertDialog open={isOpen} onOpenChange={closeConfirm}>
+      <AlertDialogContent onClick={(e) => e.stopPropagation()}>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className='flex-row justify-end gap-3'>
-          <AlertDialogCancel disabled={disabled}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className='bg-destructive/80 text-background hover:bg-destructive/70'
-            disabled={disabled}
+            disabled={isLoading}
           >
             Delete
           </AlertDialogAction>

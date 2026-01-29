@@ -19,7 +19,7 @@ function updatePostUserData(post: PostWithRelations) {
         ...post.user._count,
         followers: isFollowing
           ? post.user._count.followers + 1
-          : post.user._count.followers - 1,
+          : Math.max(0, post.user._count.followers - 1),
       },
     },
   };
@@ -48,22 +48,24 @@ export function useToggleFollow() {
           (oldData) => {
             if (!oldData) return oldData;
 
-            //  when it's an array then it's the suggested user array type
             if (Array.isArray(oldData)) {
-              return oldData.map((user) =>
-                user.id === followingId
-                  ? {
-                      ...user,
-                      isFollowing: !user.isFollowing,
-                      _count: {
-                        ...user._count,
-                        followers: user.isFollowing
-                          ? user._count.followers + 1
-                          : user._count.followers - 1,
-                      },
-                    }
-                  : user,
-              );
+              return oldData.map((user) => {
+                if (user.id !== followingId) return user;
+
+                const isFollowing = !user.isFollowing;
+
+                return {
+                  ...user,
+                  isFollowing,
+                  _count: {
+                    ...user._count,
+
+                    followers: isFollowing
+                      ? user._count.followers + 1
+                      : Math.max(0, user._count.followers - 1),
+                  },
+                };
+              });
             }
             //  for the profile
             if (oldData.id === followingId) {
@@ -75,7 +77,7 @@ export function useToggleFollow() {
                   ...oldData._count,
                   followers: isFollowing
                     ? oldData._count.followers + 1
-                    : oldData._count.followers - 1,
+                    : Math.max(0, oldData._count.followers - 1),
                 },
               };
             }
@@ -114,8 +116,6 @@ export function useToggleFollow() {
       context?.snapshots?.forEach(([key, data]) => {
         queryClient.setQueryData(key, data);
       });
-
-      console.log(err);
 
       toast.error('Something went wrong');
     },

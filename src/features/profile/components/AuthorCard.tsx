@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { useToggleFollow } from '../hooks/useToggleFollow';
 import { AuthorCardProps } from '../types';
 import { UserAvatar } from './UserAvatar';
+import { useRouter } from 'next/navigation';
 
 export function AuthorCard({ user, isPending, error }: AuthorCardProps) {
   const { toggleFollow } = useToggleFollow();
+  const router = useRouter();
 
   if (isPending)
     return (
@@ -19,9 +21,9 @@ export function AuthorCard({ user, isPending, error }: AuthorCardProps) {
   if (error || !user) return null;
 
   return (
-    <Link
-      href={`/profile/${user.username}`}
-      className='block p-4 transition-colors hover:bg-muted/10 group border rounded-md space-y-3'
+    <div
+      onClick={() => router.push(`/profile/${user.username}`)}
+      className='block p-4 hover:bg-muted/10 group border rounded-md space-y-3 cursor-pointer'
     >
       <div className='flex gap-3'>
         <div className='shrink-0'>
@@ -36,7 +38,7 @@ export function AuthorCard({ user, isPending, error }: AuthorCardProps) {
             <p className='text-muted-foreground text-sm'>@{user.username}</p>
           </div>
 
-          <div onClick={(e) => e.preventDefault()}>
+          <div onClick={(e) => e.stopPropagation()}>
             {user.isCurrentUser ? (
               <Button
                 variant='outline'
@@ -84,6 +86,6 @@ export function AuthorCard({ user, isPending, error }: AuthorCardProps) {
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
