@@ -21,7 +21,7 @@ export default async function Page() {
       </div>
 
       {/* left item */}
-      <RightSidebar />
+      {/* <RightSidebar /> */}
     </div>
   );
 }

@@ -1,17 +1,12 @@
+import { useEntityStore } from '@/entities/store';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { toggleBookmarkAction } from '../action';
-import { PostWithRelations } from '@/features/post/types';
-
-function updatePostBookmark(post: PostWithRelations) {
-  return {
-    ...post,
-    isBookmarked: !post.isBookmarked,
-  };
-}
 
 export function useToggleBookmark() {
   const queryClient = useQueryClient();
+  const posts = useEntityStore((state) => state.posts);
+  const updatePost = useEntityStore((state) => state.updatePost);
 
   const { mutate: toggleBookmark, isPending: isToggling } = useMutation({
     mutationFn: toggleBookmarkAction,
@@ -19,67 +14,32 @@ export function useToggleBookmark() {
     onMutate: async (postId: string) => {
       await queryClient.cancelQueries({ queryKey: ['posts'] });
 
-      const snapshots = queryClient.getQueriesData<
-        PostWithRelations[] | PostWithRelations
-      >({ queryKey: ['posts'] });
+      const post = posts[postId];
 
-      snapshots.forEach(([queryKey]) => {
-        queryClient.setQueryData<PostWithRelations[] | PostWithRelations>(
-          queryKey,
-          (oldData) => {
-            if (!oldData) return oldData;
+      const previousPost = { ...post };
 
-            if (Array.isArray(oldData)) {
-              if (queryKey.includes('bookmarks')) {
-                return oldData.filter((p) => p.id !== postId);
-              }
-
-              return oldData.map((post) =>
-                post.id === postId ? updatePostBookmark(post) : post,
-              );
-            }
-
-            if (oldData.id === postId) {
-              return updatePostBookmark(oldData);
-            }
-
-            return oldData;
-          },
-        );
+      updatePost(postId, {
+        isBookmarked: !post.isBookmarked,
       });
 
-      return { snapshots };
+      return { previousPost };
     },
 
     onSuccess: (_, postId, context) => {
-      let wasBookmarked = false;
-      const snapshot = context?.snapshots.find(([_, data]) => {
-        if (Array.isArray(data)) return data.some((p) => p.id === postId);
-        return data?.id === postId;
-      });
-
-      if (snapshot) {
-        const data = snapshot[1];
-        const post = Array.isArray(data)
-          ? data.find((p) => p.id === postId)
-          : data;
-        wasBookmarked = post?.isBookmarked ?? false;
-      }
-
       toast.success(
-        wasBookmarked ? 'Removed from bookmarks' : 'Added to bookmarks',
+        context.previousPost.isBookmarked
+          ? 'Removed from bookmarks'
+          : 'Added to bookmarks',
       );
     },
 
-    onError: (err, _, context) => {
-      context?.snapshots?.forEach(([queryKey, oldData]) => {
-        queryClient.setQueryData(queryKey, oldData);
-      });
+    onError: (err, postId, context) => {
+      if (context?.previousPost) updatePost(postId, context?.previousPost);
       toast.error('Failed to update bookmark');
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'], type: 'active' });
+      queryClient.invalidateQueries({ queryKey: ['posts', 'bookmarks'] });
     },
   });
 

@@ -1,4 +1,4 @@
-import { CommentWithRelations } from '@/features/comment/types';
+import { CommentWithRelations, TCommentFromBD } from '@/features/comment/types';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { NextRequest, NextResponse } from 'next/server';
@@ -19,21 +19,33 @@ export async function GET(
     const comments = (await prisma.comment.findMany({
       where: { postId },
       orderBy: { createdAt: 'desc' },
-      include: {
+      select: {
         user: {
           select: {
             id: true,
             name: true,
-            image: true,
             username: true,
+            bio: true,
+            image: true,
             createdAt: true,
+            _count: {
+              select: {
+                posts: true,
+                followers: true,
+                following: true,
+              },
+            },
+            followers: {
+              where: { followerId: userId },
+              select: { followerId: true },
+            },
           },
         },
         commentLikes: {
           where: {
             userId,
           },
-          select: { id: true },
+          select: { userId: true },
         },
         _count: {
           select: {
@@ -41,16 +53,20 @@ export async function GET(
           },
         },
       },
-    })) as CommentWithRelations[];
+    })) as TCommentFromBD[];
 
     const transformedComments = comments.map((comment) => {
-      const { commentLikes, _count, ...rest } = comment;
       return {
-        ...rest,
-        isLiked: commentLikes.length > 0,
-        likeCount: _count.commentLikes,
+        ...comment,
+        isLiked: comment.commentLikes.length > 0,
+        likeCount: comment._count.commentLikes,
+        user: {
+          ...comment.user,
+          isCurrentUser: comment.user.id === userId,
+          isFollowing: comment.user.followers.length > 0,
+        },
       };
-    });
+    }) satisfies CommentWithRelations[];
 
     return NextResponse.json(transformedComments);
   } catch {

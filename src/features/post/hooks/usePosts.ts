@@ -1,15 +1,34 @@
 import { useQuery } from '@tanstack/react-query';
 import { getPosts } from '../api';
+import { useEntityStore } from '@/entities/store';
+import { normalizePosts } from '@/entities/utils';
 
 export function usePosts() {
+  const addPosts = useEntityStore((state) => state.addPosts);
+  const addUsers = useEntityStore((state) => state.addUsers);
+
   const {
-    data: posts,
+    data: postIds,
     isPending,
     error,
   } = useQuery({
-    queryKey: ['posts', 'feed', 'home'],
-    queryFn: getPosts,
+    queryKey: ['posts', 'home'],
+    queryFn: async () => {
+      const posts = await getPosts();
+
+      const { posts: normalizedPosts, users: normalizedUsers } =
+        normalizePosts(posts);
+
+      addPosts(normalizedPosts);
+      addUsers(normalizedUsers);
+
+      return normalizedPosts.map((p) => p.id);
+    },
   });
 
-  return { posts, isPending, error };
+  return {
+    postIds,
+    isPending,
+    error,
+  };
 }

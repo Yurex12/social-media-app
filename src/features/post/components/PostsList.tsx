@@ -4,7 +4,7 @@ import { usePosts } from '../hooks/usePosts';
 import { PostFeed } from './PostFeed';
 
 export function PostsList() {
-  const { posts, isPending, error } = usePosts();
+  const { postIds, isPending, error } = usePosts();
 
-  return <PostFeed posts={posts} isPending={isPending} error={error} />;
+  return <PostFeed postIds={postIds} isPending={isPending} error={error} />;
 }

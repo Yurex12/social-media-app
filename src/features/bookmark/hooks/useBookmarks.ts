@@ -1,15 +1,29 @@
 import { useQuery } from '@tanstack/react-query';
 import { getBookmarks } from '../api';
+import { useEntityStore } from '@/entities/store';
+import { normalizePosts } from '@/entities/utils';
 
 export function useBookmarks() {
+  const addPosts = useEntityStore((state) => state.addPosts);
+  const addUsers = useEntityStore((state) => state.addUsers);
   const {
-    data: bookmarks,
+    data: bookmarkIds,
     isPending,
     error,
   } = useQuery({
-    queryKey: ['posts', 'feed', 'bookmarks'],
-    queryFn: getBookmarks,
+    queryKey: ['posts', 'bookmarks'],
+    queryFn: async () => {
+      const bookmarks = await getBookmarks();
+
+      const { posts: normalizedPosts, users: normalizedUsers } =
+        normalizePosts(bookmarks);
+
+      addPosts(normalizedPosts);
+      addUsers(normalizedUsers);
+
+      return normalizedPosts.map((p) => p.id);
+    },
   });
 
-  return { bookmarks, isPending, error };
+  return { bookmarkIds, isPending, error };
 }

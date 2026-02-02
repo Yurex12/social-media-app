@@ -1,17 +1,19 @@
+// PostCard.tsx
+
 import { MediaGallery } from '@/components/MediaGallery';
 import { TextExpander } from '@/components/TextExpander';
+import { useRouter } from 'next/navigation';
 
 import { usePost } from '../PostProvider';
 import { PostHeader } from './PostHeader';
 import { PostInteractions } from './PostInteractions';
-import { useRouter } from 'next/navigation';
 
 export function PostCard() {
   const router = useRouter();
-  const { post } = usePost();
+  const { post, user } = usePost();
 
   const handleCardClick = () => {
-    router.push(`/${post.user.username!}/status/${post.id}`);
+    router.push(`/${user.username}/status/${post.id}`);
   };
 
   return (

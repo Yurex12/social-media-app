@@ -32,8 +32,8 @@ export type PostWithRelations = Omit<
 > & {
   isBookmarked: boolean;
   isLiked: boolean;
-  likeCount: number;
-  commentCount: number;
+  likesCount: number;
+  commentsCount: number;
   user: TPostFromDB['user'] & { isFollowing: boolean; isCurrentUser: boolean };
 };
 

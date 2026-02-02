@@ -60,8 +60,8 @@ export async function GET() {
         },
         isBookmarked: post.bookmarks.length > 0,
         isLiked: post.postLikes.length > 0,
-        likeCount: post._count.postLikes,
-        commentCount: post._count.comments,
+        likesCount: post._count.postLikes,
+        commentsCount: post._count.comments,
       };
     }) satisfies PostWithRelations[];
 

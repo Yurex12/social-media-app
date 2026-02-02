@@ -6,7 +6,7 @@ import { usePost } from '../PostProvider';
 import { useToggleLike } from '../hooks/useToggleLike';
 
 export function PostInteractions() {
-  const { post } = usePost();
+  const { post, user } = usePost();
   const { toggleLike } = useToggleLike();
 
   const postTimeStamp = formatDistanceToNowStrict(new Date(post.createdAt), {
@@ -45,7 +45,7 @@ export function PostInteractions() {
             />
           </div>
           <span className='text-xs font-medium tabular-nums'>
-            {post.likeCount ?? 0}
+            {post.likesCount}
           </span>
         </button>
 
@@ -55,14 +55,14 @@ export function PostInteractions() {
           className='group flex items-center gap-1 text-muted-foreground transition-colors hover:text-sky-500 hover:cursor-pointer'
           onClick={(e) => {
             e.stopPropagation();
-            router.push(`/${post.user.username!}/status/${post.id}`);
+            router.push(`/${user.username!}/status/${post.id}`);
           }}
         >
           <div className='rounded-full p-2 group-hover:bg-sky-500/10 transition-colors'>
             <MessageSquare className='h-4.5 w-4.5' strokeWidth={2} />
           </div>
           <span className='text-xs font-medium tabular-nums'>
-            {post.commentCount ?? 0}
+            {post.commentsCount}
           </span>
         </button>
       </div>

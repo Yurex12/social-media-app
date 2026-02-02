@@ -4,9 +4,7 @@ import { PostOptions } from './PostOptions';
 import { UserAvatar } from '@/features/profile/components/UserAvatar';
 
 export function PostHeader() {
-  const {
-    post: { user },
-  } = usePost();
+  const { user } = usePost();
   return (
     <div className='flex items-center justify-between px-4 cursor-pointer'>
       <Link

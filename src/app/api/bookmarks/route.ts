@@ -57,8 +57,8 @@ export async function GET() {
         ...post,
         isBookmarked: true,
         isLiked: post.postLikes.length > 0,
-        likeCount: post._count.postLikes,
-        commentCount: post._count.comments,
+        likesCount: post._count.postLikes,
+        commentsCount: post._count.comments,
         user: {
           ...post.user,
           isFollowing: post.user.followers.length > 0,

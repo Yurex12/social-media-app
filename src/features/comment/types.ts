@@ -1,16 +1,27 @@
 import { Prisma } from '@/generated/prisma/client';
+import { UserWithRelations } from '../profile/types';
 
-export type CommentWithRelations = Prisma.CommentGetPayload<{
+export type TCommentFromBD = Prisma.CommentGetPayload<{
   include: {
     user: {
       select: {
         id: true;
         name: true;
-        username: true;
         image: true;
+        username: true;
+        bio: true;
+        createdAt: true;
+        followers: { select: { followerId: true } };
+        _count: { select: { followers: true; following: true; posts: true } };
       };
     };
-    commentLikes: { select: { id: true } };
+    commentLikes: { select: { userId: true } };
     _count: { select: { commentLikes: true } };
   };
-}> & { likesCount: number; isLiked: boolean };
+}>;
+
+export type CommentWithRelations = Omit<TCommentFromBD, 'user'> & {
+  user: UserWithRelations;
+  likeCount: number;
+  isLiked: boolean;
+};

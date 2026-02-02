@@ -26,7 +26,7 @@ import EditPostDialog from './EditPostDialog';
 import { useConfirmDialogStore } from '@/store/useConfirmDialogStore';
 
 export function PostOptions() {
-  const { post } = usePost();
+  const { post, user } = usePost();
   const { openConfirm } = useConfirmDialogStore();
   const [showEditDialog, setShowEditDialog] = useState(false);
 
@@ -37,10 +37,10 @@ export function PostOptions() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const isOwner = data?.user?.id === post.user.id;
+  const isOwner = data?.user?.id === user.id;
 
   async function handleCopyLink() {
-    const url = `${window.location.origin}/${post.user.username!}/status/${post.id}`;
+    const url = `${window.location.origin}/${user.username!}/status/${post.id}`;
     try {
       await navigator.clipboard.writeText(url);
       toast.success('Link copied to clipboard');

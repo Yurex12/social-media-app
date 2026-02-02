@@ -33,7 +33,7 @@ export function PostDetails({ post, isPending, error }: PostDetailsProps) {
       <div className='space-y-4 px-4'>
         <PostCard />
         <CommentInputBar />
-        <CommentList />
+        {/* <CommentList /> */}
       </div>
     </PostProvider>
   );

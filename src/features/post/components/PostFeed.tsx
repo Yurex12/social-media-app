@@ -3,10 +3,18 @@
 import { Spinner } from '@/components/ui/spinner';
 import { PostProvider } from '@/features/post/PostProvider';
 import { PostCard } from '@/features/post/components/PostCard';
-import { PostFeedProps } from '@/features/post/types';
+
+import { ReactElement } from 'react';
+
+interface PostFeedProps {
+  postIds: string[] | undefined;
+  isPending: boolean;
+  error: Error | null;
+  emptyMessage?: ReactElement | string;
+}
 
 export function PostFeed({
-  posts,
+  postIds,
   isPending,
   error,
   emptyMessage = 'No posts found',
@@ -21,17 +29,20 @@ export function PostFeed({
 
   if (error) return <p className='mt-4'>{error.message}</p>;
 
-  if (!posts?.length) {
+  if (!postIds?.length) {
+    return <p className='mt-4 text-muted-foreground'>Something went wrong</p>;
+  }
+
+  if (!postIds?.length)
     if (typeof emptyMessage === 'string') {
       return <p className='mt-4 text-muted-foreground'>{emptyMessage}</p>;
     } else return emptyMessage;
-  }
 
   return (
     <ul className='pb-4'>
-      {posts.map((post) => (
-        <li key={post.id} className='mt-4 '>
-          <PostProvider post={post}>
+      {postIds.map((postId) => (
+        <li key={postId} className='mt-4 '>
+          <PostProvider postId={postId}>
             <PostCard />
           </PostProvider>
         </li>
