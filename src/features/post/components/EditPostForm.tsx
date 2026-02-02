@@ -22,14 +22,15 @@ import { ImagePreviews } from './ImagePreviews';
 import { postEditSchema, type PostEditSchema } from '../schema';
 
 import { usePost } from '../PostProvider';
-import { ImageUploadResponse } from '@/types';
-import { uploadImages } from '@/lib/imagekit';
-import { updatePost } from '../actions';
-import { useQueryClient } from '@tanstack/react-query';
+
 import { useSession } from '@/lib/auth-client';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEditPost } from '../hooks/useEditPost';
 
 export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { editPost, isPending: isEditing } = useEditPost();
 
   const { post } = usePost();
 
@@ -46,7 +47,7 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
 
   const images = useWatch({ control: form.control, name: 'images' });
   const content = useWatch({ control: form.control, name: 'content' });
-  const isUpdating = form.formState.isSubmitting;
+  const isUpdating = form.formState.isSubmitting || isEditing;
   const isValid = form.formState.isValid;
 
   function handleImageSelect(
@@ -76,52 +77,62 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
     newImgs.splice(id, 1);
     form.setValue('images', newImgs);
   }
-  const queryClient = useQueryClient();
 
   async function onSubmit(values: PostEditSchema) {
-    const toastId = toast.loading('Saving changes...');
+    editPost(
+      {
+        postId: post.id,
+        values: values,
+        existingImages: post.images,
+      },
+      {
+        onSuccess() {
+          onClose();
+        },
+      },
+    );
 
-    try {
-      const filesToUpload = values.images.filter(
-        (img) => img instanceof File,
-      ) as File[];
+    // try {
+    //   const filesToUpload = values.images.filter(
+    //     (img) => img instanceof File,
+    //   ) as File[];
 
-      const keptImages = values.images.filter(
-        (img) => !(img instanceof File),
-      ) as { fileId: string; url: string }[];
+    //   const keptImages = values.images.filter(
+    //     (img) => !(img instanceof File),
+    //   ) as { fileId: string; url: string }[];
 
-      const keptFileIds = new Set(keptImages.map((img) => img.fileId));
+    //   const keptFileIds = new Set(keptImages.map((img) => img.fileId));
 
-      const imagesToDeleteId = post.images
-        .filter((img) => !keptFileIds.has(img.fileId))
-        .map((img) => img.fileId);
+    //   const imagesToDeleteId = post.images
+    //     .filter((img) => !keptFileIds.has(img.fileId))
+    //     .map((img) => img.fileId);
 
-      let newlyUploadedRes: ImageUploadResponse[] = [];
-      if (filesToUpload.length > 0) {
-        const uploadRes = await uploadImages(filesToUpload);
-        if (!uploadRes.success) {
-          toast.error('Failed to upload new images', { id: toastId });
-          return;
-        }
-        newlyUploadedRes = uploadRes.data;
-      }
+    //   let newlyUploadedRes: ImageUploadResponse[] = [];
+    //   if (filesToUpload.length > 0) {
+    //     const uploadRes = await uploadImages(filesToUpload);
+    //     if (!uploadRes.success) {
+    //       toast.error('Failed to upload new images', { id: toastId });
+    //       return;
+    //     }
+    //     newlyUploadedRes = uploadRes.data;
+    //   }
 
-      const res = await updatePost(post.id, {
-        content: values.content,
-        images: newlyUploadedRes,
-        imagesToDeleteId: imagesToDeleteId,
-      });
+    //   const res = await updatePost(post.id, {
+    //     content: values.content,
+    //     images: newlyUploadedRes,
+    //     imagesToDeleteId: imagesToDeleteId,
+    //   });
 
-      if (res.success) {
-        queryClient.invalidateQueries({ queryKey: ['posts'], type: 'active' });
-        toast.success('Post updated!', { id: toastId });
-        onClose();
-      } else {
-        toast.error(res.message, { id: toastId });
-      }
-    } catch {
-      toast.error('An unexpected error occurred', { id: toastId });
-    }
+    //   if (res.success) {
+    //     queryClient.invalidateQueries({ queryKey: ['posts'], type: 'active' });
+    //     toast.success('Post updated!', { id: toastId });
+    //     onClose();
+    //   } else {
+    //     toast.error(res.message, { id: toastId });
+    //   }
+    // } catch {
+    //   toast.error('An unexpected error occurred', { id: toastId });
+    // }
   }
 
   return (

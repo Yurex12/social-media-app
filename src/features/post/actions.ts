@@ -1,7 +1,7 @@
 'use server';
 
-import z from 'zod';
 import prisma from '@/lib/prisma';
+import z from 'zod';
 
 import { getSession } from '@/lib/session';
 import {
@@ -11,13 +11,13 @@ import {
   PostServerSchema,
 } from './schema';
 
-import { ActionResponse } from '@/types';
-import { CreatePostResponse } from './types';
 import { Prisma } from '@/generated/prisma/client';
+import { ActionResponse } from '@/types';
+import { PostWithRelations, TPostFromDB } from './types';
 
-export async function createPost(
-  data: PostServerSchema
-): Promise<ActionResponse<CreatePostResponse>> {
+export async function createPostAction(
+  data: PostServerSchema,
+): Promise<ActionResponse<PostWithRelations>> {
   const result = postServerSchema.safeParse(data);
 
   if (!result.success) {
@@ -32,6 +32,8 @@ export async function createPost(
     const session = await getSession();
 
     if (!session) throw new Error('unauthorized');
+
+    const userId = session.user.id;
 
     const { content, images } = result.data;
 
@@ -52,18 +54,64 @@ export async function createPost(
         },
         user: {
           connect: {
-            id: session.user.id,
+            id: userId,
           },
         },
       },
-      select: {
-        id: true,
+      include: {
+        _count: {
+          select: { postLikes: true, comments: true },
+        },
+        images: { select: { id: true, url: true, fileId: true } },
+
+        postLikes: {
+          where: { userId },
+          select: { id: true },
+        },
+
+        bookmarks: {
+          where: { userId },
+          select: { id: true },
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            username: true,
+            createdAt: true,
+            bio: true,
+            _count: {
+              select: { followers: true, following: true, posts: true },
+            },
+            followers: {
+              where: { followerId: userId },
+              select: { followerId: true },
+            },
+          },
+        },
       },
     });
 
+    const transformedPost = {
+      ...post,
+      isBookmarked: post.bookmarks.length > 0,
+      isLiked: post.postLikes.length > 0,
+      likesCount: post._count.postLikes,
+      commentsCount: post._count.comments,
+      user: {
+        ...post.user,
+        isFollowing: post.user.followers.length > 0,
+        isCurrentUser: post.userId === userId,
+        followersCount: post.user._count.followers,
+        followingCount: post.user._count.following,
+        postsCount: post.user._count.posts,
+      },
+    } satisfies PostWithRelations;
+
     return {
       success: true,
-      data: post,
+      data: transformedPost,
       message: 'Post created successfully.',
     };
   } catch (error) {
@@ -75,10 +123,10 @@ export async function createPost(
   }
 }
 
-export async function updatePost(
+export async function editPostAction(
   postId: string | undefined,
-  data: PostEditServerSchema
-): Promise<ActionResponse<{ id: string }>> {
+  data: PostEditServerSchema,
+): Promise<ActionResponse<PostWithRelations>> {
   const result = postEditServerSchema.safeParse(data);
 
   if (!result.success) {
@@ -97,6 +145,8 @@ export async function updatePost(
 
     if (!session) throw new Error('unauthorized');
 
+    const userId = session.user.id;
+
     const { content, images, imagesToDeleteId } = result.data;
 
     const post = await prisma.post.findUnique({
@@ -104,11 +154,10 @@ export async function updatePost(
       select: { userId: true },
     });
 
-    if (!post || post.userId !== session.user.id) {
+    if (!post || post.userId !== userId)
       throw new Error('Post not found or unauthorized');
-    }
 
-    await prisma.$transaction(
+    const transformedPost = await prisma.$transaction(
       async (tx) => {
         if (imagesToDeleteId.length > 0) {
           await tx.image.deleteMany({
@@ -119,7 +168,7 @@ export async function updatePost(
           });
         }
 
-        await tx.post.update({
+        const updatedPost = await tx.post.update({
           where: { id: postId },
           data: {
             content,
@@ -132,13 +181,63 @@ export async function updatePost(
               },
             },
           },
+          include: {
+            _count: {
+              select: { postLikes: true, comments: true },
+            },
+            images: { select: { id: true, url: true, fileId: true } },
+
+            postLikes: {
+              where: { userId },
+              select: { id: true },
+            },
+
+            bookmarks: {
+              where: { userId },
+              select: { id: true },
+            },
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+                createdAt: true,
+                bio: true,
+                _count: {
+                  select: { followers: true, following: true, posts: true },
+                },
+                followers: {
+                  where: { followerId: userId },
+                  select: { followerId: true },
+                },
+              },
+            },
+          },
         });
+
+        return {
+          ...updatedPost,
+          isBookmarked: updatedPost.bookmarks.length > 0,
+          isLiked: updatedPost.postLikes.length > 0,
+          likesCount: updatedPost._count.postLikes,
+          commentsCount: updatedPost._count.comments,
+          user: {
+            ...updatedPost.user,
+            isFollowing: updatedPost.user.followers.length > 0,
+            isCurrentUser: updatedPost.userId === userId,
+            followersCount: updatedPost.user._count.followers,
+            followingCount: updatedPost.user._count.following,
+            postsCount: updatedPost.user._count.posts,
+          },
+        } satisfies PostWithRelations;
       },
-      { timeout: 10_000 }
+      { timeout: 10_000 },
     );
+
     return {
       success: true,
-      data: { id: postId },
+      data: transformedPost,
       message: 'Post edited successfully',
     };
   } catch (err) {
@@ -149,7 +248,7 @@ export async function updatePost(
 }
 
 export async function deletePostAction(
-  postId: string
+  postId: string,
 ): Promise<ActionResponse<string>> {
   try {
     if (!postId || typeof postId !== 'string') {
@@ -192,7 +291,7 @@ export async function deletePostAction(
 }
 
 export async function toggleLikeAction(
-  postId: string
+  postId: string,
 ): Promise<ActionResponse<{ liked: boolean }>> {
   try {
     const session = await getSession();

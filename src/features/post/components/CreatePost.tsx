@@ -18,18 +18,15 @@ import { Textarea } from '@/components/ui/textarea';
 
 import { ImagePreviews } from './ImagePreviews';
 
-import { uploadImages } from '@/lib/imagekit';
-import { createPost } from '../actions';
-
 import { UserAvatar } from '@/features/profile/components/UserAvatar';
-import { ImageUploadResponse } from '@/types';
-import { useQueryClient } from '@tanstack/react-query';
-import { postSchema, type PostSchema } from '../schema';
 import { useSession } from '@/lib/auth-client';
+import { useCreatePost } from '../hooks/useCreatePost';
+import { postSchema, type PostSchema } from '../schema';
 
 export function CreatePost() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const queryClient = useQueryClient();
+
+  const { createPost, isPending: isCreating } = useCreatePost();
 
   const session = useSession();
 
@@ -51,7 +48,7 @@ export function CreatePost() {
     name: 'content',
   });
 
-  const isPosting = form.formState.isSubmitting;
+  const isPosting = form.formState.isSubmitting || isCreating;
 
   const isValid = form.formState.isValid;
 
@@ -61,44 +58,11 @@ export function CreatePost() {
       return;
     }
 
-    const toastId = toast.loading('Uploading your post...', {
-      duration: Infinity,
+    createPost(values, {
+      onSuccess() {
+        form.reset();
+      },
     });
-
-    let uploadedImages: ImageUploadResponse[] = [];
-
-    if (values.images.length) {
-      const res = await uploadImages(values.images);
-
-      if (!res.success) {
-        toast.error('Post could not be uploaded, try again', {
-          id: toastId,
-          duration: 3000,
-        });
-        return;
-      }
-
-      if (res.success) uploadedImages = res.data;
-    }
-
-    const res = await createPost({
-      content: content,
-      images: uploadedImages,
-    });
-
-    if (res.success) {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-      toast.success(res.message, {
-        id: toastId,
-        duration: 3000,
-      });
-      form.reset();
-    } else {
-      toast.error(res.message, {
-        id: toastId,
-        duration: 3000,
-      });
-    }
   }
 
   function handleImageSelect(
