@@ -22,7 +22,7 @@ export function PostProvider({
 }) {
   const post = useStore(useEntityStore, selectPostById(postId));
 
-  const user = useStore(useEntityStore, selectUserById(post.userId));
+  const user = useStore(useEntityStore, selectUserById(post?.userId));
 
   const value = useMemo(() => {
     if (!post || !user) return undefined;

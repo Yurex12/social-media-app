@@ -6,7 +6,6 @@ export function useToggleLike() {
   const queryClient = useQueryClient();
 
   const updatePost = useEntityStore((state) => state.updatePost);
-  const posts = useEntityStore((state) => state.posts);
 
   const { mutate: toggleLike } = useMutation({
     mutationFn: toggleLikeAction,
@@ -14,7 +13,7 @@ export function useToggleLike() {
     onMutate: async (postId: string) => {
       await queryClient.cancelQueries({ queryKey: ['posts'] });
 
-      const post = posts[postId];
+      const post = useEntityStore.getState().posts[postId];
       if (!post) return;
 
       const previousPost = { ...post };

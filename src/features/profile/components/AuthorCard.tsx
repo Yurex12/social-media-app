@@ -6,10 +6,18 @@ import { useToggleFollow } from '../hooks/useToggleFollow';
 import { AuthorCardProps } from '../types';
 import { UserAvatar } from './UserAvatar';
 import { useRouter } from 'next/navigation';
+import { useStore } from 'zustand';
+import { useEntityStore } from '@/entities/store';
+import { selectPostById } from '@/entities/postSelectors';
+import { selectUserById } from '@/entities/userSelectors';
 
-export function AuthorCard({ user, isPending, error }: AuthorCardProps) {
+export function AuthorCard({ postId, isPending, error }: AuthorCardProps) {
   const { toggleFollow } = useToggleFollow();
   const router = useRouter();
+
+  const post = useStore(useEntityStore, selectPostById(postId));
+
+  const user = useStore(useEntityStore, selectUserById(post?.userId));
 
   if (isPending)
     return (
@@ -72,16 +80,16 @@ export function AuthorCard({ user, isPending, error }: AuthorCardProps) {
         <div className='flex gap-4 pt-1'>
           <div className='flex gap-1 text-sm'>
             <span className='font-bold text-foreground/80'>
-              {user?._count?.following ?? 0}
+              {user.followingCount}
             </span>
             <span className='text-muted-foreground'>Following</span>
           </div>
           <div className='flex gap-1 text-sm'>
             <span className='font-bold text-foreground/80'>
-              {user?._count?.followers ?? 0}
+              {user.followersCount}
             </span>
             <span className='text-muted-foreground'>
-              {user?._count?.followers === 1 ? 'Follower' : 'Followers'}
+              {user.followersCount === 1 ? 'Follower' : 'Followers'}
             </span>
           </div>
         </div>

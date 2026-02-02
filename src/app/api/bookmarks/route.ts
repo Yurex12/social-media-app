@@ -63,6 +63,9 @@ export async function GET() {
           ...post.user,
           isFollowing: post.user.followers.length > 0,
           isCurrentUser: post.user.id === userId,
+          followersCount: post.user._count.followers,
+          followingCount: post.user._count.following,
+          postsCount: post.user._count.posts,
         },
       };
     }) satisfies PostWithRelations[];

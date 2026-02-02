@@ -13,15 +13,19 @@ import {
 import { useConfirmDialogStore } from '@/store/useConfirmDialogStore';
 
 export function ConfirmDialog() {
-  const { isOpen, title, description, onConfirm, closeConfirm, isLoading } =
+  const { isOpen, onConfirm, resourceName, closeConfirm, isLoading } =
     useConfirmDialogStore();
 
   return (
     <AlertDialog open={isOpen} onOpenChange={closeConfirm}>
       <AlertDialogContent onClick={(e) => e.stopPropagation()}>
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogTitle>Delete {resourceName}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {' '}
+            Are you sure you want to delete this {resourceName}? This action
+            cannot be undone
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className='flex-row justify-end gap-3'>
           <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>

@@ -5,7 +5,6 @@ import { toggleBookmarkAction } from '../action';
 
 export function useToggleBookmark() {
   const queryClient = useQueryClient();
-  const posts = useEntityStore((state) => state.posts);
   const updatePost = useEntityStore((state) => state.updatePost);
 
   const { mutate: toggleBookmark, isPending: isToggling } = useMutation({
@@ -14,15 +13,28 @@ export function useToggleBookmark() {
     onMutate: async (postId: string) => {
       await queryClient.cancelQueries({ queryKey: ['posts'] });
 
-      const post = posts[postId];
-
+      const prevBookmarkIds = queryClient.getQueryData<string[]>([
+        'posts',
+        'bookmarks',
+      ]);
+      const post = useEntityStore.getState().posts[postId];
       const previousPost = { ...post };
 
-      updatePost(postId, {
-        isBookmarked: !post.isBookmarked,
-      });
+      // Update entity
+      const newBookmarkState = !post.isBookmarked;
+      updatePost(postId, { isBookmarked: newBookmarkState });
 
-      return { previousPost };
+      // Update cache
+      queryClient.setQueryData<string[]>(
+        ['posts', 'bookmarks'],
+        (oldBookmarkIds) => {
+          if (!oldBookmarkIds) return oldBookmarkIds;
+          if (newBookmarkState) return [postId, ...oldBookmarkIds];
+          else return oldBookmarkIds.filter((id) => id !== postId);
+        },
+      );
+
+      return { previousPost, prevBookmarkIds };
     },
 
     onSuccess: (_, postId, context) => {
@@ -35,11 +47,12 @@ export function useToggleBookmark() {
 
     onError: (err, postId, context) => {
       if (context?.previousPost) updatePost(postId, context?.previousPost);
+      if (context?.prevBookmarkIds)
+        queryClient.setQueryData(
+          ['posts', 'bookmarks'],
+          context.prevBookmarkIds,
+        );
       toast.error('Failed to update bookmark');
-    },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts', 'bookmarks'] });
     },
   });
 

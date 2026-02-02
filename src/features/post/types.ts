@@ -34,7 +34,13 @@ export type PostWithRelations = Omit<
   isLiked: boolean;
   likesCount: number;
   commentsCount: number;
-  user: TPostFromDB['user'] & { isFollowing: boolean; isCurrentUser: boolean };
+  user: TPostFromDB['user'] & {
+    isFollowing: boolean;
+    isCurrentUser: boolean;
+    followersCount: number;
+    followingCount: number;
+    postsCount: number;
+  };
 };
 
 export interface PostFeedProps {

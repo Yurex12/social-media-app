@@ -1,16 +1,13 @@
-// hooks/use-confirm-store.ts
 import { create } from 'zustand';
 
 type ConfirmDialogStore = {
   isOpen: boolean;
-  title: string;
-  description: string;
+  resourceName: string;
   onConfirm: () => void;
   isLoading: boolean;
   openConfirm: (config: {
-    title?: string;
-    description?: string;
     onConfirm: () => void;
+    resourceName?: string;
   }) => void;
   closeConfirm: () => void;
   setLoading: (loading: boolean) => void;
@@ -18,15 +15,13 @@ type ConfirmDialogStore = {
 
 export const useConfirmDialogStore = create<ConfirmDialogStore>((set) => ({
   isOpen: false,
-  title: '',
-  description: '',
+  resourceName: '',
   isLoading: false,
   onConfirm: () => {},
-  openConfirm: ({ title, description, onConfirm }) =>
+  openConfirm: ({ onConfirm, resourceName }) =>
     set({
+      resourceName: resourceName || 'data',
       isOpen: true,
-      title: title || 'Are you absolutely sure?',
-      description: description || 'This action cannot be undone.',
       onConfirm,
     }),
   closeConfirm: () => set({ isOpen: false, isLoading: false }),

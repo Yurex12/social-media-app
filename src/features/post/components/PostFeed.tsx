@@ -29,10 +29,6 @@ export function PostFeed({
 
   if (error) return <p className='mt-4'>{error.message}</p>;
 
-  if (!postIds?.length) {
-    return <p className='mt-4 text-muted-foreground'>Something went wrong</p>;
-  }
-
   if (!postIds?.length)
     if (typeof emptyMessage === 'string') {
       return <p className='mt-4 text-muted-foreground'>{emptyMessage}</p>;

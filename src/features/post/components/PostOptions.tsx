@@ -111,13 +111,9 @@ export function PostOptions() {
                   const isDetailPage = pathname.includes(`/status/${post.id}`);
 
                   openConfirm({
-                    title: 'Delete Post?',
-                    description:
-                      'Are you sure you want to delete this post? This action cannot be undone.',
+                    resourceName: 'post',
                     onConfirm: () => {
-                      if (isDetailPage) {
-                        router.replace('/home');
-                      }
+                      if (isDetailPage) router.replace('/home');
                       deletePost(post.id);
                     },
                   });

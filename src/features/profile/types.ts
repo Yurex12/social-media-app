@@ -124,7 +124,7 @@ interface Author {
 }
 
 export interface AuthorCardProps {
-  user: Author | undefined;
+  postId: string | undefined;
   isPending: boolean;
   error: Error | null;
 }

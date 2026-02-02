@@ -1,11 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
+import { useEntityStore } from '@/entities/store';
 import { deletePostAction } from '../actions';
-import { PostWithRelations } from '../types';
 
 export function useDeletePost() {
   const queryClient = useQueryClient();
+
+  const removePost = useEntityStore((state) => state.removePost);
+  const addPost = useEntityStore((state) => state.addPost);
 
   const { mutate: deletePost, isPending: isDeleting } = useMutation({
     mutationFn: deletePostAction,
@@ -13,30 +16,11 @@ export function useDeletePost() {
     onMutate: async (postId: string) => {
       await queryClient.cancelQueries({ queryKey: ['posts'] });
 
-      const snapshots = queryClient.getQueriesData<
-        PostWithRelations[] | PostWithRelations
-      >({ queryKey: ['posts'] });
+      const post = useEntityStore.getState().posts[postId];
 
-      snapshots.forEach(([queryKey]) => {
-        queryClient.setQueryData<PostWithRelations[] | PostWithRelations>(
-          queryKey,
-          (oldData) => {
-            if (!oldData) return oldData;
+      if (post) removePost(postId);
 
-            if (Array.isArray(oldData)) {
-              return oldData.filter((post) => post.id !== postId);
-            }
-
-            if (oldData.id === postId) {
-              return undefined;
-            }
-
-            return oldData;
-          },
-        );
-      });
-
-      return { snapshots };
+      return { post };
     },
 
     onSuccess: () => {
@@ -44,14 +28,8 @@ export function useDeletePost() {
     },
 
     onError: (error, _, context) => {
-      context?.snapshots?.forEach(([key, data]) => {
-        queryClient.setQueryData(key, data);
-      });
+      if (context?.post) addPost(context.post);
       toast.error(error.message || 'Could not delete post');
-    },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'], type: 'active' });
     },
   });
 

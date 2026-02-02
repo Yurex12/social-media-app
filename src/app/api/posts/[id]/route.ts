@@ -62,12 +62,15 @@ export async function GET(
       ...post,
       isBookmarked: post.bookmarks.length > 0,
       isLiked: post.postLikes.length > 0,
-      likeCount: post._count.postLikes,
-      commentCount: post._count.comments,
+      likesCount: post._count.postLikes,
+      commentsCount: post._count.comments,
       user: {
         ...post.user,
         isFollowing: post.user.followers.length > 0,
         isCurrentUser: post.userId === userId,
+        followersCount: post.user._count.followers,
+        followingCount: post.user._count.following,
+        postsCount: post.user._count.posts,
       },
     } satisfies PostWithRelations;
 
