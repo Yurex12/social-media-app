@@ -9,7 +9,7 @@ export function ProfileHeader() {
 
   if (isPending || error || !user) return null;
 
-  const postsLength = user._count.posts;
+  const postsLength = user.postsCount;
 
   return (
     <Header>

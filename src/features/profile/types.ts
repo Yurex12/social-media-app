@@ -26,6 +26,9 @@ export type TUserFromDB = Prisma.UserGetPayload<{
 export type UserWithRelations = TUserFromDB & {
   isCurrentUser: boolean;
   isFollowing: boolean;
+  followersCount: number;
+  followingCount: number;
+  postsCount: number;
 };
 
 export type TPostLikeFromDB = Prisma.PostLikeGetPayload<{

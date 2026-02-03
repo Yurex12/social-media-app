@@ -1,6 +1,7 @@
 import { PostWithRelations } from '@/features/post/types';
 import { PostEntity } from './postEntity';
 import { UserEntity } from './userEntity';
+import { UserWithRelations } from '@/features/profile/types';
 
 export function normalizePost(post: PostWithRelations): {
   post: PostEntity;
@@ -49,4 +50,22 @@ export function normalizePosts(posts: PostWithRelations[]): {
   });
 
   return { posts: normalizedPosts, users: normalizedUsers };
+}
+
+export function normalizeUser(user: UserWithRelations) {
+  const normalizedUser: UserEntity = {
+    id: user.id,
+    name: user.name,
+    username: user.username,
+    image: user.image,
+    bio: user.bio,
+    isFollowing: user.isFollowing,
+    isCurrentUser: user.isCurrentUser,
+    followersCount: user.followersCount,
+    followingCount: user.followingCount,
+    postsCount: user.postsCount,
+    createdAt: user.createdAt,
+  };
+
+  return { normalizedUser };
 }

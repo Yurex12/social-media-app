@@ -56,6 +56,9 @@ export async function GET(
       ...user,
       isCurrentUser,
       isFollowing: user.followers.length > 0,
+      followersCount: user._count.followers,
+      followingCount: user._count.following,
+      postsCount: user._count.posts,
     } satisfies UserWithRelations;
 
     return NextResponse.json(transFormedUser);

@@ -16,6 +16,7 @@ export interface UserEntity {
 
 export interface UserEntitySlice {
   users: Record<string, UserEntity>;
+  usernameToId: Record<string, string>;
 
   addUser: (user: UserEntity) => void;
   addUsers: (users: UserEntity[]) => void;
@@ -25,6 +26,7 @@ export interface UserEntitySlice {
 
 export const createUserEntitySlice: StateCreator<UserEntitySlice> = (set) => ({
   users: {},
+  usernameToId: {},
 
   addUser: (user) =>
     set((state) => ({
@@ -35,33 +37,58 @@ export const createUserEntitySlice: StateCreator<UserEntitySlice> = (set) => ({
           ...user,
         },
       },
+      usernameToId: {
+        ...state.usernameToId,
+        [user.username.toLowerCase()]: user.id,
+      },
     })),
 
   addUsers: (users) =>
     set((state) => {
-      const next = { ...state.users };
+      const nextUsers = { ...state.users };
+      const nextUsernameToId = { ...state.usernameToId };
+
       users.forEach((user) => {
-        next[user.id] = {
-          ...next[user.id],
+        nextUsers[user.id] = {
+          ...nextUsers[user.id],
           ...user,
         };
+        nextUsernameToId[user.username.toLowerCase()] = user.id;
       });
-      return { users: next };
+
+      return {
+        users: nextUsers,
+        usernameToId: nextUsernameToId,
+      };
     }),
 
   updateUser: (userId, updates) =>
-    set((state) => ({
-      users: {
-        ...state.users,
-        [userId]: state.users[userId]
-          ? { ...state.users[userId], ...updates }
-          : state.users[userId],
-      },
-    })),
+    set((state) => {
+      const currentUser = state.users[userId];
+      if (!currentUser) return state;
+
+      const updatedUser = { ...currentUser, ...updates };
+      const nextMap = { ...state.usernameToId };
+
+      if (updates.username && updates.username !== currentUser.username) {
+        delete nextMap[currentUser.username.toLowerCase()];
+        nextMap[updates.username.toLowerCase()] = userId;
+      }
+
+      return {
+        users: { ...state.users, [userId]: updatedUser },
+        usernameToId: nextMap,
+      };
+    }),
 
   removeUser: (userId) =>
     set((state) => {
-      const { [userId]: _, ...rest } = state.users;
-      return { users: rest };
+      const user = state.users[userId];
+      const { [userId]: _, ...restUsers } = state.users;
+      const nextMap = { ...state.usernameToId };
+
+      if (user) delete nextMap[user.username.toLowerCase()];
+
+      return { users: restUsers, usernameToId: nextMap };
     }),
 });

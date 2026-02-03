@@ -6,7 +6,7 @@ import { useProfile } from '../hooks/useProfile';
 
 export function ProfileLikedPosts() {
   const {
-    likedPosts,
+    postIds: likedPostIds,
     isPending: isLoadingProfileLikes,
     error: profileErrorLikes,
   } = useProfileLikes();
@@ -20,7 +20,7 @@ export function ProfileLikedPosts() {
   return (
     <div className='px-4'>
       <PostFeed
-        posts={likedPosts}
+        postIds={likedPostIds}
         isPending={isLoadingProfileLikes}
         error={profileErrorLikes}
         emptyMessage='No liked post.'

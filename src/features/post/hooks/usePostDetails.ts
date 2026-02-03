@@ -26,9 +26,7 @@ export function usePostDetails(id: string) {
       return normalizedPost.id;
     },
 
-    initialData: () => {
-      return postInStore ? id : undefined;
-    },
+    initialData: () => (postInStore ? id : undefined),
   });
 
   return { postId: data, isPending, error };

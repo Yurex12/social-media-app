@@ -24,7 +24,6 @@ import { postEditSchema, type PostEditSchema } from '../schema';
 import { usePost } from '../PostProvider';
 
 import { useSession } from '@/lib/auth-client';
-import { useQueryClient } from '@tanstack/react-query';
 import { useEditPost } from '../hooks/useEditPost';
 
 export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
@@ -91,48 +90,6 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
         },
       },
     );
-
-    // try {
-    //   const filesToUpload = values.images.filter(
-    //     (img) => img instanceof File,
-    //   ) as File[];
-
-    //   const keptImages = values.images.filter(
-    //     (img) => !(img instanceof File),
-    //   ) as { fileId: string; url: string }[];
-
-    //   const keptFileIds = new Set(keptImages.map((img) => img.fileId));
-
-    //   const imagesToDeleteId = post.images
-    //     .filter((img) => !keptFileIds.has(img.fileId))
-    //     .map((img) => img.fileId);
-
-    //   let newlyUploadedRes: ImageUploadResponse[] = [];
-    //   if (filesToUpload.length > 0) {
-    //     const uploadRes = await uploadImages(filesToUpload);
-    //     if (!uploadRes.success) {
-    //       toast.error('Failed to upload new images', { id: toastId });
-    //       return;
-    //     }
-    //     newlyUploadedRes = uploadRes.data;
-    //   }
-
-    //   const res = await updatePost(post.id, {
-    //     content: values.content,
-    //     images: newlyUploadedRes,
-    //     imagesToDeleteId: imagesToDeleteId,
-    //   });
-
-    //   if (res.success) {
-    //     queryClient.invalidateQueries({ queryKey: ['posts'], type: 'active' });
-    //     toast.success('Post updated!', { id: toastId });
-    //     onClose();
-    //   } else {
-    //     toast.error(res.message, { id: toastId });
-    //   }
-    // } catch {
-    //   toast.error('An unexpected error occurred', { id: toastId });
-    // }
   }
 
   return (

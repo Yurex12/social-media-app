@@ -27,7 +27,6 @@ export async function GET(
             image: true,
             username: true,
             bio: true,
-            createdAt: true,
             _count: {
               select: { followers: true, following: true, posts: true },
             },
@@ -62,11 +61,14 @@ export async function GET(
           ...post.user,
           isFollowing: post.user.followers.length > 0,
           isCurrentUser: post.user.id === userId,
+          followersCount: post.user._count.followers,
+          followingCount: post.user._count.following,
+          postsCount: post.user._count.posts,
         },
         isBookmarked: post.bookmarks.length > 0,
         isLiked: post.postLikes.length > 0,
-        likeCount: post._count.postLikes,
-        commentCount: post._count.comments,
+        likesCount: post._count.postLikes,
+        commentsCount: post._count.comments,
       };
     }) satisfies PostWithRelations[];
 

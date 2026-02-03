@@ -25,6 +25,7 @@ export interface PostEntitySlice {
   addPosts: (post: PostEntity[]) => void;
   updatePost: (postId: string, post: Partial<PostEntity>) => void;
   removePost: (postId: string) => void;
+  toggleLike: (postId: string) => void;
 }
 
 export const createPostEntitySlice: StateCreator<PostEntitySlice> = (set) => ({
@@ -69,5 +70,26 @@ export const createPostEntitySlice: StateCreator<PostEntitySlice> = (set) => ({
     set((state) => {
       const { [postId]: _, ...rest } = state.posts;
       return { posts: rest };
+    }),
+
+  toggleLike: (postId: string) =>
+    set((state) => {
+      const post = state.posts[postId];
+      if (!post) return state;
+
+      const willBeLiked = !post.isLiked;
+
+      return {
+        posts: {
+          ...state.posts,
+          [postId]: {
+            ...post,
+            isLiked: willBeLiked,
+            likesCount: willBeLiked
+              ? post.likesCount + 1
+              : Math.max(0, post.likesCount - 1),
+          },
+        },
+      };
     }),
 });

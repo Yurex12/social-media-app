@@ -5,10 +5,10 @@ import { Spinner } from '@/components/ui/spinner';
 import { format } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useProfile } from '../hooks/useProfile';
 import { useToggleFollow } from '../hooks/useToggleFollow';
 import { UserAvatar } from './UserAvatar';
-import Link from 'next/link';
 
 export function ProfileHero() {
   const { user, isPending, error } = useProfile();
@@ -98,7 +98,7 @@ export function ProfileHero() {
               className='hover:underline cursor-pointer flex gap-1 items-center'
             >
               <span className='font-bold text-foreground'>
-                {user._count.following}
+                {user.followingCount}
               </span>
               <span className='text-muted-foreground'>Following</span>
             </Link>
@@ -108,10 +108,10 @@ export function ProfileHero() {
               className='hover:underline cursor-pointer flex gap-1 items-center'
             >
               <span className='font-bold text-foreground'>
-                {user._count.followers}
+                {user.followersCount}
               </span>
               <span className='text-muted-foreground'>
-                {user._count.followers === 1 ? 'Follower' : 'Followers'}
+                {user.followersCount === 1 ? 'Follower' : 'Followers'}
               </span>
             </Link>
           </div>
