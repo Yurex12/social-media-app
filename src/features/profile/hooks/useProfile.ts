@@ -6,29 +6,28 @@ import { normalizeUser } from '@/entities/utils';
 
 export function useProfile() {
   const { username } = useParams<{ username: string }>();
-
   const addUser = useEntityStore((state) => state.addUser);
 
   const userFromStore = useEntityStore((state) => {
-    const id = state.usernameToId[username.toLowerCase()];
+    const id = state.usernameToId[username?.toLowerCase()];
     return id ? state.users[id] : undefined;
   });
 
-  const { data, isPending, error } = useQuery({
+  const { isPending, error } = useQuery({
     queryKey: ['users', 'profile', username],
     queryFn: async () => {
       const user = await getProfile(username);
-
       const { normalizedUser } = normalizeUser(user);
-
       if (user) addUser(normalizedUser);
-
       return normalizedUser;
     },
     enabled: !!username,
-    staleTime: 30 * 1000,
-    initialData: () => userFromStore,
+    // staleTime: 30 * 1000,
   });
 
-  return { user: data, isPending, error };
+  return {
+    user: userFromStore,
+    isPending: isPending && !userFromStore,
+    error,
+  };
 }

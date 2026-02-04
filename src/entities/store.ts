@@ -1,15 +1,17 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { PostEntitySlice, createPostEntitySlice } from './postEntity';
-import { UserEntitySlice, createUserEntitySlice } from './userEntity';
+import { PostEntitySlice, postEntitySlice } from './postEntity';
+import { UserEntitySlice, userEntitySlice } from './userEntity';
+import { CommentEntitySlice, commentEntitySlice } from './commentEntity';
 
-type EntityStore = PostEntitySlice & UserEntitySlice;
+type EntityStore = PostEntitySlice & UserEntitySlice & CommentEntitySlice;
 
 export const useEntityStore = create<EntityStore>()(
   devtools(
     (...args) => ({
-      ...createPostEntitySlice(...args),
-      ...createUserEntitySlice(...args),
+      ...postEntitySlice(...args),
+      ...userEntitySlice(...args),
+      ...commentEntitySlice(...args),
     }),
     { name: 'EntityStore' },
   ),

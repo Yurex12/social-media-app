@@ -3,57 +3,11 @@ import { PostEntity } from './postEntity';
 import { UserEntity } from './userEntity';
 import { UserWithRelations } from '@/features/profile/types';
 
-export function normalizePost(post: PostWithRelations): {
-  post: PostEntity;
-  user: UserEntity;
-} {
-  const user: UserEntity = {
-    id: post.user.id,
-    name: post.user.name,
-    username: post.user.username,
-    image: post.user.image,
-    bio: post.user.bio,
-    isFollowing: post.user.isFollowing,
-    isCurrentUser: post.user.isCurrentUser,
-    followersCount: post.user._count.followers,
-    followingCount: post.user._count.following,
-    postsCount: post.user._count.posts,
-    createdAt: post.user.createdAt,
-  };
+import { CommentWithRelations } from '@/features/comment/types';
+import { CommentEntity } from './commentEntity';
 
-  const normalizedPost: PostEntity = {
-    id: post.id,
-    content: post.content,
-    images: post.images,
-    userId: post.userId,
-    isLiked: post.isLiked,
-    isBookmarked: post.isBookmarked,
-    likesCount: post.likesCount,
-    commentsCount: post.commentsCount,
-    createdAt: post.createdAt,
-  };
-
-  return { post: normalizedPost, user };
-}
-
-export function normalizePosts(posts: PostWithRelations[]): {
-  posts: PostEntity[];
-  users: UserEntity[];
-} {
-  const normalizedPosts: PostEntity[] = [];
-  const normalizedUsers: UserEntity[] = [];
-
-  posts.forEach((post) => {
-    const { post: normalizedPost, user } = normalizePost(post);
-    normalizedPosts.push(normalizedPost);
-    normalizedUsers.push(user);
-  });
-
-  return { posts: normalizedPosts, users: normalizedUsers };
-}
-
-export function normalizeUser(user: UserWithRelations) {
-  const normalizedUser: UserEntity = {
+function mapUserEntity(user: UserWithRelations): UserEntity {
+  return {
     id: user.id,
     name: user.name,
     username: user.username,
@@ -66,6 +20,73 @@ export function normalizeUser(user: UserWithRelations) {
     postsCount: user.postsCount,
     createdAt: user.createdAt,
   };
+}
 
-  return { normalizedUser };
+// --- USERS ---
+export function normalizeUser(user: UserWithRelations) {
+  return { normalizedUser: mapUserEntity(user) };
+}
+
+export function normalizeUsers(users: UserWithRelations[]) {
+  return { normalizedUsers: users.map(mapUserEntity) };
+}
+
+// --- POSTS ---
+export function normalizePost(post: PostWithRelations) {
+  return {
+    post: {
+      id: post.id,
+      content: post.content,
+      images: post.images,
+      userId: post.user.id,
+      isLiked: post.isLiked,
+      isBookmarked: post.isBookmarked,
+      likesCount: post.likesCount,
+      commentsCount: post.commentsCount,
+      createdAt: post.createdAt,
+    } satisfies PostEntity,
+    user: mapUserEntity(post.user),
+  };
+}
+
+export function normalizePosts(posts: PostWithRelations[]) {
+  const normalizedPosts: PostEntity[] = [];
+  const normalizedUsers: UserEntity[] = [];
+
+  posts.forEach((p) => {
+    const { post, user } = normalizePost(p);
+    normalizedPosts.push(post);
+    normalizedUsers.push(user);
+  });
+
+  return { posts: normalizedPosts, users: normalizedUsers };
+}
+
+// --- COMMENTS ---
+export function normalizeComment(comment: CommentWithRelations) {
+  return {
+    comment: {
+      id: comment.id,
+      content: comment.content,
+      userId: comment.user.id,
+      postId: comment.postId,
+      isLiked: comment.isLiked,
+      likesCount: comment.likesCount,
+      createdAt: comment.createdAt,
+    } satisfies CommentEntity,
+    user: mapUserEntity(comment.user),
+  };
+}
+
+export function normalizeComments(comments: CommentWithRelations[]) {
+  const normalizedComments: CommentEntity[] = [];
+  const normalizedUsers: UserEntity[] = [];
+
+  comments.forEach((c) => {
+    const { comment, user } = normalizeComment(c);
+    normalizedComments.push(comment);
+    normalizedUsers.push(user);
+  });
+
+  return { normalizedComments, normalizedUsers };
 }

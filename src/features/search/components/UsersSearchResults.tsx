@@ -5,7 +5,7 @@ import { useSearchUsers } from '../hooks/useSearchUsers';
 import { UserCard } from '@/features/profile/components/UserCard';
 
 export function UsersSearchResults({ query }: { query: string }) {
-  const { users, error, isPending } = useSearchUsers(query);
+  const { userIds, error, isPending } = useSearchUsers(query);
 
   if (isPending) {
     return (
@@ -17,7 +17,7 @@ export function UsersSearchResults({ query }: { query: string }) {
 
   if (error) return <p className='px-4 mt-4'>{error.message}</p>;
 
-  if (!users?.length)
+  if (!userIds?.length)
     return (
       <p className='px-4 mt-4 text-muted-foreground'>
         No result match{' '}
@@ -29,8 +29,8 @@ export function UsersSearchResults({ query }: { query: string }) {
 
   return (
     <div className='py-2 flex flex-col'>
-      {users.map((user) => (
-        <UserCard user={user} key={user.id} />
+      {userIds.map((userId) => (
+        <UserCard userId={userId} key={userId} />
       ))}
     </div>
   );

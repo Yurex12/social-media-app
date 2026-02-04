@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 const LIMIT = 3;
 
 export function WhoToFollow() {
-  const { users, isPending, error } = useSuggestedUsers(LIMIT);
+  const { userIds, isPending, error } = useSuggestedUsers(LIMIT);
   const router = useRouter();
 
   if (isPending) {
@@ -22,7 +22,7 @@ export function WhoToFollow() {
   if (error)
     return <p className='px-4 mt-4 text-destructive'>{error.message}</p>;
 
-  if (!users?.length) {
+  if (!userIds?.length) {
     return (
       <div className='p-4 text-center border rounded-2xl bg-muted/30'>
         <p className='text-sm text-muted-foreground'>
@@ -39,8 +39,8 @@ export function WhoToFollow() {
       </div>
 
       <div className='flex flex-col'>
-        {users.map((user) => (
-          <UserCard user={user} key={user.id} />
+        {userIds.map((userId) => (
+          <UserCard userId={userId} key={userId} />
         ))}
       </div>
 

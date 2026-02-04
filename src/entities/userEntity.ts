@@ -24,7 +24,7 @@ export interface UserEntitySlice {
   removeUser: (userId: string) => void;
 }
 
-export const createUserEntitySlice: StateCreator<UserEntitySlice> = (set) => ({
+export const userEntitySlice: StateCreator<UserEntitySlice> = (set) => ({
   users: {},
   usernameToId: {},
 

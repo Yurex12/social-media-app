@@ -19,7 +19,7 @@ export async function GET(
     const comments = (await prisma.comment.findMany({
       where: { postId },
       orderBy: { createdAt: 'desc' },
-      select: {
+      include: {
         user: {
           select: {
             id: true,
@@ -59,11 +59,14 @@ export async function GET(
       return {
         ...comment,
         isLiked: comment.commentLikes.length > 0,
-        likeCount: comment._count.commentLikes,
+        likesCount: comment._count.commentLikes,
         user: {
           ...comment.user,
           isCurrentUser: comment.user.id === userId,
           isFollowing: comment.user.followers.length > 0,
+          followersCount: comment.user._count.followers,
+          followingCount: comment.user._count.following,
+          postsCount: comment.user._count.posts,
         },
       };
     }) satisfies CommentWithRelations[];

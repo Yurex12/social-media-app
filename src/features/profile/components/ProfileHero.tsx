@@ -2,8 +2,6 @@
 
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { format } from 'date-fns';
-import { CalendarDays } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useProfile } from '../hooks/useProfile';
@@ -29,6 +27,9 @@ export function ProfileHero() {
     );
 
   if (!user) return <p>User not found</p>;
+
+  console.log(user.isFollowing);
+
   return (
     <div className='w-full'>
       <div className='relative h-32 w-full bg-muted sm:h-48'>
@@ -57,7 +58,7 @@ export function ProfileHero() {
             ) : (
               <>
                 <Button
-                  className='rounded-full cursor-pointer'
+                  className='rounded-full cursor-pointer transition-none'
                   variant={user.isFollowing ? 'outline' : 'default'}
                   onClick={() => toggleFollow(user.id)}
                 >
@@ -74,22 +75,26 @@ export function ProfileHero() {
             <h2 className='text-xl font-extrabold leading-tight'>
               {user.name}
             </h2>
-            <p className='text-muted-foreground text-[15px]'>
-              @{user.username}
-            </p>
+            <div>
+              <span className='text-muted-foreground text-[15px]'>
+                @{user.username}
+              </span>
+
+              {/* {user.isFollowing && <span className='bg-muted text-muted-foreground'>follows you</span>} */}
+            </div>
           </div>
 
           {user.bio && <p className='text-[15px] leading-normal'>{user.bio}</p>}
 
           {/* Metadata Row */}
-          <div className='flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground text-[14px]'>
+          {/* <div className='flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground text-[14px]'>
             <div className='flex items-center gap-1'>
               <CalendarDays size={16} />
               <span>
                 Joined {format(new Date(user.createdAt), 'MMMM yyyy')}
               </span>
             </div>
-          </div>
+          </div> */}
 
           {/* Stats Row */}
           <div className='flex gap-4 text-sm'>

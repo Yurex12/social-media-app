@@ -17,10 +17,15 @@ export function useDeletePost() {
       await queryClient.cancelQueries({ queryKey: ['posts'] });
 
       const post = useEntityStore.getState().posts[postId];
+      const oldPosts = queryClient.getQueryData(['posts', 'home']);
 
       if (post) removePost(postId);
 
-      return { post };
+      queryClient.setQueryData<string[]>(['posts', 'home'], (oldIds) =>
+        oldIds?.filter((id) => id !== postId),
+      );
+
+      return { post, oldPosts };
     },
 
     onSuccess: () => {
@@ -29,6 +34,8 @@ export function useDeletePost() {
 
     onError: (error, _, context) => {
       if (context?.post) addPost(context.post);
+      if (context?.oldPosts)
+        queryClient.setQueryData(['posts', 'home'], context.oldPosts);
       toast.error(error.message || 'Could not delete post');
     },
   });

@@ -1,16 +1,35 @@
 import { useQuery } from '@tanstack/react-query';
 import { getComments } from '../api';
+import { useEntityStore } from '@/entities/store';
+import { normalizeComments } from '@/entities/utils';
 
 export function useComments(postId: string) {
+  const addComments = useEntityStore((state) => state.addComments);
+  const addUsers = useEntityStore((state) => state.addUsers);
+
   const {
-    data: comments,
+    data: commentIds,
     isPending,
     error,
   } = useQuery({
     queryKey: ['comments', postId],
-    queryFn: () => getComments(postId),
     enabled: !!postId,
+    queryFn: async () => {
+      const comments = await getComments(postId);
+
+      const { normalizedComments, normalizedUsers } =
+        normalizeComments(comments);
+
+      addComments(normalizedComments);
+      addUsers(normalizedUsers);
+
+      return normalizedComments.map((c) => c.id);
+    },
   });
 
-  return { comments, isPending, error };
+  return {
+    commentIds,
+    isPending,
+    error,
+  };
 }

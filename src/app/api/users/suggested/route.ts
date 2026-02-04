@@ -51,6 +51,9 @@ export async function GET(req: Request) {
       ...user,
       isFollowing: false,
       isCurrentUser: false,
+      followersCount: user._count.followers,
+      followingCount: user._count.following,
+      postsCount: user._count.posts,
     })) satisfies UserWithRelations[];
 
     return NextResponse.json(transformedUsers);

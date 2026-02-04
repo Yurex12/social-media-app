@@ -1,21 +1,26 @@
 import { Button } from '@/components/ui/button';
-import { useToggleFollow } from '../hooks/useToggleFollow';
-import { UserWithRelations } from '../types';
-import { UserAvatar } from './UserAvatar';
+import { useEntityStore } from '@/entities/store';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useToggleFollow } from '../hooks/useToggleFollow';
+import { UserAvatar } from './UserAvatar';
+import { selectUserById } from '@/entities/userSelectors';
 
-export function UserCard({ user }: { user: UserWithRelations }) {
+export function UserCard({ userId }: { userId: string }) {
+  const user = useEntityStore((state) => selectUserById(state, userId));
+
   const { toggleFollow } = useToggleFollow();
 
   const router = useRouter();
 
+  if (!user) return null;
+
   const handleCardClick = () => router.push(`/profile/${user.username}`);
 
-  async function handleFollowClick(e: React.MouseEvent) {
+  const handleFollowClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     toggleFollow(user.id);
-  }
+  };
 
   return (
     <div

@@ -1,17 +1,16 @@
+import { selectPostById } from '@/entities/postSelectors';
 import { useEntityStore } from '@/entities/store';
+import { normalizePost } from '@/entities/utils';
 import { useQuery } from '@tanstack/react-query';
 import { getPostById } from '../api';
-import { normalizePost } from '@/entities/utils';
-import { useStore } from 'zustand';
-import { selectPostById } from '@/entities/postSelectors';
 
 export function usePostDetails(id: string) {
   const addPost = useEntityStore((state) => state.addPost);
   const addUser = useEntityStore((state) => state.addUser);
 
-  const postInStore = useStore(useEntityStore, selectPostById(id));
+  const postInStore = useEntityStore((state) => selectPostById(state, id));
 
-  const { data, isPending, error } = useQuery({
+  const { isPending, error } = useQuery({
     queryKey: ['posts', id],
     enabled: !!id,
     queryFn: async () => {
@@ -25,9 +24,11 @@ export function usePostDetails(id: string) {
 
       return normalizedPost.id;
     },
-
-    initialData: () => (postInStore ? id : undefined),
   });
 
-  return { postId: data, isPending, error };
+  return {
+    postId: postInStore ? postInStore.id : undefined,
+    isPending: isPending && !postInStore,
+    error,
+  };
 }

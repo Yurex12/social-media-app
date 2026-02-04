@@ -4,10 +4,10 @@ import { PostFeed } from '@/features/post/components/PostFeed';
 import { useSearchPosts } from '../hooks/useSearchPosts';
 
 export function PostsSearchResults({ query }: { query: string }) {
-  const { posts, isPending, error } = useSearchPosts(query);
+  const { postIds, isPending, error } = useSearchPosts(query);
   return (
     <PostFeed
-      posts={posts}
+      postIds={postIds}
       isPending={isPending}
       error={error}
       emptyMessage={

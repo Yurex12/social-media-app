@@ -11,40 +11,35 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 
 import { usePost } from '@/features/post/PostProvider';
+import { UserAvatar } from '@/features/profile/components/UserAvatar';
+import { useSession } from '@/lib/auth-client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQueryClient } from '@tanstack/react-query';
 import { SendHorizonal } from 'lucide-react';
-import Image from 'next/image';
 import { useForm, useWatch } from 'react-hook-form';
-import toast from 'react-hot-toast';
-import { createCommentAction } from '../action';
+import { useCreateComment } from '../hooks/useCreateComment';
 import { CommentFormValues, commentSchema } from '../schema';
 
 export function CommentInputBar() {
   const { post } = usePost();
+  const { createComment, isPending: isCreating } = useCreateComment();
   const form = useForm<CommentFormValues>({
     mode: 'onChange',
     resolver: zodResolver(commentSchema),
     defaultValues: { content: '' },
   });
 
-  const queryClient = useQueryClient();
-
   async function onSubmit(values: CommentFormValues) {
-    const res = await createCommentAction(post.id, values);
-
-    if (res.success) {
-      queryClient.invalidateQueries({ queryKey: ['comments'] });
-      toast.success(res.message);
-      form.reset();
-    } else {
-      toast.error(res.message);
-    }
-
-    console.log(res);
+    createComment(
+      { postId: post.id, content: values.content },
+      {
+        onSuccess() {
+          form.reset();
+        },
+      },
+    );
   }
 
-  const isSubmitting = form.formState.isSubmitting;
+  const isSubmitting = form.formState.isSubmitting || isCreating;
 
   const isValid = form.formState.isValid;
 
@@ -53,18 +48,13 @@ export function CommentInputBar() {
     name: 'content',
   });
 
+  const user = useSession().data?.user;
+
   return (
     <div className='border rounded-md w-full max-w-140 mx-auto px-4 py-3'>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className='flex gap-3'>
-          <div className='relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-border bg-muted mb-1'>
-            <Image
-              src={post.user?.image || '/avatar-placeholder.png'}
-              alt={post.user?.name || 'User'}
-              fill
-              className='object-cover'
-            />
-          </div>
+          <UserAvatar image={user?.image} name={user?.name} />
 
           <FormField
             control={form.control}

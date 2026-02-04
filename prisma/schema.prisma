@@ -19,6 +19,7 @@ model User {
   email           String
   emailVerified   Boolean   @default(false)
   image           String?
+  coverPhoto      String?
   username        String
   displayUsername String?
   bio             String?

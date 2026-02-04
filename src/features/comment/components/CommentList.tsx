@@ -5,7 +5,7 @@ import { usePost } from '@/features/post/PostProvider';
 
 export function CommentList() {
   const { post } = usePost();
-  const { comments, error, isPending } = useComments(post.id);
+  const { commentIds, error, isPending } = useComments(post.id);
 
   if (isPending)
     return (
@@ -16,14 +16,14 @@ export function CommentList() {
 
   if (error) return <p>{error.message}</p>;
 
-  if (!comments?.length) return null;
+  if (!commentIds?.length) return null;
 
   return (
     <div className='w-full max-w-140 mx-auto space-y-2'>
       <h3 className='font-semibold text-lg'>Comments</h3>
       <div className='flex flex-col'>
-        {comments.map((comment) => (
-          <CommentItem key={comment.id} comment={comment} />
+        {commentIds.map((commentId) => (
+          <CommentItem key={commentId} commentId={commentId} />
         ))}
       </div>
     </div>

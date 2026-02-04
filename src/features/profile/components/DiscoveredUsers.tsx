@@ -3,7 +3,7 @@ import { useSuggestedUsers } from '../hooks/useSuggestedUser';
 import { UserCard } from './UserCard';
 
 export function DiscoveredUsers() {
-  const { users, isPending, error } = useSuggestedUsers();
+  const { userIds, isPending, error } = useSuggestedUsers();
 
   if (isPending) {
     return (
@@ -15,7 +15,7 @@ export function DiscoveredUsers() {
 
   if (error) return <p className='px-4 mt-4'>{error.message}</p>;
 
-  if (!users?.length)
+  if (!userIds?.length)
     return (
       <p className='px-4 mt-4 text-muted-foreground'>
         You&apos;re following everyone! Check back later for new people.
@@ -25,8 +25,8 @@ export function DiscoveredUsers() {
   return (
     <div>
       <div className='py-2 flex flex-col'>
-        {users.map((user) => (
-          <UserCard user={user} key={user.id} />
+        {userIds.map((userId) => (
+          <UserCard userId={userId} key={userId} />
         ))}
       </div>
     </div>

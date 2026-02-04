@@ -1,10 +1,9 @@
-import { createContext, ReactNode, useContext, useMemo } from 'react';
-import { useEntityStore } from '@/entities/store';
 import { PostEntity } from '@/entities/postEntity';
-import { UserEntity } from '@/entities/userEntity';
-import { useStore } from 'zustand';
 import { selectPostById } from '@/entities/postSelectors';
+import { useEntityStore } from '@/entities/store';
+import { UserEntity } from '@/entities/userEntity';
 import { selectUserById } from '@/entities/userSelectors';
+import { createContext, ReactNode, useContext, useMemo } from 'react';
 
 interface PostContextValue {
   post: PostEntity;
@@ -20,9 +19,9 @@ export function PostProvider({
   children: ReactNode;
   postId: string;
 }) {
-  const post = useStore(useEntityStore, selectPostById(postId));
+  const post = useEntityStore((state) => selectPostById(state, postId));
 
-  const user = useStore(useEntityStore, selectUserById(post?.userId));
+  const user = useEntityStore((state) => selectUserById(state, post?.userId));
 
   const value = useMemo(() => {
     if (!post || !user) return undefined;

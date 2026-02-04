@@ -22,6 +22,6 @@ export type TCommentFromBD = Prisma.CommentGetPayload<{
 
 export type CommentWithRelations = Omit<TCommentFromBD, 'user'> & {
   user: UserWithRelations;
-  likeCount: number;
+  likesCount: number;
   isLiked: boolean;
 };

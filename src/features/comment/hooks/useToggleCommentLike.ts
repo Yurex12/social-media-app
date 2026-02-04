@@ -1,49 +1,37 @@
+import { useEntityStore } from '@/entities/store';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toggleCommentLikeAction } from '../action';
-import { CommentWithRelations } from '../types';
 
 export function useToggleCommentLike() {
   const queryClient = useQueryClient();
+  const updateComment = useEntityStore((state) => state.updateComment);
 
   const { mutate: toggleCommentLike } = useMutation({
-    mutationFn: toggleCommentLikeAction,
+    mutationFn: ({ commentId }: { commentId: string; postId: string }) =>
+      toggleCommentLikeAction(commentId),
 
     onMutate: async ({ commentId, postId }) => {
       await queryClient.cancelQueries({ queryKey: ['comments', postId] });
 
-      const previousPosts = queryClient.getQueryData<CommentWithRelations[]>([
-        'comments',
-        postId,
-      ]);
+      const comment = useEntityStore.getState().comments[commentId];
+      if (!comment) return;
 
-      queryClient.setQueryData<CommentWithRelations[]>(
-        ['comments', postId],
-        (oldComments) => {
-          return oldComments?.map((comment) => {
-            if (comment.id === commentId) {
-              const isLiked = !comment.isLiked;
-              return {
-                ...comment,
-                isLiked,
-                likeCount: isLiked
-                  ? comment.likeCount + 1
-                  : Math.max(0, comment.likeCount - 1),
-              };
-            }
-            return comment;
-          });
-        },
-      );
+      const previousComment = { ...comment };
 
-      return { previousPosts };
+      const isLiked = !comment.isLiked;
+      updateComment(commentId, {
+        isLiked,
+        likesCount: isLiked
+          ? comment.likesCount + 1
+          : Math.max(0, comment.likesCount - 1),
+      });
+
+      return { previousComment };
     },
 
-    onError: (err, { postId }, context) => {
-      queryClient.setQueryData(['comments', postId], context?.previousPosts);
-    },
-
-    onSettled: (data, error, { postId }) => {
-      queryClient.invalidateQueries({ queryKey: ['comments', postId] });
+    onError: (err, { commentId }, context) => {
+      if (context?.previousComment)
+        updateComment(commentId, context.previousComment);
     },
   });
 

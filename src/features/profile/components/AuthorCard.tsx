@@ -1,23 +1,21 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { selectPostById } from '@/entities/postSelectors';
+import { useEntityStore } from '@/entities/store';
+import { selectUserById } from '@/entities/userSelectors';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useToggleFollow } from '../hooks/useToggleFollow';
 import { AuthorCardProps } from '../types';
 import { UserAvatar } from './UserAvatar';
-import { useRouter } from 'next/navigation';
-import { useStore } from 'zustand';
-import { useEntityStore } from '@/entities/store';
-import { selectPostById } from '@/entities/postSelectors';
-import { selectUserById } from '@/entities/userSelectors';
 
 export function AuthorCard({ postId, isPending, error }: AuthorCardProps) {
   const { toggleFollow } = useToggleFollow();
   const router = useRouter();
 
-  const post = useStore(useEntityStore, selectPostById(postId));
-
-  const user = useStore(useEntityStore, selectUserById(post?.userId));
+  const post = useEntityStore((state) => selectPostById(state, postId));
+  const user = useEntityStore((state) => selectUserById(state, post?.userId));
 
   if (isPending)
     return (

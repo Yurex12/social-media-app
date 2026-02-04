@@ -1,16 +1,26 @@
 import { useQuery } from '@tanstack/react-query';
 import { getUserFollowing } from '../api';
+import { useEntityStore } from '@/entities/store';
+import { normalizeUsers } from '@/entities/utils';
 
 export function useFollowing(username: string) {
+  const addUsers = useEntityStore((state) => state.addUsers);
+
   const {
-    data: users,
+    data: userIds,
     isPending,
+    isError,
     error,
   } = useQuery({
     queryKey: ['users', 'following', username],
-    queryFn: () => getUserFollowing(username),
+    queryFn: async () => {
+      const users = await getUserFollowing(username);
+      const { normalizedUsers } = normalizeUsers(users);
+      addUsers(normalizedUsers);
+      return normalizedUsers.map((user) => user.id);
+    },
     enabled: !!username,
   });
 
-  return { users, isPending, error };
+  return { userIds, isPending, isError, error };
 }
