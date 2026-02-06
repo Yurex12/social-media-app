@@ -6,13 +6,14 @@ import { toggleFollowAction } from '../action';
 
 export function useToggleFollow() {
   const updateUser = useEntityStore((state) => state.updateUser);
+  const removeUser = useEntityStore((state) => state.removeUser);
   const session = useSession();
   const currentUserId = session.data?.user.id;
 
   const queryClient = useQueryClient();
 
   const { mutate: toggleFollow } = useMutation({
-    mutationFn:  toggleFollowAction,
+    mutationFn: toggleFollowAction,
 
     onMutate: async (followingId: string) => {
       if (!currentUserId) return;
@@ -48,16 +49,32 @@ export function useToggleFollow() {
       return { previousTarget, previousMe };
     },
 
-    onError: (err, followingId, context) => {
-      if (context?.previousTarget) {
+    onSuccess: (res, followingId, context) => {
+      if (res.success) return;
+
+      if (res.error === 'NOT_FOUND') {
+        removeUser(followingId);
+        toast.error(res.message);
+        return;
+      }
+
+      if (context?.previousTarget)
         updateUser(followingId, context.previousTarget);
-      }
 
-      if (currentUserId && context?.previousMe) {
+      if (currentUserId && context?.previousMe)
         updateUser(currentUserId, context.previousMe);
-      }
 
-      toast.error('Something went wrong');
+      toast.error(res.message);
+    },
+
+    onError: (err, followingId, context) => {
+      if (context?.previousTarget)
+        updateUser(followingId, context.previousTarget);
+
+      if (currentUserId && context?.previousMe)
+        updateUser(currentUserId, context.previousMe);
+
+      toast.error(err.message || 'Something went wrong');
     },
   });
 
