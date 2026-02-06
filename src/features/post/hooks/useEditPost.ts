@@ -6,11 +6,13 @@ import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { editPostAction } from '../actions';
 import { PostEditSchema } from '../schema';
+import { ActionError } from '../types';
 
 const toastId = 'edit-post-toast';
 
 export function useEditPost() {
-  const updatePostEntity = useEntityStore((state) => state.updatePost);
+  const updatePost = useEntityStore((state) => state.updatePost);
+  const removePost = useEntityStore((state) => state.removePost);
 
   const { mutate: editPost, isPending } = useMutation({
     mutationFn: async ({
@@ -56,7 +58,8 @@ export function useEditPost() {
         imagesToDeleteId: imagesToDeleteId,
       });
 
-      if (!res.success) throw new Error(res.message);
+      if (!res.success)
+        throw { code: res.error, message: res.message } as ActionError;
 
       return res;
     },
@@ -69,11 +72,15 @@ export function useEditPost() {
 
       const { post: normalizedPost } = normalizePost(res.data);
 
-      updatePostEntity(normalizedPost.id, normalizedPost);
+      updatePost(normalizedPost.id, normalizedPost);
     },
 
-    onError(error) {
-      toast.error(error.message || 'An unexpected error occurred', {
+    onError(err: Error | ActionError, variables) {
+      if ('code' in err && err.code === 'NOT_FOUND') {
+        removePost(variables.postId);
+      }
+
+      toast.error(err.message || 'Something went wrong', {
         id: toastId,
         duration: 3000,
       });

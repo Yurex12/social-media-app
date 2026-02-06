@@ -1,14 +1,9 @@
-export type ActionResponse<T = void> =
-  | {
-      success: true;
-      message: string;
-      data: T;
-    }
+export type ActionResponse<T> =
+  | { success: true; data: T; message: string }
   | {
       success: false;
+      error: 'NOT_FOUND' | 'UNAUTHORIZED' | 'SERVER_ERROR' | 'INVALID_DATA';
       message: string;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      error?: any;
     };
 
 export type ImageUploadResponse = { fileId: string; url: string };

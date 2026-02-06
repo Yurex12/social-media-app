@@ -23,12 +23,21 @@ export function useDeletePost() {
       return { post };
     },
 
-    onSuccess: () => {
+    onSuccess: (res, postId, context) => {
+      if (!res.success) {
+        if (res.error !== 'NOT_FOUND' && context?.post) {
+          addPost(context.post);
+        }
+        toast.error(res.message);
+        return;
+      }
+
       toast.success('Post deleted successfully');
     },
 
     onError: (error, _, context) => {
       if (context?.post) addPost(context.post);
+      toast.error(error.message || 'Could not delete post');
     },
   });
 

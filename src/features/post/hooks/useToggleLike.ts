@@ -2,12 +2,13 @@ import { useEntityStore } from '@/entities/store';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toggleLikeAction } from '../actions';
 import { useSession } from '@/lib/auth-client';
+import toast from 'react-hot-toast';
 
 export function useToggleLike() {
   const queryClient = useQueryClient();
 
   const updatePost = useEntityStore((state) => state.updatePost);
-
+  const removePost = useEntityStore((state) => state.removePost);
   const username = useSession().data?.user.username;
 
   const { mutate: toggleLike } = useMutation({
@@ -48,6 +49,25 @@ export function useToggleLike() {
       }
 
       return { previousPost, previousLikedPostIds };
+    },
+
+    onSuccess: (res, postId, context) => {
+      if (res.success) return;
+
+      if (res.error === 'NOT_FOUND') {
+        removePost(postId);
+        toast.error('This post no longer exists');
+        return;
+      }
+
+      if (context?.previousPost) updatePost(postId, context.previousPost);
+      if (username && context?.previousLikedPostIds) {
+        queryClient.setQueryData(
+          ['posts', 'likes', username],
+          context.previousLikedPostIds,
+        );
+      }
+      toast.error(res.message);
     },
 
     onError: (err, postId, context) => {

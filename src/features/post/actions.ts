@@ -1,7 +1,6 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import z from 'zod';
 
 import { getSession } from '@/lib/session';
 import {
@@ -13,7 +12,7 @@ import {
 
 import { Prisma } from '@/generated/prisma/client';
 import { ActionResponse } from '@/types';
-import { PostWithRelations, TPostFromDB } from './types';
+import { PostWithRelations } from './types';
 
 export async function createPostAction(
   data: PostServerSchema,
@@ -24,14 +23,20 @@ export async function createPostAction(
     return {
       success: false,
       message: 'Invalid data',
-      error: z.treeifyError(result.error),
+      error: 'INVALID_DATA',
     };
   }
 
   try {
     const session = await getSession();
 
-    if (!session) throw new Error('unauthorized');
+    if (!session) {
+      return {
+        success: false,
+        error: 'UNAUTHORIZED',
+        message: 'Please log in to create post',
+      };
+    }
 
     const userId = session.user.id;
 
@@ -114,17 +119,17 @@ export async function createPostAction(
       data: transformedPost,
       message: 'Post created successfully.',
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
-      error,
+      error: 'SERVER_ERROR',
       message: 'Post could not be created.',
     };
   }
 }
 
 export async function editPostAction(
-  postId: string | undefined,
+  postId: string,
   data: PostEditServerSchema,
 ): Promise<ActionResponse<PostWithRelations>> {
   const result = postEditServerSchema.safeParse(data);
@@ -133,17 +138,27 @@ export async function editPostAction(
     return {
       success: false,
       message: 'Invalid data',
-      error: z.treeifyError(result.error),
+      error: 'INVALID_DATA',
     };
   }
 
   try {
-    if (!postId || typeof postId !== 'string') {
-      throw new Error('Valid Post ID is required');
-    }
+    if (!postId || typeof postId !== 'string')
+      return {
+        success: false,
+        error: 'INVALID_DATA',
+        message: 'Valid Post ID is required',
+      };
+
     const session = await getSession();
 
-    if (!session) throw new Error('unauthorized');
+    if (!session) {
+      return {
+        success: false,
+        error: 'UNAUTHORIZED',
+        message: 'Please log in to edit post',
+      };
+    }
 
     const userId = session.user.id;
 
@@ -154,8 +169,13 @@ export async function editPostAction(
       select: { userId: true },
     });
 
-    if (!post || post.userId !== userId)
-      throw new Error('Post not found or unauthorized');
+    if (!post) {
+      return { success: false, error: 'NOT_FOUND', message: 'Post not found' };
+    }
+
+    if (post.userId !== userId) {
+      return { success: false, error: 'UNAUTHORIZED', message: 'Unauthorized' };
+    }
 
     const transformedPost = await prisma.$transaction(
       async (tx) => {
@@ -240,10 +260,21 @@ export async function editPostAction(
       data: transformedPost,
       message: 'Post edited successfully',
     };
-  } catch (err) {
-    console.log(err);
-
-    return { success: false, message: 'Could not edit post' };
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        return {
+          success: false,
+          error: 'NOT_FOUND',
+          message: 'Post not found',
+        };
+      }
+    }
+    return {
+      success: false,
+      error: 'SERVER_ERROR',
+      message: 'Could not edit post',
+    };
   }
 }
 
@@ -251,12 +282,20 @@ export async function deletePostAction(
   postId: string,
 ): Promise<ActionResponse<string>> {
   try {
-    if (!postId || typeof postId !== 'string') {
-      throw new Error('Valid Post ID is required');
-    }
+    if (!postId || typeof postId !== 'string')
+      return {
+        success: false,
+        error: 'INVALID_DATA',
+        message: 'Valid Post ID is required',
+      };
     const session = await getSession();
 
-    if (!session) throw new Error('unauthorized');
+    if (!session)
+      return {
+        success: false,
+        error: 'UNAUTHORIZED',
+        message: 'Please log in to delete post',
+      };
 
     await prisma.post.delete({
       where: {
@@ -271,21 +310,20 @@ export async function deletePostAction(
       message: 'Post deleted successfully.',
     };
   } catch (error: unknown) {
-    let message = 'Post could not be deleted.';
-
-    if (error instanceof Error) {
-      message = error.message;
-    }
-
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2025') {
-        message = 'Post not found';
+        return {
+          success: false,
+          error: 'NOT_FOUND',
+          message: 'Post not found',
+        };
       }
     }
 
     return {
       success: false,
-      message,
+      message: 'Post could not be deleted.',
+      error: 'SERVER_ERROR',
     };
   }
 }
@@ -295,7 +333,12 @@ export async function toggleLikeAction(
 ): Promise<ActionResponse<{ liked: boolean }>> {
   try {
     const session = await getSession();
-    if (!session) throw new Error('Unauthorized');
+    if (!session)
+      return {
+        success: false,
+        error: 'UNAUTHORIZED',
+        message: 'Please log in to like posts',
+      };
 
     const userId = session.user.id;
 
@@ -311,14 +354,31 @@ export async function toggleLikeAction(
           postId_userId: { postId, userId },
         },
       });
-      return { success: true, data: { liked: false }, message: 'Unliked post' };
+      return {
+        success: true,
+        data: { liked: false },
+        message: 'Un-liked post',
+      };
     } else {
       await prisma.postLike.create({
         data: { userId, postId },
       });
       return { success: true, data: { liked: true }, message: 'Liked post' };
     }
-  } catch {
-    return { success: false, message: 'Could not update like' };
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2003' || error.code === 'P2025') {
+        return {
+          success: false,
+          error: 'NOT_FOUND',
+          message: 'Post not found',
+        };
+      }
+    }
+    return {
+      success: false,
+      error: 'SERVER_ERROR',
+      message: 'Could not update like',
+    };
   }
 }

@@ -64,8 +64,8 @@ export function useCreatePost() {
       });
     },
 
-    onError(res) {
-      toast.success(res.message, {
+    onError(err) {
+      toast.success(err.message, {
         id: toastId,
         duration: 3000,
       });

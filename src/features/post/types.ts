@@ -49,3 +49,5 @@ export interface PostFeedProps {
   error: Error | null;
   emptyMessage?: string | ReactNode;
 }
+
+export type ActionError = { code: string; message: string };
