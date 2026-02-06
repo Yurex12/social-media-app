@@ -3,6 +3,7 @@ import { normalizeComment } from '@/entities/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { createCommentAction } from '../action';
+import { ActionError } from '@/features/post/types';
 
 const toastId = 'comment-toast';
 
@@ -10,6 +11,7 @@ export function useCreateComment() {
   const queryClient = useQueryClient();
   const addComment = useEntityStore((state) => state.addComment);
   const addUser = useEntityStore((state) => state.addUser);
+  const removePost = useEntityStore((state) => state.removePost);
 
   const { mutate: createComment, isPending } = useMutation({
     mutationFn: async ({
@@ -26,7 +28,8 @@ export function useCreateComment() {
 
       const res = await createCommentAction(postId, { content });
 
-      if (!res.success) throw new Error(res.message);
+      if (!res.success)
+        throw { code: res.error, message: res.message } as ActionError;
 
       return res;
     },
@@ -58,8 +61,11 @@ export function useCreateComment() {
       });
     },
 
-    onError(error) {
-      toast.error(error.message, {
+    onError(error: ActionError | Error, { postId }) {
+      if ('code' in error && error.code === 'NOT_FOUND') {
+        removePost(postId);
+      }
+      toast.error(error.message || 'Something went wrong', {
         id: toastId,
         duration: 3000,
       });

@@ -18,18 +18,29 @@ export async function createCommentAction(
   data: CommentFormValues,
 ): Promise<ActionResponse<CommentWithRelations>> {
   try {
-    if (!postId) throw new Error('Post ID is required');
-
+    if (!postId || typeof postId !== 'string') {
+      return {
+        success: false,
+        error: 'INVALID_DATA',
+        message: 'Post ID is required',
+      };
+    }
     const session = await getSession();
-    if (!session) throw new Error('Unauthorized');
+    if (!session) {
+      return {
+        success: false,
+        error: 'UNAUTHORIZED',
+        message: 'Please log in to post a comment',
+      };
+    }
 
     const result = commentSchema.safeParse(data);
 
     if (!result.success) {
       return {
         success: false,
-        message: 'Invalid data',
-        error: z.treeifyError(result.error),
+        message: 'Invalid comment content',
+        error: 'INVALID_DATA',
       };
     }
 
@@ -91,17 +102,21 @@ export async function createCommentAction(
       message: 'Comment posted successfully',
     };
   } catch (error: unknown) {
-    let message = 'Failed to post comment';
-
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2003') {
-        message = 'Post not found';
+        return {
+          success: false,
+          error: 'NOT_FOUND',
+          message: 'This post no longer exists',
+        };
       }
-    } else if (error instanceof Error) {
-      message = error.message;
     }
 
-    return { success: false, message };
+    return {
+      success: false,
+      message: 'Failed to post comment',
+      error: 'SERVER_ERROR',
+    };
   }
 }
 
@@ -109,10 +124,22 @@ export async function toggleCommentLikeAction(
   commentId: string,
 ): Promise<ActionResponse<{ liked: boolean }>> {
   try {
-    if (!commentId) throw new Error('Comment ID is required');
+    if (!commentId || typeof commentId !== 'string') {
+      return {
+        success: false,
+        error: 'INVALID_DATA',
+        message: 'Comment ID is required',
+      };
+    }
 
     const session = await getSession();
-    if (!session) throw new Error('Unauthorized');
+    if (!session) {
+      return {
+        success: false,
+        error: 'UNAUTHORIZED',
+        message: 'Please log in to like comments',
+      };
+    }
 
     const userId = session.user.id;
 
@@ -131,7 +158,7 @@ export async function toggleCommentLikeAction(
       return {
         success: true,
         data: { liked: false },
-        message: 'Unliked comment',
+        message: 'Un-liked comment',
       };
     } else {
       await prisma.commentLike.create({
@@ -139,7 +166,20 @@ export async function toggleCommentLikeAction(
       });
       return { success: true, data: { liked: true }, message: 'Liked comment' };
     }
-  } catch {
-    return { success: false, message: 'Could not update like' };
+  } catch (error: unknown) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2003' || error.code === 'P2025') {
+        return {
+          success: false,
+          error: 'NOT_FOUND',
+          message: 'This comment no longer exists',
+        };
+      }
+    }
+    return {
+      success: false,
+      error: 'SERVER_ERROR',
+      message: 'Could not update like',
+    };
   }
 }
