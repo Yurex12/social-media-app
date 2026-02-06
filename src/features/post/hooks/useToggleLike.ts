@@ -50,7 +50,7 @@ export function useToggleLike() {
       return { previousPost, previousLikedPostIds };
     },
 
-    onError: (err, postId: string, context) => {
+    onError: (err, postId, context) => {
       if (context?.previousPost) updatePost(postId, context.previousPost);
       if (username && context?.previousLikedPostIds) {
         queryClient.setQueryData<string[]>(

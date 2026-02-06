@@ -14,11 +14,8 @@ export function useSuggestedUsers(limit?: number) {
     queryKey: ['users', 'suggested', { limit }],
     queryFn: async () => {
       const users = await getSuggestedUsers(limit);
-
       const { normalizedUsers } = normalizeUsers(users);
-
       addUsers(normalizedUsers);
-
       return normalizedUsers.map((u) => u.id);
     },
     staleTime: 5 * 60 * 1000,

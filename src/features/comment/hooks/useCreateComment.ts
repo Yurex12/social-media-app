@@ -43,6 +43,15 @@ export function useCreateComment() {
       addComment(normalizedComment);
       addUser(normalizedUser);
 
+      const store = useEntityStore.getState();
+      const currentPost = store.posts[postId];
+
+      if (currentPost) {
+        store.updatePost(postId, {
+          commentsCount: currentPost.commentsCount + 1,
+        });
+      }
+
       queryClient.setQueryData<string[]>(['comments', postId], (oldIds) => {
         if (!oldIds) return [normalizedComment.id];
         return [normalizedComment.id, ...oldIds];

@@ -1,4 +1,5 @@
 import { StateCreator } from 'zustand';
+import { reconcileCount } from './helpers';
 
 export interface CommentEntity {
   id: string;
@@ -23,25 +24,50 @@ export const commentEntitySlice: StateCreator<CommentEntitySlice> = (set) => ({
   comments: {},
 
   addComment: (comment) =>
-    set((state) => ({
-      comments: {
-        ...state.comments,
-        [comment.id]: {
-          ...state.comments[comment.id],
-          ...comment,
+    set((state) => {
+      const existing = state.comments[comment.id];
+
+      if (!existing)
+        return { comments: { ...state.comments, [comment.id]: comment } };
+
+      return {
+        comments: {
+          ...state.comments,
+          [comment.id]: {
+            ...comment, // Fresh text/metadata
+            isLiked: existing.isLiked, // Local truth
+            likesCount: reconcileCount(
+              existing.isLiked,
+              comment.isLiked,
+              comment.likesCount,
+            ),
+          },
         },
-      },
-    })),
+      };
+    }),
 
   addComments: (comments) =>
     set((state) => {
       const next = { ...state.comments };
+
       comments.forEach((comment) => {
-        next[comment.id] = {
-          ...next[comment.id],
-          ...comment,
-        };
+        const existing = next[comment.id];
+
+        if (!existing) {
+          next[comment.id] = comment;
+        } else {
+          next[comment.id] = {
+            ...comment,
+            isLiked: existing.isLiked,
+            likesCount: reconcileCount(
+              existing.isLiked,
+              comment.isLiked,
+              comment.likesCount,
+            ),
+          };
+        }
       });
+
       return { comments: next };
     }),
 

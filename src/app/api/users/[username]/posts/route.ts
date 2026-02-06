@@ -26,6 +26,7 @@ export async function GET(
             name: true,
             image: true,
             username: true,
+            createdAt: true,
             bio: true,
             _count: {
               select: { followers: true, following: true, posts: true },

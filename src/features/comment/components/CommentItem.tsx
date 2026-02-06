@@ -18,8 +18,6 @@ export function CommentItem({ commentId }: { commentId: string }) {
     selectUserById(state, comment?.userId),
   );
 
-  console.log(comment?.likesCount);
-
   if (!comment || !user) return null;
 
   const shortTime = formatDate(comment.createdAt);

@@ -1,8 +1,8 @@
 import { useEntityStore } from '@/entities/store';
+import { normalizeUser } from '@/entities/utils';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { getProfile } from '../api';
-import { normalizeUser } from '@/entities/utils';
 
 export function useProfile() {
   const { username } = useParams<{ username: string }>();
@@ -17,12 +17,12 @@ export function useProfile() {
     queryKey: ['users', 'profile', username],
     queryFn: async () => {
       const user = await getProfile(username);
+
       const { normalizedUser } = normalizeUser(user);
       if (user) addUser(normalizedUser);
-      return normalizedUser;
+      return normalizedUser.id;
     },
     enabled: !!username,
-    // staleTime: 30 * 1000,
   });
 
   return {

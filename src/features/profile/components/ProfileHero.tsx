@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { useProfile } from '../hooks/useProfile';
 import { useToggleFollow } from '../hooks/useToggleFollow';
 import { UserAvatar } from './UserAvatar';
+import { CalendarDays } from 'lucide-react';
+import { format } from 'date-fns';
 
 export function ProfileHero() {
   const { user, isPending, error } = useProfile();
@@ -27,8 +29,6 @@ export function ProfileHero() {
     );
 
   if (!user) return <p>User not found</p>;
-
-  console.log(user.isFollowing);
 
   return (
     <div className='w-full'>
@@ -87,14 +87,14 @@ export function ProfileHero() {
           {user.bio && <p className='text-[15px] leading-normal'>{user.bio}</p>}
 
           {/* Metadata Row */}
-          {/* <div className='flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground text-[14px]'>
+          <div className='flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground text-[14px]'>
             <div className='flex items-center gap-1'>
               <CalendarDays size={16} />
               <span>
                 Joined {format(new Date(user.createdAt), 'MMMM yyyy')}
               </span>
             </div>
-          </div> */}
+          </div>
 
           {/* Stats Row */}
           <div className='flex gap-4 text-sm'>

@@ -9,7 +9,6 @@ export function useFollowing(username: string) {
   const {
     data: userIds,
     isPending,
-    isError,
     error,
   } = useQuery({
     queryKey: ['users', 'following', username],
@@ -22,5 +21,5 @@ export function useFollowing(username: string) {
     enabled: !!username,
   });
 
-  return { userIds, isPending, isError, error };
+  return { userIds, isPending, error };
 }

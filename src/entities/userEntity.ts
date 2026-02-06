@@ -1,4 +1,5 @@
 import { StateCreator } from 'zustand';
+import { reconcileCount } from './helpers';
 
 export interface UserEntity {
   id: string;
@@ -29,37 +30,76 @@ export const userEntitySlice: StateCreator<UserEntitySlice> = (set) => ({
   usernameToId: {},
 
   addUser: (user) =>
-    set((state) => ({
-      users: {
-        ...state.users,
-        [user.id]: {
-          ...state.users[user.id],
-          ...user,
+    set((state) => {
+      const existing = state.users[user.id];
+
+      if (!existing) {
+        return {
+          users: { ...state.users, [user.id]: user },
+          usernameToId: {
+            ...state.usernameToId,
+            [user.username.toLowerCase()]: user.id,
+          },
+        };
+      }
+
+      const isMe = user.isCurrentUser;
+
+      return {
+        users: {
+          ...state.users,
+          [user.id]: {
+            ...user,
+            isFollowing: existing.isFollowing,
+            followersCount: reconcileCount(
+              existing.isFollowing,
+              user.isFollowing,
+              user.followersCount,
+            ),
+            followingCount: isMe
+              ? existing.followingCount !== user.followingCount
+                ? existing.followingCount
+                : user.followingCount
+              : user.followingCount,
+          },
         },
-      },
-      usernameToId: {
-        ...state.usernameToId,
-        [user.username.toLowerCase()]: user.id,
-      },
-    })),
+        usernameToId: {
+          ...state.usernameToId,
+          [user.username.toLowerCase()]: user.id,
+        },
+      };
+    }),
 
   addUsers: (users) =>
     set((state) => {
       const nextUsers = { ...state.users };
       const nextUsernameToId = { ...state.usernameToId };
-
       users.forEach((user) => {
-        nextUsers[user.id] = {
-          ...nextUsers[user.id],
-          ...user,
-        };
-        nextUsernameToId[user.username.toLowerCase()] = user.id;
+        const existing = nextUsers[user.id];
+        const isMe = user.isCurrentUser;
+        if (!existing) {
+          nextUsers[user.id] = user;
+          nextUsernameToId[user.username.toLowerCase()] = user.id;
+        } else {
+          nextUsers[user.id] = {
+            ...user,
+            isFollowing: existing.isFollowing,
+            followersCount: reconcileCount(
+              existing.isFollowing,
+              user.isFollowing,
+              user.followersCount,
+            ),
+            followingCount: isMe
+              ? existing.followingCount !== user.followingCount
+                ? existing.followingCount
+                : user.followingCount
+              : user.followingCount,
+          };
+          nextUsernameToId[user.username.toLowerCase()] = user.id;
+        }
       });
 
-      return {
-        users: nextUsers,
-        usernameToId: nextUsernameToId,
-      };
+      return { users: nextUsers, usernameToId: nextUsernameToId };
     }),
 
   updateUser: (userId, updates) =>
