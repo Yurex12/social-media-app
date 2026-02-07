@@ -9,9 +9,8 @@ import { CommentFormValues, commentSchema } from './schema';
 
 import { ActionResponse } from '@/types';
 
-import { CommentWithRelations } from './types';
-import z from 'zod';
 import { Prisma } from '@/generated/prisma/client';
+import { CommentWithRelations } from './types';
 
 export async function createCommentAction(
   postId: string,
@@ -66,6 +65,10 @@ export async function createCommentAction(
               where: { followerId: userId },
               select: { followerId: true },
             },
+            following: {
+              where: { followingId: userId },
+              select: { followingId: true },
+            },
           },
         },
         commentLikes: {
@@ -89,6 +92,7 @@ export async function createCommentAction(
       user: {
         ...comment.user,
         isCurrentUser: comment.user.id === userId,
+        followsYou: comment.user.following.length > 0,
         isFollowing: comment.user.followers.length > 0,
         followersCount: comment.user._count.followers,
         followingCount: comment.user._count.following,

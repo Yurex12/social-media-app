@@ -20,6 +20,8 @@ export function usePosts() {
       const { posts: normalizedPosts, users: normalizedUsers } =
         normalizePosts(posts);
 
+      console.log(normalizedUsers);
+
       addPosts(normalizedPosts);
       addUsers(normalizedUsers);
 

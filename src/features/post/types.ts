@@ -16,6 +16,7 @@ export type TPostFromDB = Prisma.PostGetPayload<{
         bio: true;
         createdAt: true;
         followers: { select: { followerId: true } };
+        following: { select: { followingId: true } };
         _count: { select: { followers: true; following: true; posts: true } };
       };
     };
@@ -36,6 +37,7 @@ export type PostWithRelations = Omit<
   commentsCount: number;
   user: TPostFromDB['user'] & {
     isFollowing: boolean;
+    followsYou: boolean;
     isCurrentUser: boolean;
     followersCount: number;
     followingCount: number;

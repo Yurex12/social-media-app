@@ -8,6 +8,7 @@ export interface UserEntity {
   image: string | null;
   bio: string | null;
   isFollowing: boolean;
+  followsYou: boolean;
   isCurrentUser: boolean;
   followersCount: number;
   followingCount: number;

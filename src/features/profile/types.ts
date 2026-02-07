@@ -13,6 +13,11 @@ export type TUserFromDB = Prisma.UserGetPayload<{
         followerId: true;
       };
     };
+    following: {
+      select: {
+        followingId: true;
+      };
+    };
     _count: {
       select: {
         followers: true;
@@ -26,6 +31,7 @@ export type TUserFromDB = Prisma.UserGetPayload<{
 export type UserWithRelations = TUserFromDB & {
   isCurrentUser: boolean;
   isFollowing: boolean;
+  followsYou: boolean;
   followersCount: number;
   followingCount: number;
   postsCount: number;
@@ -48,6 +54,9 @@ export type TPostLikeFromDB = Prisma.PostLikeGetPayload<{
             };
             followers: {
               select: { followerId: true };
+            };
+            following: {
+              select: { followingId: true };
             };
           };
         };
@@ -74,6 +83,10 @@ export type TFollowersFromBD = Prisma.FollowGetPayload<{
           where: { followerId: 'some-user-id' };
           select: { followerId: true };
         };
+        following: {
+          where: { followingId: 'some-user-id' };
+          select: { followingId: true };
+        };
         _count: {
           select: {
             posts: true;
@@ -99,6 +112,10 @@ export type TFollowingFromBD = Prisma.FollowGetPayload<{
         followers: {
           where: { followerId: 'some-user-id' };
           select: { followerId: true };
+        };
+        following: {
+          where: { followingId: 'some-user-id' };
+          select: { followingId: true };
         };
         _count: {
           select: {

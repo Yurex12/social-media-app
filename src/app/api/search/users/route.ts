@@ -37,12 +37,17 @@ export async function GET(req: Request) {
           where: { followerId: userId },
           select: { followerId: true },
         },
+        following: {
+          where: { followingId: userId },
+          select: { followingId: true },
+        },
       },
     })) as unknown as TUserFromDB[];
 
     const transformedUsers = users.map((user) => ({
       ...user,
       isFollowing: user.followers.length > 0,
+      followsYou: user.following.length > 0,
       isCurrentUser: user.id === userId,
       followersCount: user._count.followers,
       followingCount: user._count.following,

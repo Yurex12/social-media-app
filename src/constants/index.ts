@@ -21,6 +21,11 @@ export const links: Link[] = [
     Icon: Home,
   },
   {
+    href: '/search',
+    label: 'Search',
+    Icon: Search,
+  },
+  {
     href: '/notifications',
     label: 'Notifications',
     Icon: Bell,

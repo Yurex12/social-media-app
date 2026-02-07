@@ -14,6 +14,7 @@ function mapUserEntity(user: UserWithRelations): UserEntity {
     image: user.image,
     bio: user.bio,
     isFollowing: user.isFollowing,
+    followsYou: user.followsYou,
     isCurrentUser: user.isCurrentUser,
     followersCount: user.followersCount,
     followingCount: user.followingCount,

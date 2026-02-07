@@ -44,6 +44,10 @@ export async function GET(
           where: { followerId: userId },
           select: { followerId: true },
         },
+        following: {
+          where: { followingId: userId },
+          select: { followingId: true },
+        },
       },
     })) as TUserFromDB;
 
@@ -56,6 +60,7 @@ export async function GET(
       ...user,
       isCurrentUser,
       isFollowing: user.followers.length > 0,
+      followsYou: user.following.length > 0,
       followersCount: user._count.followers,
       followingCount: user._count.following,
       postsCount: user._count.posts,

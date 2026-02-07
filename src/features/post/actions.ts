@@ -93,6 +93,10 @@ export async function createPostAction(
               where: { followerId: userId },
               select: { followerId: true },
             },
+            following: {
+              where: { followingId: userId },
+              select: { followingId: true },
+            },
           },
         },
       },
@@ -107,6 +111,7 @@ export async function createPostAction(
       user: {
         ...post.user,
         isFollowing: post.user.followers.length > 0,
+        followsYou: post.user.following.length > 0,
         isCurrentUser: post.userId === userId,
         followersCount: post.user._count.followers,
         followingCount: post.user._count.following,
@@ -231,6 +236,10 @@ export async function editPostAction(
                   where: { followerId: userId },
                   select: { followerId: true },
                 },
+                following: {
+                  where: { followingId: userId },
+                  select: { followingId: true },
+                },
               },
             },
           },
@@ -245,6 +254,7 @@ export async function editPostAction(
           user: {
             ...updatedPost.user,
             isFollowing: updatedPost.user.followers.length > 0,
+            followsYou: updatedPost.user.following.length > 0,
             isCurrentUser: updatedPost.userId === userId,
             followersCount: updatedPost.user._count.followers,
             followingCount: updatedPost.user._count.following,

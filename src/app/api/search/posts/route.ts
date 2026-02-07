@@ -36,6 +36,10 @@ export async function GET(req: Request) {
               where: { followerId: userId },
               select: { followerId: true },
             },
+            following: {
+              where: { followingId: userId },
+              select: { followingId: true },
+            },
           },
         },
         images: { select: { id: true, url: true, fileId: true } },
@@ -62,6 +66,7 @@ export async function GET(req: Request) {
         user: {
           ...post.user,
           isFollowing: post.user.followers.length > 0,
+          followsYou: post.user.following.length > 0,
           isCurrentUser: post.user.id === userId,
           followersCount: post.user._count.followers,
           followingCount: post.user._count.following,

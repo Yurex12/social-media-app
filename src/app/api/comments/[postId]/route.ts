@@ -39,6 +39,10 @@ export async function GET(
               where: { followerId: userId },
               select: { followerId: true },
             },
+            following: {
+              where: { followingId: userId },
+              select: { followingId: true },
+            },
           },
         },
         commentLikes: {
@@ -63,6 +67,7 @@ export async function GET(
         user: {
           ...comment.user,
           isCurrentUser: comment.user.id === userId,
+          followsYou: comment.user.following.length > 0,
           isFollowing: comment.user.followers.length > 0,
           followersCount: comment.user._count.followers,
           followingCount: comment.user._count.following,

@@ -33,6 +33,10 @@ export async function GET(req: Request) {
         image: true,
         bio: true,
         createdAt: true,
+        following: {
+          where: { followingId: userId },
+          select: { followingId: true },
+        },
         _count: {
           select: {
             posts: true,
@@ -50,6 +54,7 @@ export async function GET(req: Request) {
     const transformedUsers = users.map((user) => ({
       ...user,
       isFollowing: false,
+      followsYou: user.following.length > 0,
       isCurrentUser: false,
       followersCount: user._count.followers,
       followingCount: user._count.following,

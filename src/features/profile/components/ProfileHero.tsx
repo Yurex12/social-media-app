@@ -75,12 +75,17 @@ export function ProfileHero() {
             <h2 className='text-xl font-extrabold leading-tight'>
               {user.name}
             </h2>
-            <div>
+
+            <div className='flex items-center gap-2'>
               <span className='text-muted-foreground text-[15px]'>
                 @{user.username}
               </span>
 
-              {/* {user.isFollowing && <span className='bg-muted text-muted-foreground'>follows you</span>} */}
+              {user.followsYou && !user.isCurrentUser && (
+                <span className='bg-muted text-muted-foreground text-[11px] font-medium px-1.5 py-0.5 rounded-sm leading-none shrink-0'>
+                  Follows you
+                </span>
+              )}
             </div>
           </div>
 
