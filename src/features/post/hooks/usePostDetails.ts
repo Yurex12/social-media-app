@@ -7,6 +7,7 @@ import { getPostById } from '../api';
 export function usePostDetails(id: string) {
   const addPost = useEntityStore((state) => state.addPost);
   const addUser = useEntityStore((state) => state.addUser);
+  const removePost = useEntityStore((state) => state.removePost);
 
   const postInStore = useEntityStore((state) => selectPostById(state, id));
 
@@ -15,6 +16,11 @@ export function usePostDetails(id: string) {
     enabled: !!id,
     queryFn: async () => {
       const post = await getPostById(id);
+
+      if (!post) {
+        removePost(id);
+        throw new Error('Post not found');
+      }
 
       const { post: normalizedPost, user: normalizedUser } =
         normalizePost(post);
@@ -27,7 +33,7 @@ export function usePostDetails(id: string) {
   });
 
   return {
-    postId: postInStore ? postInStore.id : undefined,
+    postId: postInStore?.id,
     isPending: isPending && !postInStore,
     error,
   };

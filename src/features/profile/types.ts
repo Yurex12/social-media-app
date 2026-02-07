@@ -112,20 +112,6 @@ export type TFollowingFromBD = Prisma.FollowGetPayload<{
   };
 }>;
 
-interface Author {
-  name: string;
-  id: string;
-  image: string | null;
-  username: string;
-  bio: string | null;
-  isFollowing: boolean;
-  isCurrentUser: boolean;
-  _count: {
-    followers: number;
-    following: number;
-  };
-}
-
 export interface AuthorCardProps {
   postId: string | undefined;
   isPending: boolean;

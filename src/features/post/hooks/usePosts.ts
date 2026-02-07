@@ -13,6 +13,7 @@ export function usePosts() {
     error,
   } = useQuery({
     queryKey: ['posts', 'home'],
+    // staleTime: 1000 * 60 * 5,
     queryFn: async () => {
       const posts = await getPosts();
 

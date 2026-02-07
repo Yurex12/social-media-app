@@ -7,6 +7,7 @@ import { getProfile } from '../api';
 export function useProfile() {
   const { username } = useParams<{ username: string }>();
   const addUser = useEntityStore((state) => state.addUser);
+  const removeUser = useEntityStore((state) => state.removeUser);
 
   const userFromStore = useEntityStore((state) => {
     const id = state.usernameToId[username?.toLowerCase()];
@@ -15,8 +16,17 @@ export function useProfile() {
 
   const { isPending, error } = useQuery({
     queryKey: ['users', 'profile', username],
+
     queryFn: async () => {
       const user = await getProfile(username);
+
+      if (!user) {
+        const id =
+          useEntityStore.getState().usernameToId[username.toLowerCase()];
+        if (id) removeUser(id);
+
+        throw new Error('User not found');
+      }
 
       const { normalizedUser } = normalizeUser(user);
       if (user) addUser(normalizedUser);

@@ -120,6 +120,58 @@ export async function createCommentAction(
   }
 }
 
+export async function deleteCommentAction(
+  commentId: string,
+): Promise<ActionResponse<string>> {
+  try {
+    if (!commentId || typeof commentId !== 'string') {
+      return {
+        success: false,
+        error: 'INVALID_DATA',
+        message: 'Valid Comment ID is required',
+      };
+    }
+
+    const session = await getSession();
+    if (!session) {
+      return {
+        success: false,
+        error: 'UNAUTHORIZED',
+        message: 'Please log in to delete your comment',
+      };
+    }
+
+    await prisma.comment.delete({
+      where: {
+        id: commentId,
+        userId: session.user.id,
+      },
+    });
+
+    return {
+      success: true,
+      data: commentId,
+      message: 'Comment deleted successfully.',
+    };
+  } catch (error: unknown) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        return {
+          success: false,
+          error: 'NOT_FOUND',
+          message: 'Comment not found',
+        };
+      }
+    }
+
+    return {
+      success: false,
+      error: 'SERVER_ERROR',
+      message: 'Comment could not be deleted.',
+    };
+  }
+}
+
 export async function toggleCommentLikeAction(
   commentId: string,
 ): Promise<ActionResponse<{ liked: boolean }>> {

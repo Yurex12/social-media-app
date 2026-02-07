@@ -14,6 +14,8 @@ export function useComments(postId: string) {
   } = useQuery({
     queryKey: ['comments', postId],
     enabled: !!postId,
+    staleTime: 0,
+    gcTime: 1000 * 60 * 5,
     queryFn: async () => {
       const comments = await getComments(postId);
 
