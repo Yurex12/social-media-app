@@ -2,6 +2,7 @@
 
 import { Prisma } from '@/generated/prisma/client';
 import prisma from '@/lib/prisma';
+import { pusherServer } from '@/lib/pusher';
 import { getSession } from '@/lib/session';
 import { ActionResponse } from '@/types';
 
@@ -51,19 +52,52 @@ export async function toggleFollowAction(
         data: { followed: false },
         message: 'Unfollowed user',
       };
-    } else {
-      await prisma.follow.create({
+    }
+
+    let triggerPusher = false;
+    await prisma.$transaction(async (tx) => {
+      await tx.follow.create({
         data: {
           followerId,
           followingId,
         },
       });
-      return {
-        success: true,
-        data: { followed: true },
-        message: 'Followed user',
-      };
+
+      try {
+        await tx.notification.create({
+          data: {
+            type: 'FOLLOW',
+            issuerId: followerId,
+            recipientId: followingId,
+          },
+        });
+
+        triggerPusher = true;
+      } catch (error) {
+        // P2002 (Unique Constraint) -> already existed
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          if (error.code !== 'P2002') throw error;
+        } else {
+          throw error;
+        }
+      }
+    });
+
+    if (triggerPusher) {
+      pusherServer
+        .trigger(`user-${followingId}`, 'new-notification', {
+          type: 'FOLLOW',
+
+          issuerId: followerId,
+        })
+        .catch((e) => console.error('Pusher error:', e));
     }
+
+    return {
+      success: true,
+      data: { followed: true },
+      message: 'Followed user',
+    };
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2003' || error.code === 'P2025') {

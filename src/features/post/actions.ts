@@ -1,6 +1,7 @@
 'use server';
 
 import prisma from '@/lib/prisma';
+import { pusherServer } from '@/lib/pusher';
 
 import { getSession } from '@/lib/session';
 import {
@@ -369,14 +370,60 @@ export async function toggleLikeAction(
         data: { liked: false },
         message: 'Un-liked post',
       };
-    } else {
-      await prisma.postLike.create({
+    }
+
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { userId: true },
+    });
+
+    if (!post)
+      return { success: false, error: 'NOT_FOUND', message: 'Post not found' };
+    let triggerPusher = false;
+
+    await prisma.$transaction(async (tx) => {
+      await tx.postLike.create({
         data: { userId, postId },
       });
-      return { success: true, data: { liked: true }, message: 'Liked post' };
+
+      if (post.userId !== userId) {
+        try {
+          await tx.notification.create({
+            data: {
+              type: 'LIKE_POST',
+              postId,
+              issuerId: userId,
+              recipientId: post.userId,
+            },
+          });
+
+          triggerPusher = true;
+        } catch (error) {
+          // P2002 (Unique Constraint) -> already existed
+          if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code !== 'P2002') throw error;
+          } else {
+            throw error;
+          }
+        }
+      }
+    });
+
+    if (triggerPusher) {
+      pusherServer
+        .trigger(`user-${post.userId}`, 'new-notification', {
+          type: 'LIKE_POST',
+          postId,
+          issuerId: userId,
+        })
+        .catch((e) => console.error('Pusher error:', e));
     }
+
+    return { success: true, data: { liked: true }, message: 'Liked post' };
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // P2003 (Foreign Key Violation) -> trying to like a deleted post
+      // P2025 (Record Not Found) -> post not found
       if (error.code === 'P2003' || error.code === 'P2025') {
         return {
           success: false,
@@ -392,3 +439,57 @@ export async function toggleLikeAction(
     };
   }
 }
+// export async function toggleLikeAction(
+//   postId: string,
+// ): Promise<ActionResponse<{ liked: boolean }>> {
+//   try {
+//     const session = await getSession();
+//     if (!session)
+//       return {
+//         success: false,
+//         error: 'UNAUTHORIZED',
+//         message: 'Please log in to like posts',
+//       };
+
+//     const userId = session.user.id;
+
+//     const existingLike = await prisma.postLike.findUnique({
+//       where: {
+//         postId_userId: { postId, userId },
+//       },
+//     });
+
+//     if (existingLike) {
+//       await prisma.postLike.delete({
+//         where: {
+//           postId_userId: { postId, userId },
+//         },
+//       });
+//       return {
+//         success: true,
+//         data: { liked: false },
+//         message: 'Un-liked post',
+//       };
+//     } else {
+//       await prisma.postLike.create({
+//         data: { userId, postId },
+//       });
+//       return { success: true, data: { liked: true }, message: 'Liked post' };
+//     }
+//   } catch (error) {
+//     if (error instanceof Prisma.PrismaClientKnownRequestError) {
+//       if (error.code === 'P2003' || error.code === 'P2025') {
+//         return {
+//           success: false,
+//           error: 'NOT_FOUND',
+//           message: 'Post not found',
+//         };
+//       }
+//     }
+//     return {
+//       success: false,
+//       error: 'SERVER_ERROR',
+//       message: 'Could not update like',
+//     };
+//   }
+// }

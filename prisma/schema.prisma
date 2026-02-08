@@ -13,6 +13,13 @@ datasource db {
   provider = "postgresql"
 }
 
+enum NotificationType {
+  LIKE_POST
+  LIKE_COMMENT
+  COMMENT_POST
+  FOLLOW
+}
+
 model User {
   id              String    @id
   name            String
@@ -34,9 +41,11 @@ model User {
   bookmarks Bookmark[]
   postLikes PostLike[]
 
-  followers    Follow[]      @relation("followers")
-  following    Follow[]      @relation("following")
-  commentLikes CommentLike[]
+  followers             Follow[]       @relation("followers")
+  following             Follow[]       @relation("following")
+  commentLikes          CommentLike[]
+  receivedNotifications Notification[] @relation("ReceivedNotifications")
+  sentNotifications     Notification[] @relation("SentNotifications")
 
   @@unique([email])
   @@unique([username])
@@ -96,10 +105,11 @@ model Post {
   userId  String
   content String?
 
-  images    Image[]
-  comments  Comment[]
-  postLikes PostLike[]
-  bookmarks Bookmark[]
+  images       Image[]
+  comments     Comment[]
+  postLikes    PostLike[]
+  bookmarks    Bookmark[]
+  notification Notification[]
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -114,6 +124,7 @@ model Comment {
   userId  String
 
   commentLikes CommentLike[]
+  notification Notification[]
 
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -174,12 +185,6 @@ model CommentLike {
   @@unique([commentId, userId])
 }
 
-// model Notification {
-//   id        String   @id
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-// }
-
 model Bookmark {
   id     String @id @default(cuid())
   userId String
@@ -192,4 +197,26 @@ model Bookmark {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, postId])
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  recipientId String
+  issuerId    String
+  type        NotificationType
+
+  postId    String?
+  commentId String?
+
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  post    Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  recipient User @relation("ReceivedNotifications", fields: [recipientId], references: [id], onDelete: Cascade)
+  issuer    User @relation("SentNotifications", fields: [issuerId], references: [id], onDelete: Cascade)
+
+  @@unique([issuerId, recipientId, type, postId, commentId])
+  @@index([recipientId, read, createdAt])
 }

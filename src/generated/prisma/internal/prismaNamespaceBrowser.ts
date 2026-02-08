@@ -61,7 +61,8 @@ export const ModelName = {
   Follow: 'Follow',
   PostLike: 'PostLike',
   CommentLike: 'CommentLike',
-  Bookmark: 'Bookmark'
+  Bookmark: 'Bookmark',
+  Notification: 'Notification'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -86,6 +87,7 @@ export const UserScalarFieldEnum = {
   email: 'email',
   emailVerified: 'emailVerified',
   image: 'image',
+  coverPhoto: 'coverPhoto',
   username: 'username',
   displayUsername: 'displayUsername',
   bio: 'bio',
@@ -216,6 +218,20 @@ export const BookmarkScalarFieldEnum = {
 } as const
 
 export type BookmarkScalarFieldEnum = (typeof BookmarkScalarFieldEnum)[keyof typeof BookmarkScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  recipientId: 'recipientId',
+  issuerId: 'issuerId',
+  type: 'type',
+  postId: 'postId',
+  commentId: 'commentId',
+  read: 'read',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
 export const SortOrder = {

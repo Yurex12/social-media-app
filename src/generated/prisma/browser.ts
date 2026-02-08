@@ -72,3 +72,8 @@ export type CommentLike = Prisma.CommentLikeModel
  * 
  */
 export type Bookmark = Prisma.BookmarkModel
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel
