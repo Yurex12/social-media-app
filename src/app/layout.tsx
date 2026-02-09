@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 // import { Poppins } from 'next/font/google';
 import { Outfit } from 'next/font/google';
-import { Toaster } from 'react-hot-toast';
 
 import './globals.css';
 import Providers from './Providers';
 import { GlobalLightBox } from '@/components/GlobalLightbox';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { NotificationListener } from '@/features/notification/components/NotificationListener';
+import { Toaster } from '@/components/ui/sonner';
 
 // const poppins = Poppins({
 //   subsets: ['latin'],
@@ -37,10 +38,13 @@ export default function RootLayout({
       <body
         className={`${outfit.className} antialiased h-screen overflow-y-scroll`}
       >
-        <Toaster />
-        <GlobalLightBox />
-        <ConfirmDialog />
-        <Providers>{children}</Providers>
+        <Toaster position='top-center' />
+        <Providers>
+          <GlobalLightBox />
+          <ConfirmDialog />
+          <NotificationListener />
+          {children}
+        </Providers>
       </body>
     </html>
   );

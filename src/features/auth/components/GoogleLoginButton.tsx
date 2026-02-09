@@ -1,7 +1,7 @@
 'use client';
 
 import { useTransition } from 'react';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { signIn } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 

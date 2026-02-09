@@ -3,10 +3,11 @@ import { normalizePost } from '@/entities/utils';
 import { uploadImages } from '@/lib/imagekit';
 import { ImageUploadResponse } from '@/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
+
 import { createPostAction } from '../actions';
 
-const toastId = '123456';
+let toastId: string | number;
 
 export function useCreatePost() {
   const queryClient = useQueryClient();
@@ -20,10 +21,7 @@ export function useCreatePost() {
       content: string;
       images: File[];
     }) => {
-      toast.loading('Uploading your post...', {
-        duration: Infinity,
-        id: toastId,
-      });
+      toastId = toast.loading('Uploading your post...');
 
       let uploadedImages: ImageUploadResponse[] = [];
 
@@ -47,10 +45,7 @@ export function useCreatePost() {
     },
 
     onSuccess(res) {
-      toast.success(res.message, {
-        id: toastId,
-        duration: 3000,
-      });
+      toast.success(res.message, { id: toastId });
 
       const { post: normalizedPost, user: normalizedUser } = normalizePost(
         res.data,
@@ -65,9 +60,8 @@ export function useCreatePost() {
     },
 
     onError(err) {
-      toast.error(err.message, {
+      toast.error(err.message || 'Something went wrong', {
         id: toastId,
-        duration: 3000,
       });
     },
   });

@@ -1,6 +1,6 @@
 import { useEntityStore } from '@/entities/store';
 import { useMutation } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { deleteCommentAction } from '../action';
 
 export function useDeleteComment() {
@@ -28,9 +28,7 @@ export function useDeleteComment() {
       return { comment, post };
     },
 
-    onSuccess: () => {
-      toast.success('Comment deleted');
-    },
+    onSuccess: () => toast.success('Comment deleted'),
 
     onError: (error, commentId, context) => {
       if (context?.comment) addComment(context.comment);

@@ -82,6 +82,8 @@ export async function toggleFollowAction(
         await pusherServer.trigger(`user-${followingId}`, 'new-notification', {
           type: 'FOLLOW',
           issuerId: followerId,
+          name: session.user.name,
+          image: session.user.image,
         });
       }
     } catch (error) {

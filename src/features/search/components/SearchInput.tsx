@@ -20,7 +20,7 @@ export function SearchInput() {
     const trimmedQuery = query.trim();
 
     if (!trimmedQuery) return;
-
+    
     router.push(`/search?f=${filter}&q=${encodeURIComponent(trimmedQuery)}`);
   }
 

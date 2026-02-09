@@ -3,12 +3,12 @@ import { normalizePost } from '@/entities/utils';
 import { uploadImages } from '@/lib/imagekit';
 import { ImageUploadResponse } from '@/types';
 import { useMutation } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { editPostAction } from '../actions';
 import { PostEditSchema } from '../schema';
 import { ActionError } from '../types';
 
-const toastId = 'edit-post-toast';
+let toastId: string | number;
 
 export function useEditPost() {
   const updatePost = useEntityStore((state) => state.updatePost);
@@ -24,10 +24,7 @@ export function useEditPost() {
       values: PostEditSchema;
       existingImages: { fileId: string; url: string }[];
     }) => {
-      toast.loading('Saving changes...', {
-        duration: Infinity,
-        id: toastId,
-      });
+      toastId = toast.loading('Saving changes...', {});
 
       const filesToUpload = values.images.filter(
         (img) => img instanceof File,
@@ -65,10 +62,7 @@ export function useEditPost() {
     },
 
     onSuccess(res) {
-      toast.success(res.message, {
-        id: toastId,
-        duration: 3000,
-      });
+      toast.success(res.message, { id: toastId });
 
       const { post: normalizedPost } = normalizePost(res.data);
 
@@ -80,10 +74,7 @@ export function useEditPost() {
         removePost(variables.postId);
       }
 
-      toast.error(err.message || 'Something went wrong', {
-        id: toastId,
-        duration: 3000,
-      });
+      toast.error(err.message || 'Something went wrong', { id: toastId });
     },
   });
 

@@ -1,6 +1,6 @@
 import { useEntityStore } from '@/entities/store';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { toggleBookmarkAction } from '../action';
 
 export function useToggleBookmark() {
@@ -48,7 +48,7 @@ export function useToggleBookmark() {
 
       if (res.error === 'NOT_FOUND') {
         removePost(postId);
-        toast.error(res.message);
+        toast.info(res.message);
         return;
       }
 

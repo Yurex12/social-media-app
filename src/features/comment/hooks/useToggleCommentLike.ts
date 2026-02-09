@@ -1,7 +1,7 @@
 import { useEntityStore } from '@/entities/store';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toggleCommentLikeAction } from '../action';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 export function useToggleCommentLike() {
   const queryClient = useQueryClient();
@@ -34,8 +34,7 @@ export function useToggleCommentLike() {
     onSuccess: (res, { commentId }) => {
       if (!res.success) {
         if (res.error === 'NOT_FOUND') removeComment(commentId);
-
-        toast.error(res.message);
+        toast.info(res.message);
       }
     },
 

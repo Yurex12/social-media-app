@@ -1,7 +1,7 @@
 import { useEntityStore } from '@/entities/store';
 import { useSession } from '@/lib/auth-client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { toggleFollowAction } from '../action';
 
 export function useToggleFollow() {
@@ -54,7 +54,7 @@ export function useToggleFollow() {
 
       if (res.error === 'NOT_FOUND') {
         removeUser(followingId);
-        toast.error(res.message);
+        toast.info(res.message);
         return;
       }
 

@@ -19,7 +19,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { signIn } from '@/lib/auth-client';
 import { ErrorContext } from 'better-auth/react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 import { LoginSchema, loginSchema } from '../schemas/LoginSchema';
 
 export function LoginForm() {

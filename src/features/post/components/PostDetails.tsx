@@ -7,7 +7,6 @@ import { CommentList } from '@/features/comment/components/CommentList';
 import { PostCard } from './PostCard';
 
 import { PostProvider } from '../PostProvider';
-
 interface PostDetailsProps {
   postId: string | undefined;
   isPending: boolean;

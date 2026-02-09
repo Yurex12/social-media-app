@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { useDeletePost } from '../hooks/useDeletePost';
 import { usePost } from '../PostProvider';
 import EditPostDialog from './EditPostDialog';

@@ -16,6 +16,7 @@ export function NotificationItem({
   const notification = useEntityStore((state) =>
     selectNotificationById(state, notificationId),
   );
+  
   const issuer = useEntityStore((state) =>
     selectUserById(state, notification?.issuerId),
   );

@@ -374,7 +374,7 @@ export async function toggleLikeAction(
 
     const post = await prisma.post.findUnique({
       where: { id: postId },
-      select: { userId: true },
+      select: { userId: true, user: { select: { name: true, image: true } } },
     });
 
     if (!post)
@@ -411,6 +411,8 @@ export async function toggleLikeAction(
               type: 'LIKE_POST',
               postId,
               issuerId: userId,
+              name: post.user.name,
+              image: post.user.image,
             },
           );
         }

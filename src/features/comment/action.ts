@@ -119,6 +119,8 @@ export async function createCommentAction(
               commentId: comment.id,
               postId: comment.postId,
               issuerId: userId,
+              name: comment.user.name,
+              image: comment.user.image,
             },
           );
         }
@@ -265,7 +267,11 @@ export async function toggleCommentLikeAction(
       where: {
         id: commentId,
       },
-      select: { userId: true, postId: true },
+      select: {
+        userId: true,
+        postId: true,
+        user: { select: { name: true, image: true } },
+      },
     });
 
     if (!comment) {
@@ -309,6 +315,8 @@ export async function toggleCommentLikeAction(
               commentId,
               issuerId: userId,
               postId: comment.postId,
+              name: comment.user.name,
+              image: comment.user.image,
             },
           );
         }

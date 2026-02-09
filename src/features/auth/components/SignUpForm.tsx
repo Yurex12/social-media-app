@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { signupSchema, SignupSchema } from '../schemas/SignupSchema';
 import { signUp } from '@/lib/auth-client';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
 export function SignupForm() {

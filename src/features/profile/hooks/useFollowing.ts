@@ -19,6 +19,7 @@ export function useFollowing(username: string) {
       return normalizedUsers.map((user) => user.id);
     },
     enabled: !!username,
+
   });
 
   return { userIds, isPending, error };

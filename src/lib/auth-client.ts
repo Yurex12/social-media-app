@@ -14,4 +14,5 @@ export const {
   isUsernameAvailable,
 } = createAuthClient({
   plugins: [usernameClient(), inferAdditionalFields<typeof auth>()],
+
 });

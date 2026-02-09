@@ -1,11 +1,11 @@
 import { useEntityStore } from '@/entities/store';
 import { normalizeComment } from '@/entities/utils';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
-import { createCommentAction } from '../action';
 import { ActionError } from '@/features/post/types';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { createCommentAction } from '../action';
 
-const toastId = 'comment-toast';
+let toastId: string | number;
 
 export function useCreateComment() {
   const queryClient = useQueryClient();
@@ -21,10 +21,7 @@ export function useCreateComment() {
       content: string;
       postId: string;
     }) => {
-      toast.loading('Posting your comment...', {
-        id: toastId,
-        duration: Infinity,
-      });
+      toastId = toast.loading('Posting your comment...');
 
       const res = await createCommentAction(postId, { content });
 
@@ -35,10 +32,7 @@ export function useCreateComment() {
     },
 
     onSuccess(res, { postId }) {
-      toast.success(res.message, {
-        id: toastId,
-        duration: 3000,
-      });
+      toast.success(res.message, { id: toastId });
 
       const { comment: normalizedComment, user: normalizedUser } =
         normalizeComment(res.data);
@@ -65,10 +59,7 @@ export function useCreateComment() {
       if ('code' in error && error.code === 'NOT_FOUND') {
         removePost(postId);
       }
-      toast.error(error.message || 'Something went wrong', {
-        id: toastId,
-        duration: 3000,
-      });
+      toast.error(error.message || 'Something went wrong', { id: toastId });
     },
   });
 
