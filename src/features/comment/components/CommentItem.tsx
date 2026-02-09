@@ -5,10 +5,11 @@ import { selectCommentById } from '@/entities/commentSelectors';
 import { useEntityStore } from '@/entities/store';
 import { selectUserById } from '@/entities/userSelectors';
 import { UserAvatar } from '@/features/profile/components/UserAvatar';
-import { formatDate } from '../helper';
+
 import { useToggleCommentLike } from '../hooks/useToggleCommentLike';
 import { useConfirmDialogStore } from '@/store/useConfirmDialogStore';
 import { useDeleteComment } from '../hooks/useDeleteComment';
+import { formatDate } from '@/lib/helpers';
 
 export function CommentItem({ commentId }: { commentId: string }) {
   const { toggleCommentLike } = useToggleCommentLike();
@@ -30,7 +31,10 @@ export function CommentItem({ commentId }: { commentId: string }) {
   const profileUrl = `/profile/${user.username}`;
 
   return (
-    <div className='flex gap-3 py-2 border-b border-border/50 last:border-0'>
+    <div
+      className='flex gap-3 py-2 border-b border-border/50 last:border-0'
+      id={comment.id}
+    >
       <Link href={profileUrl}>
         <UserAvatar image={user.image} name={user.name} />
       </Link>

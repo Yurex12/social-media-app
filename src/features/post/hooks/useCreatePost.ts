@@ -65,7 +65,7 @@ export function useCreatePost() {
     },
 
     onError(err) {
-      toast.success(err.message, {
+      toast.error(err.message, {
         id: toastId,
         duration: 3000,
       });

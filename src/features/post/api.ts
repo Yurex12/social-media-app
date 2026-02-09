@@ -7,7 +7,7 @@ export async function getPosts() {
     return posts.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Failed to fetch posts');
+      throw new Error(error.response.data.error || 'Failed to fetch posts');
     }
     throw error;
   }

@@ -55,7 +55,9 @@ export async function getSuggestedUsers(limit?: number) {
     return data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data || 'Failed to fetch suggestions');
+      throw new Error(
+        error.response.data.error || 'Failed to fetch suggestions',
+      );
     }
     throw error;
   }

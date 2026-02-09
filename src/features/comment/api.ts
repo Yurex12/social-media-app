@@ -9,9 +9,7 @@ export async function getComments(postId: string) {
     return comments.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(
-        error.response.data.message || 'Failed to fetch comments',
-      );
+      throw new Error(error.response.data.error || 'Failed to fetch comments');
     }
     throw error;
   }

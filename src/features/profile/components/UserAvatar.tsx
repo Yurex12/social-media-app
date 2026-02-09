@@ -21,9 +21,7 @@ export function UserAvatar({
   textClassName,
 }: UserAvatarProps) {
   if (isPending) {
-    return (
-      <Skeleton className={cn('h-10 w-10 rounded-full bg-muted', className)} />
-    );
+    return <Skeleton className='size-10 rounded-full bg-muted' />;
   }
 
   const initial = name?.trim().charAt(0).toUpperCase();
@@ -31,7 +29,7 @@ export function UserAvatar({
   return (
     <div
       className={cn(
-        'relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full items-center justify-center bg-primary/80 text-background',
+        'relative flex size-10 shrink-0 overflow-hidden rounded-full items-center justify-center bg-primary/80 text-background',
         className,
       )}
     >

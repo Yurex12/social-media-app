@@ -54,17 +54,24 @@ export async function toggleFollowAction(
       };
     }
 
-    let triggerPusher = false;
-    await prisma.$transaction(async (tx) => {
-      await tx.follow.create({
-        data: {
-          followerId,
-          followingId,
+    await prisma.follow.create({
+      data: {
+        followerId,
+        followingId,
+      },
+    });
+
+    try {
+      const existingNotif = await prisma.notification.findFirst({
+        where: {
+          type: 'FOLLOW',
+          issuerId: followerId,
+          recipientId: followingId,
         },
       });
 
-      try {
-        await tx.notification.create({
+      if (!existingNotif) {
+        await prisma.notification.create({
           data: {
             type: 'FOLLOW',
             issuerId: followerId,
@@ -72,25 +79,13 @@ export async function toggleFollowAction(
           },
         });
 
-        triggerPusher = true;
-      } catch (error) {
-        // P2002 (Unique Constraint) -> already existed
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-          if (error.code !== 'P2002') throw error;
-        } else {
-          throw error;
-        }
-      }
-    });
-
-    if (triggerPusher) {
-      pusherServer
-        .trigger(`user-${followingId}`, 'new-notification', {
+        await pusherServer.trigger(`user-${followingId}`, 'new-notification', {
           type: 'FOLLOW',
-
           issuerId: followerId,
-        })
-        .catch((e) => console.error('Pusher error:', e));
+        });
+      }
+    } catch (error) {
+      console.error('Notification Error:', error);
     }
 
     return {
@@ -108,6 +103,7 @@ export async function toggleFollowAction(
         };
       }
     }
+    console.error('Toggle Follow Error:', error);
     return {
       success: false,
       error: 'SERVER_ERROR',

@@ -6,6 +6,10 @@ import { UserWithRelations } from '@/features/profile/types';
 import { CommentWithRelations } from '@/features/comment/types';
 import { CommentEntity } from './commentEntity';
 
+import { NotificationEntity } from './notificationEntity';
+import { NotificationType } from '@/generated/prisma/enums';
+import { NotificationWithRelations } from '@/features/notification/types';
+
 function mapUserEntity(user: UserWithRelations): UserEntity {
   return {
     id: user.id,
@@ -90,4 +94,37 @@ export function normalizeComments(comments: CommentWithRelations[]) {
   });
 
   return { normalizedComments, normalizedUsers };
+}
+
+// --- NOTIFICATIONS ---
+
+export function normalizeNotification(notification: NotificationWithRelations) {
+  return {
+    notification: {
+      id: notification.id,
+      recipientId: notification.recipientId,
+      issuerId: notification.issuerId,
+      type: notification.type as NotificationType,
+      postId: notification.postId,
+      commentId: notification.commentId,
+      read: notification.read,
+      createdAt: notification.createdAt,
+    } satisfies NotificationEntity,
+    user: mapUserEntity(notification.issuer),
+  };
+}
+
+export function normalizeNotifications(
+  notifications: NotificationWithRelations[],
+) {
+  const normalizedNotifications: NotificationEntity[] = [];
+  const normalizedUsers: UserEntity[] = [];
+
+  notifications.forEach((n) => {
+    const { notification, user } = normalizeNotification(n);
+    normalizedNotifications.push(notification);
+    normalizedUsers.push(user);
+  });
+
+  return { notifications: normalizedNotifications, users: normalizedUsers };
 }
