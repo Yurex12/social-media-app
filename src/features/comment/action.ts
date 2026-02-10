@@ -1,7 +1,5 @@
 'use server';
 
-'use server';
-
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 

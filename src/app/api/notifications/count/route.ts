@@ -7,26 +7,15 @@ export async function GET(req: NextRequest) {
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const userId = session.user.id;
-
   try {
-    const notifications = await prisma.notification.findMany({
+    const unreadCount = await prisma.notification.count({
       where: {
-        recipientId: userId,
-      },
-      orderBy: { createdAt: 'desc' },
-      include: {
-        issuer: {
-          select: {
-            name: true,
-            image: true,
-            username: true,
-          },
-        },
+        recipientId: session.user.id,
+        read: false,
       },
     });
 
-    return NextResponse.json(notifications);
+    return NextResponse.json({ count: unreadCount });
   } catch {
     return NextResponse.json(
       { error: 'Internal server error' },

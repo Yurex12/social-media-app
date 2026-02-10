@@ -15,3 +15,17 @@ export async function getNotifications() {
     throw error;
   }
 }
+
+export async function getUnreadCount() {
+  try {
+    const res = await axios.get<{ count: number }>('/api/notifications/count');
+    return res.data.count;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(
+        error.response.data.error || 'Failed to fetch unread count',
+      );
+    }
+    throw error;
+  }
+}

@@ -4,6 +4,7 @@ import { UserAvatar } from '@/features/profile/components/UserAvatar';
 import { NotificationType } from '@/generated/prisma/enums';
 import { useSession } from '@/lib/auth-client';
 import { pusherClient } from '@/lib/pusher';
+import { useQueryClient } from '@tanstack/react-query';
 import { Heart, MessageCircle, UserPlus } from 'lucide-react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
@@ -21,12 +22,30 @@ export function NotificationListener() {
   const session = useSession();
   const userId = session.data?.user?.id;
 
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     if (!userId) return;
 
     const channel = pusherClient.subscribe(`user-${userId}`);
 
-    channel.bind('new-notification', (data: Data) => {
+    channel.bind('new-notification', async (data: Data) => {
+      await queryClient.cancelQueries({
+        queryKey: ['notifications', 'unread-count'],
+      });
+
+      queryClient.setQueryData<number>(
+        ['notifications', 'unread-count'],
+        (old = 0) => {
+          return old + 1;
+        },
+      );
+
+      queryClient.invalidateQueries({
+        queryKey: ['notifications'],
+        refetchType: 'active',
+      });
+
       const config: Record<
         NotificationType,
         { icon: React.ReactNode; text: string; color: string }
