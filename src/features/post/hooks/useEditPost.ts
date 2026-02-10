@@ -1,12 +1,11 @@
 import { useEntityStore } from '@/entities/store';
 import { normalizePost } from '@/entities/utils';
 import { uploadImages } from '@/lib/imagekit';
-import { ImageUploadResponse } from '@/types';
+import { ActionError, ImageUploadResponse } from '@/types';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { editPostAction } from '../actions';
 import { PostEditSchema } from '../schema';
-import { ActionError } from '../types';
 
 let toastId: string | number;
 
@@ -70,9 +69,8 @@ export function useEditPost() {
     },
 
     onError(err: Error | ActionError, variables) {
-      if ('code' in err && err.code === 'NOT_FOUND') {
+      if ('code' in err && err.code === 'NOT_FOUND')
         removePost(variables.postId);
-      }
 
       toast.error(err.message || 'Something went wrong', { id: toastId });
     },

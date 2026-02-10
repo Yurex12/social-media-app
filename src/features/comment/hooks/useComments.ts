@@ -1,14 +1,13 @@
+import { useEntityStore } from '@/entities/store';
+import { extractUsersFromComments } from '@/entities/utils';
 import { useQuery } from '@tanstack/react-query';
 import { getComments } from '../api';
-import { useEntityStore } from '@/entities/store';
-import { normalizeComments } from '@/entities/utils';
 
 export function useComments(postId: string) {
-  const addComments = useEntityStore((state) => state.addComments);
   const addUsers = useEntityStore((state) => state.addUsers);
 
   const {
-    data: commentIds,
+    data: comments,
     isPending,
     error,
   } = useQuery({
@@ -19,18 +18,15 @@ export function useComments(postId: string) {
     queryFn: async () => {
       const comments = await getComments(postId);
 
-      const { normalizedComments, normalizedUsers } =
-        normalizeComments(comments);
+      const users = extractUsersFromComments(comments);
+      addUsers(users);
 
-      addComments(normalizedComments);
-      addUsers(normalizedUsers);
-
-      return normalizedComments.map((c) => c.id);
+      return comments;
     },
   });
 
   return {
-    commentIds,
+    comments,
     isPending,
     error,
   };

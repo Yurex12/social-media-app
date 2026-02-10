@@ -1,48 +1,74 @@
-import { useEntityStore } from '@/entities/store';
+import { ActionError } from '@/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toggleCommentLikeAction } from '../action';
 import { toast } from 'sonner';
+import { toggleCommentLikeAction } from '../action';
+import { CommentWithRelations } from '../types';
 
 export function useToggleCommentLike() {
   const queryClient = useQueryClient();
-  const updateComment = useEntityStore((state) => state.updateComment);
-  const removeComment = useEntityStore((state) => state.removeComment);
 
   const { mutate: toggleCommentLike } = useMutation({
-    mutationFn: ({ commentId }: { commentId: string; postId: string }) =>
-      toggleCommentLikeAction(commentId),
+    mutationFn: async ({
+      commentId,
+    }: {
+      commentId: string;
+      postId: string;
+    }) => {
+      const res = await toggleCommentLikeAction(commentId);
+      if (!res.success)
+        throw { code: res.error, message: res.message } as ActionError;
+      return res;
+    },
 
-    onMutate: async ({ commentId, postId }) => {
+    onMutate: async ({ postId, commentId }) => {
       await queryClient.cancelQueries({ queryKey: ['comments', postId] });
 
-      const comment = useEntityStore.getState().comments[commentId];
-      if (!comment) return;
+      const previousComments = queryClient.getQueryData<CommentWithRelations[]>(
+        ['comments', postId],
+      );
 
-      const previousComment = { ...comment };
+      if (!previousComments) return;
 
-      const isLiked = !comment.isLiked;
-      updateComment(commentId, {
-        isLiked,
-        likesCount: isLiked
-          ? comment.likesCount + 1
-          : Math.max(0, comment.likesCount - 1),
-      });
+      queryClient.setQueryData<CommentWithRelations[]>(
+        ['comments', postId],
+        (oldComments) => {
+          if (!oldComments) return oldComments;
+          return oldComments.map((comment) =>
+            comment.id === commentId
+              ? {
+                  ...comment,
+                  isLiked: !comment.isLiked,
+                  likesCount: comment.isLiked
+                    ? comment.likesCount - 1
+                    : comment.likesCount + 1,
+                }
+              : comment,
+          );
+        },
+      );
 
-      return { previousComment };
+      return { previousComments };
     },
 
-    onSuccess: (res, { commentId }) => {
-      if (!res.success) {
-        if (res.error === 'NOT_FOUND') removeComment(commentId);
-        toast.info(res.message);
+    onError: (error: Error | ActionError, { commentId, postId }, context) => {
+      if ('code' in error && error.code === 'NOT_FOUND') {
+        queryClient.setQueryData<CommentWithRelations[]>(
+          ['comments', postId],
+          (oldComments) => {
+            if (!oldComments) return oldComments;
+            return oldComments.filter((c) => c.id !== commentId);
+          },
+        );
+        toast.info('This comment no longer exists');
+        return;
       }
-    },
 
-    onError: (err, { commentId }, context) => {
-      if (context?.previousComment)
-        updateComment(commentId, context.previousComment);
-
-      toast.error(err.message || 'something went wrong');
+      if (context?.previousComments) {
+        queryClient.setQueryData(
+          ['comments', postId],
+          context.previousComments,
+        );
+      }
     },
   });
 

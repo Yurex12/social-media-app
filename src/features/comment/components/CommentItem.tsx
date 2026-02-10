@@ -1,34 +1,23 @@
 import { Heart, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
-import { selectCommentById } from '@/entities/commentSelectors';
-import { useEntityStore } from '@/entities/store';
-import { selectUserById } from '@/entities/userSelectors';
 import { UserAvatar } from '@/features/profile/components/UserAvatar';
 
-import { useToggleCommentLike } from '../hooks/useToggleCommentLike';
+import { formatDate } from '@/lib/helpers';
 import { useConfirmDialogStore } from '@/store/useConfirmDialogStore';
 import { useDeleteComment } from '../hooks/useDeleteComment';
-import { formatDate } from '@/lib/helpers';
+import { useToggleCommentLike } from '../hooks/useToggleCommentLike';
+import { CommentWithRelations } from '../types';
 
-export function CommentItem({ commentId }: { commentId: string }) {
+export function CommentItem({ comment }: { comment: CommentWithRelations }) {
   const { toggleCommentLike } = useToggleCommentLike();
   const { deleteComment } = useDeleteComment();
 
   const { openConfirm } = useConfirmDialogStore();
 
-  const comment = useEntityStore((state) =>
-    selectCommentById(state, commentId),
-  );
-  const user = useEntityStore((state) =>
-    selectUserById(state, comment?.userId),
-  );
-
-  if (!comment || !user) return null;
-
   const shortTime = formatDate(comment.createdAt);
 
-  const profileUrl = `/profile/${user.username}`;
+  const profileUrl = `/profile/${comment.user.username}`;
 
   return (
     <div
@@ -36,7 +25,7 @@ export function CommentItem({ commentId }: { commentId: string }) {
       id={comment.id}
     >
       <Link href={profileUrl}>
-        <UserAvatar image={user.image} name={user.name} />
+        <UserAvatar image={comment.user.image} name={comment.user.name} />
       </Link>
 
       <div className='flex flex-col gap-1 w-full min-w-0'>
@@ -46,10 +35,10 @@ export function CommentItem({ commentId }: { commentId: string }) {
             className='flex items-center gap-1 min-w-0 group/name'
           >
             <span className='font-semibold text-sm text-foreground/80 group-hover/name:underline truncate'>
-              {user.name}
+              {comment.user.name}
             </span>
             <span className='text-xs text-muted-foreground truncate'>
-              @{user.username}
+              @{comment.user.username}
             </span>
           </Link>
 
@@ -100,14 +89,18 @@ export function CommentItem({ commentId }: { commentId: string }) {
           </div>
 
           <div className='w-8 flex justify-center'>
-            {user.isCurrentUser && (
+            {comment.user.isCurrentUser && (
               <button
                 className='p-1.5 rounded-full text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-colors'
                 onClick={(e) => {
                   e.stopPropagation();
                   openConfirm({
                     resourceName: 'comment',
-                    onConfirm: () => deleteComment(comment.id),
+                    onConfirm: () =>
+                      deleteComment({
+                        commentId: comment.id,
+                        postId: comment.postId,
+                      }),
                   });
                 }}
               >

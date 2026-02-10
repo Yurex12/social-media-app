@@ -1,43 +1,77 @@
 import { useEntityStore } from '@/entities/store';
-import { useMutation } from '@tanstack/react-query';
+import { ActionError } from '@/types';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { deleteCommentAction } from '../action';
+import { CommentWithRelations } from '../types';
 
 export function useDeleteComment() {
-  const removeComment = useEntityStore((state) => state.removeComment);
-  const addComment = useEntityStore((state) => state.addComment);
+  const queryClient = useQueryClient();
   const updatePost = useEntityStore((state) => state.updatePost);
 
   const { mutate: deleteComment, isPending } = useMutation({
-    mutationFn: deleteCommentAction,
-
-    onMutate: async (commentId) => {
-      const state = useEntityStore.getState();
-      const comment = state.comments[commentId];
-      if (!comment) return;
-
-      const postId = comment.postId;
-      const post = state.posts[postId];
-
-      if (!post) return;
-
-      removeComment(commentId);
-
-      if (post) updatePost(postId, { commentsCount: post.commentsCount - 1 });
-
-      return { comment, post };
+    mutationFn: async ({
+      commentId,
+    }: {
+      commentId: string;
+      postId: string;
+    }) => {
+      const res = await deleteCommentAction(commentId);
+      if (!res.success)
+        throw { code: res.error, message: res.message } as ActionError;
+      return res;
     },
 
-    onSuccess: () => toast.success('Comment deleted'),
+    onMutate: async ({ commentId, postId }) => {
+      await queryClient.cancelQueries({ queryKey: ['comments', postId] });
 
-    onError: (error, commentId, context) => {
-      if (context?.comment) addComment(context.comment);
-      if (context?.post) {
-        updatePost(context.post.id, {
-          commentsCount: context.post.commentsCount,
-        });
+      const previousComments = queryClient.getQueryData<CommentWithRelations[]>(
+        ['comments', postId],
+      );
+
+      if (!previousComments) return;
+
+      const comment = previousComments.find((c) => c.id === commentId);
+      if (!comment) return;
+
+      queryClient.setQueryData<CommentWithRelations[]>(
+        ['comments', postId],
+        (oldComments) => {
+          if (!oldComments) return oldComments;
+          return oldComments.filter((c) => c.id !== commentId);
+        },
+      );
+
+      const post = useEntityStore.getState().posts[postId];
+      if (post) {
+        updatePost(postId, { commentsCount: post.commentsCount - 1 });
       }
-      toast.error('Delete failed');
+
+      return { previousComments, previousCommentsCount: post?.commentsCount };
+    },
+
+    onSuccess: (res) => {
+      toast.success(res.message);
+    },
+
+    onError: (error: Error | ActionError, { postId }, context) => {
+      if ('code' in error && error.code === 'NOT_FOUND') {
+        toast.error(error.message || 'Could not delete comment');
+        return;
+      }
+
+      // Rollback
+      if (context?.previousComments) {
+        queryClient.setQueryData(
+          ['comments', postId],
+          context.previousComments,
+        );
+      }
+      if (context?.previousCommentsCount !== undefined) {
+        updatePost(postId, { commentsCount: context.previousCommentsCount });
+      }
+
+      toast.error(error.message || 'Could not delete comment');
     },
   });
 

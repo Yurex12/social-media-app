@@ -1,4 +1,5 @@
 import { useEntityStore } from '@/entities/store';
+import { ActionError } from '@/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { toggleBookmarkAction } from '../action';
@@ -9,7 +10,12 @@ export function useToggleBookmark() {
   const removePost = useEntityStore((state) => state.removePost);
 
   const { mutate: toggleBookmark, isPending: isToggling } = useMutation({
-    mutationFn: toggleBookmarkAction,
+    mutationFn: async (postId: string) => {
+      const res = await toggleBookmarkAction(postId);
+      if (!res.success)
+        throw { code: res.error, message: res.message } as ActionError;
+      return res;
+    },
 
     onMutate: async (postId: string) => {
       await queryClient.cancelQueries({ queryKey: ['posts'] });
@@ -40,35 +46,29 @@ export function useToggleBookmark() {
       return { previousPost, prevBookmarkIds };
     },
 
-    onSuccess: (res, postId, context) => {
-      if (res.success) {
-        toast.success(res.message);
-        return;
-      }
-
-      if (res.error === 'NOT_FOUND') {
-        removePost(postId);
-        toast.info(res.message);
-        return;
-      }
-
-      if (context?.previousPost) updatePost(postId, context?.previousPost);
-      if (context?.prevBookmarkIds)
-        queryClient.setQueryData(
-          ['posts', 'bookmarks'],
-          context.prevBookmarkIds,
-        );
-      toast.error(res.message || 'Something went wrong');
+    onSuccess: (res) => {
+      toast.success(res.message);
     },
 
-    onError: (err, postId, context) => {
-      if (context?.previousPost) updatePost(postId, context?.previousPost);
-      if (context?.prevBookmarkIds)
+    onError: (error: Error | ActionError, postId, context) => {
+      // Handle NOT_FOUND - remove post
+      if ('code' in error && error.code === 'NOT_FOUND') {
+        removePost(postId);
+        toast.info('This post no longer exists');
+        return;
+      }
+
+      // Rollback for all other errors
+      if (context?.previousPost) updatePost(postId, context.previousPost);
+
+      if (context?.prevBookmarkIds) {
         queryClient.setQueryData(
           ['posts', 'bookmarks'],
           context.prevBookmarkIds,
         );
-      toast.error(err.message || 'Failed to update bookmark');
+      }
+
+      toast.error(error.message || 'Failed to update bookmark');
     },
   });
 

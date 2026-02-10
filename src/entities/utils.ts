@@ -1,14 +1,9 @@
 import { PostWithRelations } from '@/features/post/types';
+import { UserWithRelations } from '@/features/profile/types';
 import { PostEntity } from './postEntity';
 import { UserEntity } from './userEntity';
-import { UserWithRelations } from '@/features/profile/types';
 
 import { CommentWithRelations } from '@/features/comment/types';
-import { CommentEntity } from './commentEntity';
-
-import { NotificationEntity } from './notificationEntity';
-import { NotificationType } from '@/generated/prisma/enums';
-import { NotificationWithRelations } from '@/features/notification/types';
 
 function mapUserEntity(user: UserWithRelations): UserEntity {
   return {
@@ -67,64 +62,6 @@ export function normalizePosts(posts: PostWithRelations[]) {
   return { posts: normalizedPosts, users: normalizedUsers };
 }
 
-// --- COMMENTS ---
-export function normalizeComment(comment: CommentWithRelations) {
-  return {
-    comment: {
-      id: comment.id,
-      content: comment.content,
-      userId: comment.user.id,
-      postId: comment.postId,
-      isLiked: comment.isLiked,
-      likesCount: comment.likesCount,
-      createdAt: comment.createdAt,
-    } satisfies CommentEntity,
-    user: mapUserEntity(comment.user),
-  };
-}
-
-export function normalizeComments(comments: CommentWithRelations[]) {
-  const normalizedComments: CommentEntity[] = [];
-  const normalizedUsers: UserEntity[] = [];
-
-  comments.forEach((c) => {
-    const { comment, user } = normalizeComment(c);
-    normalizedComments.push(comment);
-    normalizedUsers.push(user);
-  });
-
-  return { normalizedComments, normalizedUsers };
-}
-
-// --- NOTIFICATIONS ---
-
-export function normalizeNotification(notification: NotificationWithRelations) {
-  return {
-    notification: {
-      id: notification.id,
-      recipientId: notification.recipientId,
-      issuerId: notification.issuerId,
-      type: notification.type as NotificationType,
-      postId: notification.postId,
-      commentId: notification.commentId,
-      read: notification.read,
-      createdAt: notification.createdAt,
-    } satisfies NotificationEntity,
-    user: mapUserEntity(notification.issuer),
-  };
-}
-
-export function normalizeNotifications(
-  notifications: NotificationWithRelations[],
-) {
-  const normalizedNotifications: NotificationEntity[] = [];
-  const normalizedUsers: UserEntity[] = [];
-
-  notifications.forEach((n) => {
-    const { notification, user } = normalizeNotification(n);
-    normalizedNotifications.push(notification);
-    normalizedUsers.push(user);
-  });
-
-  return { notifications: normalizedNotifications, users: normalizedUsers };
+export function extractUsersFromComments(comments: CommentWithRelations[]) {
+  return comments.map((c) => mapUserEntity(c.user));
 }

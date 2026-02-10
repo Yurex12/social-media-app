@@ -3,6 +3,7 @@ import { useSession } from '@/lib/auth-client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { toggleFollowAction } from '../action';
+import { ActionError } from '@/types';
 
 export function useToggleFollow() {
   const updateUser = useEntityStore((state) => state.updateUser);
@@ -13,7 +14,13 @@ export function useToggleFollow() {
   const queryClient = useQueryClient();
 
   const { mutate: toggleFollow } = useMutation({
-    mutationFn: toggleFollowAction,
+    // mutationFn: toggleFollowAction,
+    mutationFn: async (postId: string) => {
+      const res = await toggleFollowAction(postId);
+      if (!res.success)
+        throw { code: res.error, message: res.message } as ActionError;
+      return res;
+    },
 
     onMutate: async (followingId: string) => {
       if (!currentUserId) return;
@@ -49,12 +56,10 @@ export function useToggleFollow() {
       return { previousTarget, previousMe };
     },
 
-    onSuccess: (res, followingId, context) => {
-      if (res.success) return;
-
-      if (res.error === 'NOT_FOUND') {
+    onError: (err: Error | ActionError, followingId, context) => {
+      if ('code' in err && err.code === 'NOT_FOUND') {
         removeUser(followingId);
-        toast.info(res.message);
+        toast.info('This user no longer exists');
         return;
       }
 
@@ -64,17 +69,7 @@ export function useToggleFollow() {
       if (currentUserId && context?.previousMe)
         updateUser(currentUserId, context.previousMe);
 
-      toast.error(res.message);
-    },
-
-    onError: (err, followingId, context) => {
-      if (context?.previousTarget)
-        updateUser(followingId, context.previousTarget);
-
-      if (currentUserId && context?.previousMe)
-        updateUser(currentUserId, context.previousMe);
-
-      toast.error(err.message || 'Something went wrong');
+      toast.error(err.message || 'Could not update follow status');
     },
   });
 

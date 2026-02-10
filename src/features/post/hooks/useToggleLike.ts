@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toggleLikeAction } from '../actions';
 import { useSession } from '@/lib/auth-client';
 import { toast } from 'sonner';
+import { ActionError } from '@/types';
 
 export function useToggleLike() {
   const queryClient = useQueryClient();
@@ -12,7 +13,12 @@ export function useToggleLike() {
   const username = useSession().data?.user.username;
 
   const { mutate: toggleLike } = useMutation({
-    mutationFn: toggleLikeAction,
+    mutationFn: async (postId: string) => {
+      const res = await toggleLikeAction(postId);
+      if (!res.success)
+        throw { code: res.error, message: res.message } as ActionError;
+      return res;
+    },
 
     onMutate: async (postId: string) => {
       await queryClient.cancelQueries({ queryKey: ['posts'] });
@@ -51,10 +57,8 @@ export function useToggleLike() {
       return { previousPost, previousLikedPostIds };
     },
 
-    onSuccess: (res, postId, context) => {
-      if (res.success) return;
-
-      if (res.error === 'NOT_FOUND') {
+    onError: (err: Error | ActionError, postId, context) => {
+      if ('code' in err && err.code === 'NOT_FOUND') {
         removePost(postId);
         toast.info('This post no longer exists');
         return;
@@ -62,20 +66,9 @@ export function useToggleLike() {
 
       if (context?.previousPost) updatePost(postId, context.previousPost);
       if (username && context?.previousLikedPostIds) {
-        queryClient.setQueryData(
-          ['posts', 'likes', username],
-          context.previousLikedPostIds,
-        );
-      }
-      // toast.error(res.message);
-    },
-
-    onError: (err, postId, context) => {
-      if (context?.previousPost) updatePost(postId, context.previousPost);
-      if (username && context?.previousLikedPostIds) {
         queryClient.setQueryData<string[]>(
           ['posts', 'likes', username],
-          context?.previousLikedPostIds,
+          context.previousLikedPostIds,
         );
       }
     },
