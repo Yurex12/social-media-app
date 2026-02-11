@@ -1,11 +1,15 @@
 import axios from 'axios';
 import { NotificationWithRelations } from './types';
 
-export async function getNotifications() {
+export async function getNotifications(cursor?: string) {
   try {
-    const posts =
-      await axios.get<NotificationWithRelations[]>('/api/notifications');
-    return posts.data;
+    const { data } = await axios.get<{
+      notifications: NotificationWithRelations[];
+      nextCursor: string | null;
+    }>('/api/notifications', {
+      params: { cursor },
+    });
+    return data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(

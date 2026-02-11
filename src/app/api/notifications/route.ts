@@ -1,6 +1,9 @@
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
-import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@/generated/prisma/client';
+
+const LIMIT = '10';
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -8,13 +11,35 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const userId = session.user.id;
+  const { searchParams } = new URL(req.url);
+
+  const limit = parseInt(searchParams.get('limit') || LIMIT);
+  const cursor = searchParams.get('cursor');
+
+  let whereClause: Prisma.NotificationWhereInput = {
+    recipientId: userId,
+  };
+
+  if (cursor) {
+    const [datePart, idPart] = cursor.split('_');
+
+    whereClause = {
+      ...whereClause,
+      OR: [
+        { createdAt: { lt: new Date(datePart) } },
+        {
+          createdAt: new Date(datePart),
+          id: { lt: idPart },
+        },
+      ],
+    };
+  }
 
   try {
     const notifications = await prisma.notification.findMany({
-      where: {
-        recipientId: userId,
-      },
-      orderBy: { createdAt: 'desc' },
+      take: limit + 1,
+      where: whereClause,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: {
         issuer: {
           select: {
@@ -26,10 +51,22 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(notifications);
+    const hasNextPage = notifications.length > limit;
+    const itemsToReturn = hasNextPage
+      ? notifications.slice(0, -1)
+      : notifications;
+
+    const lastItem = itemsToReturn[itemsToReturn.length - 1];
+
+    return NextResponse.json({
+      notifications: itemsToReturn,
+      nextCursor: hasNextPage
+        ? `${lastItem.createdAt.toISOString()}_${lastItem.id}`
+        : null,
+    });
   } catch {
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { message: 'Internal server error' },
       { status: 500 },
     );
   }

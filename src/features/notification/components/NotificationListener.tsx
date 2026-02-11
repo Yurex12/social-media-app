@@ -36,10 +36,7 @@ export function NotificationListener() {
 
       queryClient.setQueryData<number>(
         ['notifications', 'unread-count'],
-        (old) => {
-          if (!old) return old;
-          return old + 1;
-        },
+        (old) => (old ?? 0) + 1,
       );
 
       queryClient.invalidateQueries({
