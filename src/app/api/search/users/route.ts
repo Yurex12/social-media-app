@@ -1,9 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { TUserFromDB, UserWithRelations } from '@/features/profile/types';
+import { Prisma } from '@/generated/prisma/client';
 
-export async function GET(req: Request) {
+const LIMIT = 10;
+
+export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
 
@@ -11,18 +14,43 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { searchParams } = new URL(req.url);
-    const query = decodeURIComponent(searchParams.get('q') || '');
+    const query = decodeURIComponent(searchParams.get('q') || '').trim();
+    const cursor = searchParams.get('cursor');
+    const limit = parseInt(searchParams.get('limit') || LIMIT.toString());
 
     const userId = session.user.id;
 
-    const users = (await prisma.user.findMany({
-      where: {
-        OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { username: { contains: query, mode: 'insensitive' } },
+    let whereClause: Prisma.UserWhereInput = {
+      OR: [
+        { name: { contains: query, mode: 'insensitive' } },
+        { username: { contains: query, mode: 'insensitive' } },
+      ],
+      NOT: { id: userId },
+    };
+
+    if (cursor) {
+      const [datePart, idPart] = cursor.split('_');
+
+      whereClause = {
+        AND: [
+          whereClause,
+          {
+            OR: [
+              { createdAt: { lt: new Date(datePart) } },
+              {
+                createdAt: new Date(datePart),
+                id: { lt: idPart },
+              },
+            ],
+          },
         ],
-        NOT: { id: userId },
-      },
+      };
+    }
+
+    const users = (await prisma.user.findMany({
+      take: limit + 1,
+      where: whereClause,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       select: {
         id: true,
         name: true,
@@ -44,7 +72,11 @@ export async function GET(req: Request) {
       },
     })) as unknown as TUserFromDB[];
 
-    const transformedUsers = users.map((user) => ({
+    const hasNextPage = users.length > limit;
+    const usersToReturn = hasNextPage ? users.slice(0, -1) : users;
+    const lastUser = usersToReturn[usersToReturn.length - 1];
+
+    const transformedUsers = usersToReturn.map((user) => ({
       ...user,
       isFollowing: user.followers.length > 0,
       followsYou: user.following.length > 0,
@@ -54,7 +86,12 @@ export async function GET(req: Request) {
       postsCount: user._count.posts,
     })) satisfies UserWithRelations[];
 
-    return NextResponse.json(transformedUsers);
+    return NextResponse.json({
+      users: transformedUsers,
+      nextCursor: hasNextPage
+        ? `${lastUser.createdAt.toISOString()}_${lastUser.id}`
+        : null,
+    });
   } catch {
     return NextResponse.json(
       { error: 'Internal server error' },

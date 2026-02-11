@@ -20,10 +20,16 @@ export function CommentList() {
   const { ref, inView } = useInView({ threshold: 0, rootMargin: '400px' });
 
   useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
+    if (inView && hasNextPage && !isFetchingNextPage && !isFetchNextPageError) {
       fetchNextPage();
     }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [
+    inView,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    isFetchNextPageError,
+  ]);
 
   if (isPending)
     return (

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { getUserFollowers } from '../api';
 import { useEntityStore } from '@/entities/store';
 import { normalizeUsers } from '@/entities/utils';
@@ -7,21 +7,42 @@ export function useFollowers(username: string) {
   const addUsers = useEntityStore((state) => state.addUsers);
 
   const {
-    data: userIds,
+    data,
     isPending,
     isError,
     error,
-  } = useQuery({
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+  } = useInfiniteQuery({
     queryKey: ['users', 'followers', username],
-    queryFn: async () => {
-      const users = await getUserFollowers(username);
-      const { normalizedUsers } = normalizeUsers(users);
+    initialPageParam: null as string | null,
+    queryFn: async ({ pageParam }) => {
+      const res = await getUserFollowers(username, pageParam ?? undefined);
+
+      const { normalizedUsers } = normalizeUsers(res.users);
       addUsers(normalizedUsers);
 
-      return normalizedUsers.map((user) => user.id);
+      return {
+        userIds: normalizedUsers.map((user) => user.id),
+        nextCursor: res.nextCursor,
+      };
     },
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
     enabled: !!username,
   });
 
-  return { userIds, isPending, isError, error };
+  const userIds = data?.pages.flatMap((page) => page.userIds);
+
+  return {
+    userIds,
+    isPending,
+    isError,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+  };
 }

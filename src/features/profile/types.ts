@@ -70,7 +70,7 @@ export type TPostLikeFromDB = Prisma.PostLikeGetPayload<{
 }>;
 
 export type TFollowersFromBD = Prisma.FollowGetPayload<{
-  select: {
+  include: {
     follower: {
       select: {
         id: true;
@@ -100,7 +100,7 @@ export type TFollowersFromBD = Prisma.FollowGetPayload<{
 }>;
 
 export type TFollowingFromBD = Prisma.FollowGetPayload<{
-  select: {
+  include: {
     following: {
       select: {
         id: true;
@@ -133,4 +133,9 @@ export interface AuthorCardProps {
   postId: string | undefined;
   isPending: boolean;
   error: Error | null;
+}
+
+export interface UserResponse {
+  users: UserWithRelations[];
+  nextCursor: string | null;
 }

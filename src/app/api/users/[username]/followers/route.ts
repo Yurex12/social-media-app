@@ -1,10 +1,14 @@
 import { TFollowersFromBD, UserWithRelations } from '@/features/profile/types';
+import { Prisma } from '@/generated/prisma/client';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
-import { NextResponse } from 'next/server';
+
+import { NextRequest, NextResponse } from 'next/server';
+
+const LIMIT = 10;
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ username: string }> },
 ) {
   try {
@@ -14,8 +18,11 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const userId = session.user.id;
-
     const { username } = await params;
+
+    const { searchParams } = new URL(request.url);
+    const cursor = searchParams.get('cursor');
+    const limit = parseInt(searchParams.get('limit') || LIMIT.toString());
 
     if (!username) {
       return NextResponse.json(
@@ -33,9 +40,34 @@ export async function GET(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    let whereClause: Prisma.FollowWhereInput = {
+      followingId: targetUser.id,
+    };
+
+    if (cursor) {
+      const [datePart, idPart] = cursor.split('_');
+
+      whereClause = {
+        AND: [
+          { followingId: targetUser.id },
+          {
+            OR: [
+              { createdAt: { lt: new Date(datePart) } },
+              {
+                createdAt: new Date(datePart),
+                followerId: { lt: idPart },
+              },
+            ],
+          },
+        ],
+      };
+    }
+
     const followersList = (await prisma.follow.findMany({
-      where: { followingId: targetUser.id },
-      select: {
+      take: limit + 1,
+      where: whereClause,
+      orderBy: [{ createdAt: 'desc' }, { followerId: 'desc' }],
+      include: {
         follower: {
           select: {
             id: true,
@@ -64,9 +96,14 @@ export async function GET(
       },
     })) as TFollowersFromBD[];
 
-    const transformedFollowers = followersList.map((f) => {
-      const user = f.follower;
+    const hasNextPage = followersList.length > limit;
+    const followersToReturn = hasNextPage
+      ? followersList.slice(0, -1)
+      : followersList;
+    const lastFollower = followersToReturn[followersToReturn.length - 1];
 
+    const transformedFollowers = followersToReturn.map((f) => {
+      const user = f.follower;
       return {
         ...user,
         isCurrentUser: userId === user.id,
@@ -75,10 +112,15 @@ export async function GET(
         followersCount: user._count.followers,
         followingCount: user._count.following,
         postsCount: user._count.posts,
-      } satisfies UserWithRelations;
-    });
+      };
+    }) satisfies UserWithRelations[];
 
-    return NextResponse.json(transformedFollowers);
+    return NextResponse.json({
+      users: transformedFollowers,
+      nextCursor: hasNextPage
+        ? `${lastFollower.createdAt.toISOString()}_${lastFollower.followerId}`
+        : null,
+    });
   } catch {
     return NextResponse.json(
       { error: 'Internal server error' },

@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { PostFeedResponse, PostWithRelations } from '../post/types';
-import { UserWithRelations } from './types';
+import { PostFeedResponse } from '../post/types';
+import { UserResponse, UserWithRelations } from './types';
 
 export async function getProfile(username: string) {
   try {
@@ -71,10 +71,11 @@ export async function getSuggestedUsers(limit?: number) {
   }
 }
 
-export async function getUserFollowers(username: string) {
+export async function getUserFollowers(username: string, cursor?: string) {
   try {
-    const user = await axios.get<UserWithRelations[]>(
+    const user = await axios.get<UserResponse>(
       `/api/users/${username}/followers`,
+      { params: { cursor } },
     );
     console.log(user.data);
     return user.data;
@@ -86,18 +87,17 @@ export async function getUserFollowers(username: string) {
     throw error;
   }
 }
-export async function getUserFollowing(username: string) {
-  try {
-    const user = await axios.get<UserWithRelations[]>(
-      `/api/users/${username}/following`,
-    );
-    console.log(user.data);
 
-    return user.data;
+export async function getUserFollowing(username: string, cursor?: string) {
+  try {
+    const { data } = await axios.get<UserResponse>(
+      `/api/users/${username}/following`,
+      { params: { cursor } },
+    );
+    return data;
   } catch (error: unknown) {
-    console.log(error);
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.error || 'Failed to fetch user');
+      throw new Error(error.response.data.error || 'Failed to fetch following');
     }
     throw error;
   }

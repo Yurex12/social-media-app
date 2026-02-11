@@ -1,37 +1,22 @@
 'use client';
 
-import { Spinner } from '@/components/ui/spinner';
 import { useSearchUsers } from '../hooks/useSearchUsers';
-import { UserCard } from '@/features/profile/components/UserCard';
+import { UserList } from '@/features/profile/components/UserList';
 
 export function UsersSearchResults({ query }: { query: string }) {
-  const { userIds, error, isPending } = useSearchUsers(query);
-
-  if (isPending) {
-    return (
-      <div className='flex items-center justify-center mt-4'>
-        <Spinner className='size-6 text-primary' />
-      </div>
-    );
-  }
-
-  if (error) return <p className='px-4 mt-4'>{error.message}</p>;
-
-  if (!userIds?.length)
-    return (
-      <p className='px-4 mt-4 text-muted-foreground'>
-        No result match{' '}
-        <span className='font-semibold text-foreground/80'>
-          &quot;{query}&quot;
-        </span>
-      </p>
-    );
+  const queryState = useSearchUsers(query);
 
   return (
-    <div className='py-2 flex flex-col'>
-      {userIds.map((userId) => (
-        <UserCard userId={userId} key={userId} />
-      ))}
-    </div>
+    <UserList
+      {...queryState}
+      emptyMessage={
+        <p>
+          No result match{' '}
+          <span className='font-semibold text-foreground/80'>
+            &quot;{query}&quot;
+          </span>
+        </p>
+      }
+    />
   );
 }

@@ -1,15 +1,14 @@
 'use client';
 
-import { Spinner } from '@/components/ui/spinner';
 import { useParams } from 'next/navigation';
 import { useFollowers } from '../hooks/useFollowers';
 import { useProfile } from '../hooks/useProfile';
-import { UserCard } from './UserCard';
+import { UserList } from './UserList';
 
 export default function FollowersPage() {
   const { username } = useParams<{ username: string }>();
 
-  const { userIds, isPending, error } = useFollowers(username);
+  const queryState = useFollowers(username);
 
   const {
     error: profileError,
@@ -19,24 +18,5 @@ export default function FollowersPage() {
 
   if (profileError || isLoadingProfile || !user) return null;
 
-  if (isPending) {
-    return (
-      <div className='flex items-center justify-center mt-4'>
-        <Spinner className='size-6 text-primary' />
-      </div>
-    );
-  }
-
-  if (error) return <p className='px-4 mt-4'>{error.message}</p>;
-
-  if (!userIds?.length)
-    return <p className='px-4 mt-4 text-muted-foreground'>No followers yet</p>;
-
-  return (
-    <div className='py-2 flex flex-col'>
-      {userIds.map((userId) => (
-        <UserCard userId={userId} key={userId} />
-      ))}
-    </div>
-  );
+  return <UserList {...queryState} emptyMessage='No followers yet' />;
 }

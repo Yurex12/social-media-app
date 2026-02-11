@@ -1,9 +1,9 @@
 import { useEntityStore } from '@/entities/store';
 import { useSession } from '@/lib/auth-client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { ActionError } from '@/types';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { toggleFollowAction } from '../action';
-import { ActionError } from '@/types';
 
 export function useToggleFollow() {
   const updateUser = useEntityStore((state) => state.updateUser);
@@ -11,10 +11,7 @@ export function useToggleFollow() {
   const session = useSession();
   const currentUserId = session.data?.user.id;
 
-  const queryClient = useQueryClient();
-
   const { mutate: toggleFollow } = useMutation({
-    // mutationFn: toggleFollowAction,
     mutationFn: async (postId: string) => {
       const res = await toggleFollowAction(postId);
       if (!res.success)
@@ -25,7 +22,6 @@ export function useToggleFollow() {
     onMutate: async (followingId: string) => {
       if (!currentUserId) return;
 
-      await queryClient.cancelQueries({ queryKey: ['users'] });
       const state = useEntityStore.getState();
 
       const targetUser = state.users[followingId];

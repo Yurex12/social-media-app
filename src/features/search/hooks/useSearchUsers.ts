@@ -1,31 +1,49 @@
 import { useEntityStore } from '@/entities/store';
 import { normalizeUsers } from '@/entities/utils';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { searchUsers } from '../api';
 
 export function useSearchUsers(query: string) {
   const addUsers = useEntityStore((state) => state.addUsers);
 
   const {
-    data: userIds,
+    data,
     isPending,
     error,
-  } = useQuery({
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    isError: isFetchNextPageError,
+  } = useInfiniteQuery({
     queryKey: ['users', 'search', query],
     enabled: !!query,
-    staleTime: 0,
-    gcTime: 0,
-    queryFn: async () => {
-      const users = await searchUsers(query);
+    initialPageParam: null as string | null,
+    queryFn: async ({ pageParam }) => {
+      const { users, nextCursor } = await searchUsers({
+        query,
+        cursor: pageParam ?? undefined,
+      });
+
       const { normalizedUsers } = normalizeUsers(users);
       addUsers(normalizedUsers);
-      return normalizedUsers.map((u) => u.id);
+
+      return {
+        userIds: normalizedUsers.map((u) => u.id),
+        nextCursor,
+      };
     },
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
+
+  const userIds = data?.pages.flatMap((page) => page.userIds);
 
   return {
     userIds,
     isPending,
     error,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    isFetchNextPageError,
   };
 }
