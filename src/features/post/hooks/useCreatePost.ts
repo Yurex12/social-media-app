@@ -2,10 +2,15 @@ import { useEntityStore } from '@/entities/store';
 import { normalizePost } from '@/entities/utils';
 import { uploadImages } from '@/lib/imagekit';
 import { ImageUploadResponse } from '@/types';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  InfiniteData,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { createPostAction } from '../actions';
+import { PostFeedResponse, PostIdsPage } from '../types';
 
 let toastId: string | number;
 
@@ -53,10 +58,31 @@ export function useCreatePost() {
       addPost(normalizedPost);
       addUser(normalizedUser);
 
-      queryClient.setQueryData<string[]>(['posts', 'home'], (oldIds) => {
-        if (!oldIds) return oldIds;
-        return [normalizedPost.id, ...oldIds];
-      });
+      // queryClient.setQueryData<string[]>(['posts', 'home'], (oldIds) => {
+      //   if (!oldIds) return oldIds;
+      //   return [normalizedPost.id, ...oldIds];
+      // });
+
+      queryClient.setQueryData<InfiniteData<PostIdsPage>>(
+        ['posts', 'home'],
+        (oldPostIds) => {
+          if (!oldPostIds) return oldPostIds;
+
+          return {
+            ...oldPostIds,
+            pages: oldPostIds.pages.map((page, index) => {
+              if (index === 0) {
+                return {
+                  ...page,
+                  postIds: [normalizedPost.id, ...page.postIds],
+                };
+              }
+
+              return page;
+            }),
+          };
+        },
+      );
     },
 
     onError(err) {

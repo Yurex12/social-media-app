@@ -1,10 +1,13 @@
 import { PostWithRelations, TPostFromDB } from '@/features/post/types';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@/generated/prisma/client';
+
+const LIMIT = 10;
 
 export async function GET(
-  req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ username: string }> },
 ) {
   const session = await getSession();
@@ -14,11 +17,32 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const userId = session.user.id;
+  const { searchParams } = new URL(req.url);
+  const cursor = searchParams.get('cursor');
+  const limit = parseInt(searchParams.get('limit') || LIMIT.toString());
+
+  let whereClause: Prisma.PostWhereInput = { user: { username } };
+
+  if (cursor) {
+    const [datePart, idPart] = cursor.split('_');
+
+    whereClause = {
+      user: { username },
+      OR: [
+        { createdAt: { lt: new Date(datePart) } },
+        {
+          createdAt: new Date(datePart),
+          id: { lt: idPart },
+        },
+      ],
+    };
+  }
 
   try {
     const posts = (await prisma.post.findMany({
-      orderBy: { createdAt: 'desc' },
-      where: { user: { username } },
+      take: limit + 1,
+      where: whereClause,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: {
         user: {
           select: {
@@ -42,24 +66,25 @@ export async function GET(
           },
         },
         images: { select: { id: true, url: true, fileId: true } },
-
         postLikes: {
           where: { userId: session.user.id },
           select: { id: true },
         },
-
         bookmarks: {
           where: { userId: session.user.id },
           select: { id: true },
         },
-
         _count: {
           select: { postLikes: true, comments: true },
         },
       },
     })) as TPostFromDB[];
 
-    const transformedPosts = posts.map((post) => {
+    const hasNextPage = posts.length > limit;
+    const postToReturn = hasNextPage ? posts.slice(0, -1) : posts;
+    const lastPost = postToReturn[postToReturn.length - 1];
+
+    const transformedPosts = postToReturn.map((post) => {
       return {
         ...post,
         user: {
@@ -78,7 +103,12 @@ export async function GET(
       };
     }) satisfies PostWithRelations[];
 
-    return NextResponse.json(transformedPosts);
+    return NextResponse.json({
+      posts: transformedPosts,
+      nextCursor: hasNextPage
+        ? `${lastPost.createdAt.toISOString()}_${lastPost.id}`
+        : null,
+    });
   } catch {
     return NextResponse.json(
       { message: 'Internal server error' },

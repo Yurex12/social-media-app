@@ -3,46 +3,92 @@
 import { Spinner } from '@/components/ui/spinner';
 import { PostProvider } from '@/features/post/PostProvider';
 import { PostCard } from '@/features/post/components/PostCard';
-
-import { ReactElement } from 'react';
+import { ReactElement, useEffect } from 'react';
+import { useInView } from 'react-intersection-observer';
 
 interface PostFeedProps {
   postIds: string[] | undefined;
   isPending: boolean;
   error: Error | null;
-  emptyMessage?: ReactElement | string;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  fetchNextPage: VoidFunction;
+  isFetchNextPageError?: boolean;
+  emptyMessage?: string | ReactElement;
 }
 
 export function PostFeed({
   postIds,
   isPending,
   error,
-  emptyMessage = 'No posts found',
+  hasNextPage,
+  isFetchingNextPage,
+  fetchNextPage,
+  isFetchNextPageError,
+  emptyMessage = 'No posts found.',
 }: PostFeedProps) {
-  if (isPending) {
+  const { ref, inView } = useInView({ threshold: 0, rootMargin: '400px' });
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage && !isFetchNextPageError) {
+      fetchNextPage();
+    }
+  }, [
+    inView,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    fetchNextPage,
+  ]);
+
+  if (isPending)
     return (
-      <div className='flex items-center justify-center mt-4'>
+      <div className='flex justify-center mt-4'>
         <Spinner className='size-6 text-primary' />
       </div>
     );
-  }
 
-  if (error) return <p className='mt-4'>{error.message}</p>;
+  if (error && !postIds?.length)
+    return (
+      <p className='mt-4 text-center text-muted-foreground'>{error.message}</p>
+    );
 
   if (!postIds?.length)
-    if (typeof emptyMessage === 'string') {
-      return <p className='mt-4 text-muted-foreground'>{emptyMessage}</p>;
-    } else return emptyMessage;
+    return (
+      <div className='mt-4 text-center text-muted-foreground'>
+        {emptyMessage}
+      </div>
+    );
 
   return (
-    <ul className='pb-4'>
-      {postIds.map((postId) => (
-        <li key={postId} className='mt-4 '>
-          <PostProvider postId={postId}>
-            <PostCard />
-          </PostProvider>
-        </li>
-      ))}
-    </ul>
+    <div className='flex flex-col w-full'>
+      <ul className='pb-4'>
+        {postIds.map((postId) => (
+          <li key={postId} className='mt-4'>
+            <PostProvider postId={postId}>
+              <PostCard />
+            </PostProvider>
+          </li>
+        ))}
+      </ul>
+
+      {(hasNextPage || isFetchingNextPage || isFetchNextPageError) && (
+        <div
+          ref={ref}
+          className='py-12 flex flex-col items-center justify-center border-t border-border/50'
+        >
+          {isFetchingNextPage && <Spinner className='size-6 text-primary' />}
+
+          {isFetchNextPageError && (
+            <button
+              onClick={() => fetchNextPage()}
+              className='text-sm text-primary hover:underline font-medium'
+            >
+              Retry loading posts
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

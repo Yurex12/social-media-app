@@ -5,11 +5,7 @@ import { useProfilePosts } from '../hooks/useProfilePosts';
 import { useProfile } from '../hooks/useProfile';
 
 export function ProfilePosts() {
-  const {
-    postIds,
-    isPending: isLoadingProfilePosts,
-    error: profilePostsError,
-  } = useProfilePosts();
+  const queryState = useProfilePosts();
 
   const {
     error: profileError,
@@ -21,12 +17,7 @@ export function ProfilePosts() {
 
   return (
     <div className='px-4'>
-      <PostFeed
-        postIds={postIds}
-        isPending={isLoadingProfilePosts}
-        error={profilePostsError}
-        emptyMessage="You haven't made any post"
-      />
+      <PostFeed {...queryState} emptyMessage="You haven't made any post" />
     </div>
   );
 }

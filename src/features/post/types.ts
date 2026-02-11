@@ -52,4 +52,7 @@ export interface PostFeedProps {
   emptyMessage?: string | ReactNode;
 }
 
-export type ActionError = { code: string; message: string };
+export interface PostFeedResponse {
+  posts: PostWithRelations[];
+  nextCursor: string | null;
+}

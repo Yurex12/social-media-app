@@ -1,7 +1,10 @@
 import { CommentWithRelations, TCommentFromBD } from '@/features/comment/types';
+import { Prisma } from '@/generated/prisma/client';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { NextRequest, NextResponse } from 'next/server';
+
+const LIMIT = 10;
 
 export async function GET(
   req: NextRequest,
@@ -12,13 +15,34 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { postId } = await params;
+  const { searchParams } = new URL(req.url);
 
+  const cursor = searchParams.get('cursor');
+  const limit = parseInt(searchParams.get('limit') || LIMIT.toString());
   const userId = session.user.id;
+
+  let whereClause: Prisma.CommentWhereInput = { postId };
+
+  if (cursor) {
+    const [datePart, idPart] = cursor.split('_');
+
+    whereClause = {
+      postId,
+      OR: [
+        { createdAt: { lt: new Date(datePart) } },
+        {
+          createdAt: new Date(datePart),
+          id: { lt: idPart },
+        },
+      ],
+    };
+  }
 
   try {
     const comments = (await prisma.comment.findMany({
-      where: { postId },
-      orderBy: { createdAt: 'desc' },
+      take: limit + 1,
+      where: whereClause,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: {
         user: {
           select: {
@@ -59,7 +83,11 @@ export async function GET(
       },
     })) as TCommentFromBD[];
 
-    const transformedComments = comments.map((comment) => {
+    const hasNextPage = comments.length > limit;
+    const itemsToReturn = hasNextPage ? comments.slice(0, -1) : comments;
+    const lastItem = itemsToReturn[itemsToReturn.length - 1];
+
+    const transformedComments = itemsToReturn.map((comment) => {
       return {
         ...comment,
         isLiked: comment.commentLikes.length > 0,
@@ -76,7 +104,12 @@ export async function GET(
       };
     }) satisfies CommentWithRelations[];
 
-    return NextResponse.json(transformedComments);
+    return NextResponse.json({
+      comments: transformedComments,
+      nextCursor: hasNextPage
+        ? `${lastItem.createdAt.toISOString()}_${lastItem.id}`
+        : null,
+    });
   } catch {
     return NextResponse.json(
       { error: 'Internal server error' },

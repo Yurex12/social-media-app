@@ -26,3 +26,8 @@ export type CommentWithRelations = Omit<TCommentFromBD, 'user'> & {
   likesCount: number;
   isLiked: boolean;
 };
+
+export type CommentResponse = {
+  comments: CommentWithRelations[];
+  nextCursor: string | null;
+};

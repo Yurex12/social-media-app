@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { links } from '@/constants';
-import { cn } from '@/lib/utils';
-import { signOut, useSession } from '@/lib/auth-client';
-import { Button } from './ui/button';
-import { useQueryClient } from '@tanstack/react-query';
 import { useUnreadNotificationsCount } from '@/features/notification/hooks/useUnreadNotificationsCount';
+import { signOut, useSession } from '@/lib/auth-client';
+import { cn } from '@/lib/utils';
+import { useQueryClient } from '@tanstack/react-query';
+import { Button } from './ui/button';
 
 export default function Navbar() {
   const pathname = usePathname();

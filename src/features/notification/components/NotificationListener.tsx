@@ -36,7 +36,8 @@ export function NotificationListener() {
 
       queryClient.setQueryData<number>(
         ['notifications', 'unread-count'],
-        (old = 0) => {
+        (old) => {
+          if (!old) return old;
           return old + 1;
         },
       );
@@ -74,14 +75,13 @@ export function NotificationListener() {
 
       const { icon, text, color } = config[data.type];
 
-      toast.custom((t) => (
+      toast.custom(() => (
         <div className='flex items-center gap-3 bg-background border border-border p-3 rounded-xl shadow-lg w-[320px]'>
-          {/* Avatar Container */}
           <div className='relative shrink-0'>
             <UserAvatar
               image={data.image}
               name={data.name}
-              className='size-10 border shadow-sm'
+              className='border shadow-sm'
             />
             <div
               className={`absolute -bottom-1 -right-1 rounded-full p-1 border-2 border-background ${color}`}
@@ -105,7 +105,7 @@ export function NotificationListener() {
     return () => {
       pusherClient.unsubscribe(`user-${userId}`);
     };
-  }, [userId]);
+  }, [userId, queryClient]);
 
   return null;
 }

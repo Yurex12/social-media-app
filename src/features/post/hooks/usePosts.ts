@@ -1,37 +1,49 @@
-import { useQuery } from '@tanstack/react-query';
-import { getPosts } from '../api';
 import { useEntityStore } from '@/entities/store';
 import { normalizePosts } from '@/entities/utils';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { getPosts } from '../api';
 
 export function usePosts() {
   const addPosts = useEntityStore((state) => state.addPosts);
   const addUsers = useEntityStore((state) => state.addUsers);
 
   const {
-    data: postIds,
+    data,
     isPending,
     error,
-  } = useQuery({
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    isFetchNextPageError,
+  } = useInfiniteQuery({
     queryKey: ['posts', 'home'],
+    initialPageParam: null as string | null,
     // staleTime: 1000 * 60 * 5,
-    queryFn: async () => {
-      const posts = await getPosts();
+    queryFn: async ({ pageParam }) => {
+      const res = await getPosts(pageParam ?? undefined);
 
-      const { posts: normalizedPosts, users: normalizedUsers } =
-        normalizePosts(posts);
+      const { posts, users } = normalizePosts(res.posts);
+      addPosts(posts);
+      addUsers(users);
 
-      console.log(normalizedUsers);
-
-      addPosts(normalizedPosts);
-      addUsers(normalizedUsers);
-
-      return normalizedPosts.map((p) => p.id);
+      return {
+        postIds: res.posts.map((p) => p.id),
+        nextCursor: res.nextCursor,
+      };
     },
+
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 
+  const allPostIds = data?.pages.flatMap((page) => page.postIds);
+
   return {
-    postIds,
+    postIds: allPostIds,
     isPending,
     error,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    fetchNextPage,
   };
 }

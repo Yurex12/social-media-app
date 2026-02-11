@@ -2,10 +2,13 @@ import { PostWithRelations } from '@/features/post/types';
 import { TPostLikeFromDB } from '@/features/profile/types';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@/generated/prisma/client';
+
+const LIMIT = 10;
 
 export async function GET(
-  req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ username: string }> },
 ) {
   const session = await getSession();
@@ -21,10 +24,32 @@ export async function GET(
     );
 
   const userId = session.user.id;
+  const { searchParams } = new URL(req.url);
+  const cursor = searchParams.get('cursor');
+  const limit = parseInt(searchParams.get('limit') || LIMIT.toString());
+
+  let whereClause: Prisma.PostLikeWhereInput = { user: { username } };
+
+  if (cursor) {
+    const [datePart, idPart] = cursor.split('_');
+
+    whereClause = {
+      user: { username },
+      OR: [
+        { createdAt: { lt: new Date(datePart) } },
+        {
+          createdAt: new Date(datePart),
+          id: { lt: idPart },
+        },
+      ],
+    };
+  }
+
   try {
-    const posts = (await prisma.postLike.findMany({
-      where: { user: { username } },
-      orderBy: { createdAt: 'desc' },
+    const likedPostsData = (await prisma.postLike.findMany({
+      where: whereClause,
+      take: limit + 1,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: {
         post: {
           include: {
@@ -50,17 +75,14 @@ export async function GET(
               },
             },
             images: { select: { id: true, url: true, fileId: true } },
-
             postLikes: {
               where: { userId },
               select: { id: true },
             },
-
             bookmarks: {
               where: { userId },
               select: { id: true },
             },
-
             _count: {
               select: { postLikes: true, comments: true },
             },
@@ -69,7 +91,13 @@ export async function GET(
       },
     })) as TPostLikeFromDB[];
 
-    const transformedPosts = posts.map((postLikeData) => {
+    const hasNextPage = likedPostsData.length > limit;
+    const itemsToReturn = hasNextPage
+      ? likedPostsData.slice(0, -1)
+      : likedPostsData;
+    const lastItem = itemsToReturn[itemsToReturn.length - 1];
+
+    const transformedPosts = itemsToReturn.map((postLikeData) => {
       const post = postLikeData.post;
 
       return {
@@ -90,7 +118,12 @@ export async function GET(
       };
     }) satisfies PostWithRelations[];
 
-    return NextResponse.json(transformedPosts);
+    return NextResponse.json({
+      posts: transformedPosts,
+      nextCursor: hasNextPage
+        ? `${lastItem.createdAt.toISOString()}_${lastItem.id}`
+        : null,
+    });
   } catch {
     return NextResponse.json(
       { error: 'Internal server error' },

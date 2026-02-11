@@ -1,9 +1,15 @@
+'use client';
+
 import { useEntityStore } from '@/entities/store';
 import { ActionError } from '@/types';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  InfiniteData,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { deleteCommentAction } from '../action';
-import { CommentWithRelations } from '../types';
+import { CommentResponse } from '../types';
 
 export function useDeleteComment() {
   const queryClient = useQueryClient();
@@ -25,26 +31,30 @@ export function useDeleteComment() {
     onMutate: async ({ commentId, postId }) => {
       await queryClient.cancelQueries({ queryKey: ['comments', postId] });
 
-      const previousComments = queryClient.getQueryData<CommentWithRelations[]>(
+      const previousComments = queryClient.getQueryData<
+        InfiniteData<CommentResponse>
+      >(['comments', postId]);
+
+      const post = useEntityStore.getState().posts[postId];
+
+      queryClient.setQueryData<InfiniteData<CommentResponse>>(
         ['comments', postId],
-      );
-
-      if (!previousComments) return;
-
-      const comment = previousComments.find((c) => c.id === commentId);
-      if (!comment) return;
-
-      queryClient.setQueryData<CommentWithRelations[]>(
-        ['comments', postId],
-        (oldComments) => {
-          if (!oldComments) return oldComments;
-          return oldComments.filter((c) => c.id !== commentId);
+        (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              comments: page.comments.filter((c) => c.id !== commentId),
+            })),
+          };
         },
       );
 
-      const post = useEntityStore.getState().posts[postId];
       if (post) {
-        updatePost(postId, { commentsCount: post.commentsCount - 1 });
+        updatePost(postId, {
+          commentsCount: Math.max(0, post.commentsCount - 1),
+        });
       }
 
       return { previousComments, previousCommentsCount: post?.commentsCount };
@@ -55,20 +65,21 @@ export function useDeleteComment() {
     },
 
     onError: (error: Error | ActionError, { postId }, context) => {
-      if ('code' in error && error.code === 'NOT_FOUND') {
-        toast.error(error.message || 'Could not delete comment');
-        return;
-      }
-
-      // Rollback
+      // Rollback cache
       if (context?.previousComments) {
         queryClient.setQueryData(
           ['comments', postId],
           context.previousComments,
         );
       }
-      if (context?.previousCommentsCount !== undefined) {
+
+      if (context?.previousCommentsCount) {
         updatePost(postId, { commentsCount: context.previousCommentsCount });
+      }
+
+      if ('code' in error && error.code === 'NOT_FOUND') {
+        toast.error('Comment already deleted');
+        return;
       }
 
       toast.error(error.message || 'Could not delete comment');

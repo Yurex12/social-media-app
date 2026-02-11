@@ -1,19 +1,46 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 
 import { PostWithRelations, TPostFromDB } from '@/features/post/types';
-export async function GET() {
+import { Prisma } from '@/generated/prisma/client';
+
+const LIMIT = '10';
+export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const userId = session.user.id;
 
+  const { searchParams } = new URL(req.url);
+
+  const limit = parseInt(searchParams.get('limit') || LIMIT);
+
+  const cursor = searchParams.get('cursor');
+
+  let whereClause: Prisma.PostWhereInput = {};
+
+  if (cursor) {
+    const [datePart, idPart] = cursor.split('_');
+
+    whereClause = {
+      OR: [
+        { createdAt: { lt: new Date(datePart) } },
+        {
+          createdAt: new Date(datePart),
+          id: { lt: idPart },
+        },
+      ],
+    };
+  }
+
   try {
     const posts = (await prisma.post.findMany({
-      orderBy: { createdAt: 'desc' },
+      take: limit + 1,
+      where: whereClause,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: {
         user: {
           select: {
@@ -54,7 +81,12 @@ export async function GET() {
       },
     })) as TPostFromDB[];
 
-    const transformedPosts = posts.map((post) => {
+    const hasNextPage = posts.length > limit;
+    const postToReturn = hasNextPage ? posts.slice(0, -1) : posts;
+
+    const lastPost = postToReturn[postToReturn.length - 1];
+
+    const transformedPosts = postToReturn.map((post) => {
       return {
         ...post,
         user: {
@@ -73,7 +105,12 @@ export async function GET() {
       };
     }) satisfies PostWithRelations[];
 
-    return NextResponse.json(transformedPosts);
+    return NextResponse.json({
+      posts: transformedPosts,
+      nextCursor: hasNextPage
+        ? `${lastPost.createdAt.toISOString()}_${lastPost.id}`
+        : null,
+    });
   } catch {
     return NextResponse.json(
       { message: 'Internal server error' },

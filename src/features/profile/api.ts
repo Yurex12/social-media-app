@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { PostWithRelations } from '../post/types';
+import { PostFeedResponse, PostWithRelations } from '../post/types';
 import { UserWithRelations } from './types';
 
 export async function getProfile(username: string) {
@@ -13,27 +13,35 @@ export async function getProfile(username: string) {
     throw error;
   }
 }
-export async function getUserLikedPosts(username: string) {
+
+export async function getUserLikedPosts(username: string, cursor?: string) {
   try {
-    const user = await axios.get<PostWithRelations[]>(
+    const { data } = await axios.get<PostFeedResponse>(
       `/api/users/${username}/likes`,
+      {
+        params: { cursor },
+      },
     );
-    return user.data;
+    return data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(
-        error.response.data.error || 'Failed to fetch users post',
+        error.response.data.error || 'Failed to fetch user likes',
       );
     }
     throw error;
   }
 }
-export async function getUserPosts(username: string) {
+
+export async function getUserPosts(username: string, cursor?: string) {
   try {
-    const user = await axios.get<PostWithRelations[]>(
+    const { data } = await axios.get<PostFeedResponse>(
       `/api/users/${username}/posts`,
+      {
+        params: { cursor },
+      },
     );
-    return user.data;
+    return data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(

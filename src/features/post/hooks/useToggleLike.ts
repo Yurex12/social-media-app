@@ -1,9 +1,14 @@
 import { useEntityStore } from '@/entities/store';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  InfiniteData,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { toggleLikeAction } from '../actions';
 import { useSession } from '@/lib/auth-client';
 import { toast } from 'sonner';
 import { ActionError } from '@/types';
+import { PostIdsPage } from '../types';
 
 export function useToggleLike() {
   const queryClient = useQueryClient();
@@ -25,11 +30,9 @@ export function useToggleLike() {
 
       const post = useEntityStore.getState().posts[postId];
 
-      const previousLikedPostIds = queryClient.getQueryData<string[]>([
-        'posts',
-        'likes',
-        username,
-      ]);
+      const previousLikedPostIds = queryClient.getQueryData<
+        InfiniteData<PostIdsPage>
+      >(['posts', 'likes', username]);
 
       if (!post) return;
 
@@ -44,12 +47,25 @@ export function useToggleLike() {
       });
 
       if (username) {
-        queryClient.setQueryData<string[]>(
+        queryClient.setQueryData<InfiniteData<PostIdsPage>>(
           ['posts', 'likes', username],
-          (oldIds) => {
-            if (!oldIds) return oldIds;
-            if (isLiked) return [postId, ...oldIds];
-            else return oldIds.filter((id) => id !== postId);
+          (oldData) => {
+            if (!oldData) return oldData;
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page, index) => {
+                if (isLiked && index === 0) {
+                  return { ...page, postIds: [postId, ...page.postIds] };
+                }
+                if (!isLiked) {
+                  return {
+                    ...page,
+                    postIds: page.postIds.filter((id) => id !== postId),
+                  };
+                }
+                return page;
+              }),
+            };
           },
         );
       }
@@ -65,8 +81,9 @@ export function useToggleLike() {
       }
 
       if (context?.previousPost) updatePost(postId, context.previousPost);
+
       if (username && context?.previousLikedPostIds) {
-        queryClient.setQueryData<string[]>(
+        queryClient.setQueryData<InfiniteData<PostIdsPage>>(
           ['posts', 'likes', username],
           context.previousLikedPostIds,
         );

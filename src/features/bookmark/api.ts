@@ -1,10 +1,15 @@
 import axios from 'axios';
-import { PostWithRelations } from '../post/types';
+import { PostFeedResponse } from '../post/types';
 
-export async function getBookmarks() {
+export async function getBookmarks(cursor?: string) {
   try {
-    const bookmarks = await axios.get<PostWithRelations[]>('/api/bookmarks');
-    return bookmarks.data;
+    const { data } = await axios.get<PostFeedResponse>('/api/bookmarks', {
+      params: {
+        cursor,
+      },
+    });
+
+    return data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(error.response.data.error || 'Failed to fetch bookmarks');

@@ -1,32 +1,44 @@
 import { useEntityStore } from '@/entities/store';
 import { extractUsersFromComments } from '@/entities/utils';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { getComments } from '../api';
 
 export function useComments(postId: string) {
   const addUsers = useEntityStore((state) => state.addUsers);
 
   const {
-    data: comments,
+    data,
     isPending,
     error,
-  } = useQuery({
+    isFetchNextPageError,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
+    initialPageParam: null as string | null,
     queryKey: ['comments', postId],
     enabled: !!postId,
     staleTime: 0,
     gcTime: 1000 * 60 * 5,
-    queryFn: async () => {
-      const comments = await getComments(postId);
+    queryFn: async ({ pageParam }) => {
+      const res = await getComments(postId, pageParam ?? undefined);
 
-      const users = extractUsersFromComments(comments);
+      const users = extractUsersFromComments(res.comments);
       addUsers(users);
 
-      return comments;
+      return res;
     },
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 
+  const allComments = data?.pages.flatMap((page) => page.comments);
+
   return {
-    comments,
+    isFetchNextPageError,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+    comments: allComments,
     isPending,
     error,
   };

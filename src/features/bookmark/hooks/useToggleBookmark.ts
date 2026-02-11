@@ -1,8 +1,13 @@
 import { useEntityStore } from '@/entities/store';
 import { ActionError } from '@/types';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  InfiniteData,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { toggleBookmarkAction } from '../action';
+import { PostIdsPage } from '@/features/post/types';
 
 export function useToggleBookmark() {
   const queryClient = useQueryClient();
@@ -20,10 +25,10 @@ export function useToggleBookmark() {
     onMutate: async (postId: string) => {
       await queryClient.cancelQueries({ queryKey: ['posts'] });
 
-      const prevBookmarkIds = queryClient.getQueryData<string[]>([
-        'posts',
-        'bookmarks',
-      ]);
+      const prevBookmarkIds = queryClient.getQueryData<
+        InfiniteData<PostIdsPage>
+      >(['posts', 'bookmarks']);
+
       const post = useEntityStore.getState().posts[postId];
       if (!post) return;
 
@@ -33,13 +38,26 @@ export function useToggleBookmark() {
       const newBookmarkState = !post.isBookmarked;
       updatePost(postId, { isBookmarked: newBookmarkState });
 
-      // Update cache
-      queryClient.setQueryData<string[]>(
+      // CHANGE 2: Update InfiniteData cache
+      queryClient.setQueryData<InfiniteData<PostIdsPage>>(
         ['posts', 'bookmarks'],
-        (oldBookmarkIds) => {
-          if (!oldBookmarkIds) return oldBookmarkIds;
-          if (newBookmarkState) return [postId, ...oldBookmarkIds];
-          else return oldBookmarkIds.filter((id) => id !== postId);
+        (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page, index) => {
+              if (newBookmarkState && index === 0) {
+                return { ...page, postIds: [postId, ...page.postIds] };
+              }
+              if (!newBookmarkState) {
+                return {
+                  ...page,
+                  postIds: page.postIds.filter((id) => id !== postId),
+                };
+              }
+              return page;
+            }),
+          };
         },
       );
 
@@ -51,14 +69,12 @@ export function useToggleBookmark() {
     },
 
     onError: (error: Error | ActionError, postId, context) => {
-      // Handle NOT_FOUND - remove post
       if ('code' in error && error.code === 'NOT_FOUND') {
         removePost(postId);
         toast.info('This post no longer exists');
         return;
       }
 
-      // Rollback for all other errors
       if (context?.previousPost) updatePost(postId, context.previousPost);
 
       if (context?.prevBookmarkIds) {

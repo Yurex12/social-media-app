@@ -2,7 +2,7 @@ import { Header } from '@/components/Header';
 import { RightSidebar } from '@/components/RightSidebar';
 import { CreatePost } from '@/features/post/components/CreatePost';
 
-import { PostsList } from '@/features/post/components/PostsList';
+import { PostList } from '@/features/post/components/PostList';
 import { SearchInput } from '@/features/search/components/SearchInput';
 
 export default async function Page() {
@@ -16,7 +16,7 @@ export default async function Page() {
 
         <div className='px-4 pb-2'>
           <CreatePost />
-          <PostsList />
+          <PostList />
         </div>
       </div>
 

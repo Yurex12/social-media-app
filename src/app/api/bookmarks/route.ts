@@ -2,19 +2,42 @@ import { TBookmarkFromDB } from '@/features/bookmark/types';
 import { PostWithRelations } from '@/features/post/types';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@/generated/prisma/client';
 
-export async function GET() {
+const LIMIT = 10;
+
+export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const userId = session.user.id;
+  const { searchParams } = new URL(req.url);
+  const cursor = searchParams.get('cursor');
+  const limit = parseInt(searchParams.get('limit') || LIMIT.toString());
+
+  let whereClause: Prisma.BookmarkWhereInput = { userId };
+
+  if (cursor) {
+    const [datePart, idPart] = cursor.split('_');
+    whereClause = {
+      userId,
+      OR: [
+        { createdAt: { lt: new Date(datePart) } },
+        {
+          createdAt: new Date(datePart),
+          id: { lt: idPart },
+        },
+      ],
+    };
+  }
 
   try {
     const bookmarks = (await prisma.bookmark.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
+      where: whereClause,
+      take: limit + 1,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: {
         post: {
           include: {
@@ -40,12 +63,10 @@ export async function GET() {
               },
             },
             images: { select: { id: true, url: true, fileId: true } },
-
             postLikes: {
               where: { userId: userId },
               select: { id: true },
             },
-
             _count: {
               select: { postLikes: true, comments: true },
             },
@@ -54,7 +75,11 @@ export async function GET() {
       },
     })) as TBookmarkFromDB[];
 
-    const transformedBookmarks = bookmarks.map((bookmark) => {
+    const hasNextPage = bookmarks.length > limit;
+    const itemsToReturn = hasNextPage ? bookmarks.slice(0, -1) : bookmarks;
+    const lastItem = itemsToReturn[itemsToReturn.length - 1];
+
+    const transformedPosts = itemsToReturn.map((bookmark) => {
       const post = bookmark.post;
 
       return {
@@ -75,7 +100,12 @@ export async function GET() {
       };
     }) satisfies PostWithRelations[];
 
-    return NextResponse.json(transformedBookmarks);
+    return NextResponse.json({
+      posts: transformedPosts,
+      nextCursor: hasNextPage
+        ? `${lastItem.createdAt.toISOString()}_${lastItem.id}`
+        : null,
+    });
   } catch {
     return NextResponse.json(
       { error: 'Internal server error' },

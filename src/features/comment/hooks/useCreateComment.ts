@@ -1,16 +1,23 @@
+'use client';
+
 import { useEntityStore } from '@/entities/store';
 import { extractUsersFromComments } from '@/entities/utils';
 import { ActionError } from '@/types';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  InfiniteData,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { createCommentAction } from '../action';
-import { CommentWithRelations } from '../types';
+import { CommentResponse, CommentWithRelations } from '../types';
 
 let toastId: string | number;
 
 export function useCreateComment() {
   const queryClient = useQueryClient();
   const addUsers = useEntityStore((state) => state.addUsers);
+  const updatePost = useEntityStore((state) => state.updatePost);
   const removePost = useEntityStore((state) => state.removePost);
 
   const { mutate: createComment, isPending } = useMutation({
@@ -25,8 +32,9 @@ export function useCreateComment() {
 
       const res = await createCommentAction(postId, { content });
 
-      if (!res.success)
+      if (!res.success) {
         throw { code: res.error, message: res.message } as ActionError;
+      }
 
       return res;
     },
@@ -34,31 +42,43 @@ export function useCreateComment() {
     onSuccess(res, { postId }) {
       toast.success(res.message, { id: toastId });
 
-      const newComment = res.data;
+      const newComment = res.data as CommentWithRelations;
 
       const users = extractUsersFromComments([newComment]);
       addUsers(users);
 
-      const store = useEntityStore.getState();
-      const currentPost = store.posts[postId];
-
+      const currentPost = useEntityStore.getState().posts[postId];
       if (currentPost) {
-        store.updatePost(postId, {
+        updatePost(postId, {
           commentsCount: currentPost.commentsCount + 1,
         });
       }
 
-      queryClient.setQueryData<CommentWithRelations[]>(
+      queryClient.setQueryData<InfiniteData<CommentResponse>>(
         ['comments', postId],
-        (oldComments) => {
-          if (!oldComments) return oldComments;
-          return [newComment, ...oldComments];
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page, index) => {
+              if (index === 0) {
+                return {
+                  ...page,
+                  comments: [newComment, ...page.comments],
+                };
+              }
+              return page;
+            }),
+          };
         },
       );
     },
 
     onError(error: ActionError | Error, { postId }) {
-      if ('code' in error && error.code === 'NOT_FOUND') removePost(postId);
+      if ('code' in error && error.code === 'NOT_FOUND') {
+        removePost(postId);
+      }
 
       toast.error(error.message || 'Something went wrong', { id: toastId });
     },

@@ -1,10 +1,11 @@
 import axios from 'axios';
-import { CommentWithRelations } from './types';
+import { CommentResponse } from './types';
 
-export async function getComments(postId: string) {
+export async function getComments(postId: string, cursor?: string) {
   try {
-    const comments = await axios.get<CommentWithRelations[]>(
+    const comments = await axios.get<CommentResponse>(
       `/api/comments/${postId}`,
+      { params: { cursor } },
     );
     return comments.data;
   } catch (error: unknown) {

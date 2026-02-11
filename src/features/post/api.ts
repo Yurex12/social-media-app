@@ -1,9 +1,11 @@
 import axios from 'axios';
-import { PostWithRelations } from './types';
+import { PostFeedResponse, PostWithRelations } from './types';
 
-export async function getPosts() {
+export async function getPosts(cursor?: string) {
   try {
-    const posts = await axios.get<PostWithRelations[]>('/api/posts');
+    const posts = await axios.get<PostFeedResponse>('/api/posts', {
+      params: { cursor },
+    });
     return posts.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response) {
