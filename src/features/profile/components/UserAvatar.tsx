@@ -38,12 +38,16 @@ export function UserAvatar({
           src={image}
           alt={name || 'User'}
           fill
-          sizes='(max-width: 768px) 40px, 40px'
           className='object-cover'
           referrerPolicy='no-referrer'
         />
       ) : (
-        <span className={cn('text-lg select-none uppercase', textClassName)}>
+        <span
+          className={cn(
+            'text-lg select-none uppercase text-white',
+            textClassName,
+          )}
+        >
           {initial || <User className='h-5 w-5' />}
         </span>
       )}

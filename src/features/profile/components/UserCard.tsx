@@ -5,8 +5,15 @@ import { useRouter } from 'next/navigation';
 import { useToggleFollow } from '../hooks/useToggleFollow';
 import { UserAvatar } from './UserAvatar';
 import { selectUserById } from '@/entities/userSelectors';
+import { cn } from '@/lib/utils';
 
-export function UserCard({ userId }: { userId: string }) {
+export function UserCard({
+  userId,
+  className,
+}: {
+  userId: string;
+  className?: string;
+}) {
   const user = useEntityStore((state) => selectUserById(state, userId));
 
   const { toggleFollow } = useToggleFollow();
@@ -25,7 +32,10 @@ export function UserCard({ userId }: { userId: string }) {
   return (
     <div
       key={user.id}
-      className='p-4 hover:bg-muted/30 transition-colors cursor-pointer'
+      className={cn(
+        'py-2 sm:px-0 px-2 not-last:border-b hover:bg-muted/30 transition-colors cursor-pointer w-full max-w-140 mx-auto',
+        className,
+      )}
       onClick={handleCardClick}
     >
       <div className='flex items-center justify-between'>

@@ -12,12 +12,12 @@ export default function ProfileMainLayout({
   children: ReactNode;
 }) {
   return (
-    <div className='grid grid-cols-[1.2fr_0.8fr]'>
+    <div className='grid xl:grid-cols-[1.2fr_0.8fr]'>
       <div className='border-r'>
         <ProfileHeader />
         <ProfileHero />
         <ProfileNav />
-        <section>{children}</section>
+        <section className='sm:px-4'>{children}</section>
       </div>
 
       <RightSidebar />

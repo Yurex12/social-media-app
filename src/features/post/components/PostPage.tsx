@@ -13,8 +13,8 @@ export function PostPage() {
   const { postId, isPending, error } = usePostDetails(id);
 
   return (
-    <div className='grid grid-cols-[1.2fr_0.8fr] h-full'>
-      <div className='border-r space-y-4'>
+    <div className='grid xl:grid-cols-[1.2fr_0.8fr] h-full'>
+      <div className='border-r'>
         <Header>
           <BackButton />
           <h3 className='text-lg font-semibold'>Post</h3>

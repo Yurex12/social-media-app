@@ -51,6 +51,7 @@ export async function GET(
             image: true,
             username: true,
             createdAt: true,
+            coverImage: true,
             bio: true,
             _count: {
               select: { followers: true, following: true, posts: true },

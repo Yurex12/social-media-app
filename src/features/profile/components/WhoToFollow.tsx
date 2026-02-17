@@ -40,7 +40,11 @@ export function WhoToFollow() {
 
       <div className='flex flex-col'>
         {userIds.map((userId) => (
-          <UserCard userId={userId} key={userId} />
+          <UserCard
+            userId={userId}
+            key={userId}
+            className='not-last:border-b-0 sm:px-4'
+          />
         ))}
       </div>
 

@@ -4,7 +4,6 @@ import { Spinner } from '@/components/ui/spinner';
 import { selectPostById } from '@/entities/postSelectors';
 import { useEntityStore } from '@/entities/store';
 import { selectUserById } from '@/entities/userSelectors';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useToggleFollow } from '../hooks/useToggleFollow';
 import { AuthorCardProps } from '../types';
@@ -45,17 +44,7 @@ export function AuthorCard({ postId, isPending, error }: AuthorCardProps) {
           </div>
 
           <div onClick={(e) => e.stopPropagation()}>
-            {user.isCurrentUser ? (
-              <Button
-                variant='outline'
-                className='rounded-full cursor-pointer shadow-none'
-                asChild
-              >
-                <Link href={`/profile/${user.username}/edit`}>
-                  Edit profile
-                </Link>
-              </Button>
-            ) : (
+            {user.isCurrentUser && (
               <Button
                 className='rounded-full cursor-pointer shadow-none'
                 variant={user.isFollowing ? 'outline' : 'default'}

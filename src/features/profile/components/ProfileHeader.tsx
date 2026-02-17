@@ -14,7 +14,7 @@ export function ProfileHeader() {
   return (
     <Header>
       <BackButton />
-      <div>
+      <div className='space-y-0'>
         <h3 className='text-lg font-semibold'>{user.name}</h3>
         {postsLength > 0 && (
           <span className='text-sm text-muted-foreground'>

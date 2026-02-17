@@ -52,6 +52,7 @@ export async function GET(
             bio: true,
             image: true,
             createdAt: true,
+            coverImage: true,
             _count: {
               select: {
                 posts: true,

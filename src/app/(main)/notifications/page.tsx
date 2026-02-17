@@ -7,10 +7,10 @@ import NotificationList from '@/features/notification/components/NotificationLis
 
 export default function Page() {
   return (
-    <div className='grid grid-cols-[1.2fr_0.8fr] h-full'>
+    <div className='grid xl:grid-cols-[1.2fr_0.8fr] h-full'>
       <div className='border-r'>
-        <Header className='justify-between gap-0'>
-          <div className='flex items-center gap-10 '>
+        <Header className='justify-between gap-2'>
+          <div className='flex items-center gap-6 sm:gap-10'>
             <BackButton />
             <h3 className='text-lg font-semibold'>Notifications</h3>
           </div>
@@ -18,7 +18,7 @@ export default function Page() {
           <MarkAllAsReadBtn />
         </Header>
 
-        <div>
+        <div className='w-full max-w-140 mx-auto'>
           <NotificationList />
         </div>
       </div>

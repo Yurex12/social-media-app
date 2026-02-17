@@ -86,6 +86,7 @@ export async function createPostAction(
             image: true,
             username: true,
             createdAt: true,
+            coverImage: true,
             bio: true,
             _count: {
               select: { followers: true, following: true, posts: true },
@@ -229,6 +230,7 @@ export async function editPostAction(
                 image: true,
                 username: true,
                 createdAt: true,
+                coverImage: true,
                 bio: true,
                 _count: {
                   select: { followers: true, following: true, posts: true },

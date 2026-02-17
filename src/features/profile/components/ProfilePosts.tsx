@@ -15,9 +15,5 @@ export function ProfilePosts() {
 
   if (profileError || isLoadingProfile || !user) return null;
 
-  return (
-    <div className='px-4'>
-      <PostFeed {...queryState} emptyMessage="You haven't made any post" />
-    </div>
-  );
+  return <PostFeed {...queryState} emptyMessage="You haven't made any post" />;
 }

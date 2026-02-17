@@ -33,6 +33,7 @@ export async function GET(req: Request) {
         image: true,
         bio: true,
         createdAt: true,
+        coverImage: true,
         following: {
           where: { followingId: userId },
           select: { followingId: true },

@@ -6,6 +6,10 @@ import { pusherServer } from '@/lib/pusher';
 import { getSession } from '@/lib/session';
 import { ActionResponse } from '@/types';
 
+import { deleteImages } from '@/lib/action';
+import { editProfileServerSchema, EditProfileServerSchema } from './schema';
+import { UserWithRelations } from './types';
+
 export async function toggleFollowAction(
   followingId: string,
 ): Promise<ActionResponse<{ followed: boolean }>> {
@@ -110,6 +114,124 @@ export async function toggleFollowAction(
       success: false,
       error: 'SERVER_ERROR',
       message: 'Could not update follow status',
+    };
+  }
+}
+
+export async function editProfileAction(
+  values: EditProfileServerSchema,
+): Promise<ActionResponse<UserWithRelations>> {
+  try {
+    const session = await getSession();
+
+    if (!session) {
+      return {
+        success: false,
+        error: 'UNAUTHORIZED',
+        message: 'Please log in to update your profile',
+      };
+    }
+
+    const userId = session.user.id;
+
+    const validated = editProfileServerSchema.safeParse(values);
+    if (!validated.success) {
+      return {
+        success: false,
+        error: 'INVALID_DATA',
+        message: 'Invalid profile data provided',
+      };
+    }
+
+    const profileData = validated.data;
+
+    const currentUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { imageFileId: true, coverImageFileId: true },
+    });
+
+    if (!currentUser) {
+      return {
+        success: false,
+        error: 'NOT_FOUND',
+        message: 'User account not found',
+      };
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: profileData,
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        username: true,
+        createdAt: true,
+        coverImage: true,
+        bio: true,
+        _count: {
+          select: {
+            posts: true,
+            followers: true,
+            following: true,
+          },
+        },
+        followers: {
+          where: { followerId: userId },
+          select: { followerId: true },
+        },
+        following: {
+          where: { followingId: userId },
+          select: { followingId: true },
+        },
+      },
+    });
+
+    const transFormedUser = {
+      ...updatedUser,
+      isCurrentUser: true,
+      isFollowing: false,
+      followsYou: false,
+      followersCount: updatedUser._count.followers,
+      followingCount: updatedUser._count.following,
+      postsCount: updatedUser._count.posts,
+    } satisfies UserWithRelations;
+
+    try {
+      const idsToDelete: string[] = [];
+
+      if (
+        currentUser?.imageFileId &&
+        currentUser.imageFileId !== profileData.imageFileId
+      ) {
+        idsToDelete.push(currentUser.imageFileId);
+      }
+
+      if (
+        currentUser?.coverImageFileId &&
+        currentUser.coverImageFileId !== profileData.coverImageFileId
+      ) {
+        idsToDelete.push(currentUser.coverImageFileId);
+      }
+
+      if (idsToDelete.length > 0) {
+        await deleteImages(idsToDelete);
+      }
+    } catch (error) {
+      console.error('ImageKit Cleanup Error:', error);
+    }
+
+    return {
+      success: true,
+      data: transFormedUser,
+      message: 'Profile updated successfully',
+    };
+  } catch (error: unknown) {
+    console.error('Edit Profile Error:', error);
+    return {
+      success: false,
+      error: 'SERVER_ERROR',
+      message: 'Could not update profile',
     };
   }
 }

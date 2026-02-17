@@ -21,15 +21,19 @@ enum NotificationType {
 }
 
 model User {
-  id              String    @id
-  name            String
-  email           String
-  emailVerified   Boolean   @default(false)
-  image           String?
-  coverPhoto      String?
-  username        String
+  id            String  @id
+  name          String
+  email         String
+  emailVerified Boolean @default(false)
+  image         String?
+  coverImage    String?
+  username      String
+
+  imageFileId      String?
+  coverImageFileId String?
+
   displayUsername String?
-  bio             String?
+  bio             String?   @db.VarChar(160)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   sessions        Session[]

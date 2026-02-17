@@ -10,7 +10,7 @@ import {
 import { toast } from 'sonner';
 
 import { createPostAction } from '../actions';
-import { PostFeedResponse, PostIdsPage } from '../types';
+import { PostIdsPage } from '../types';
 
 let toastId: string | number;
 
@@ -57,11 +57,6 @@ export function useCreatePost() {
       );
       addPost(normalizedPost);
       addUser(normalizedUser);
-
-      // queryClient.setQueryData<string[]>(['posts', 'home'], (oldIds) => {
-      //   if (!oldIds) return oldIds;
-      //   return [normalizedPost.id, ...oldIds];
-      // });
 
       queryClient.setQueryData<InfiniteData<PostIdsPage>>(
         ['posts', 'home'],

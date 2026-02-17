@@ -29,7 +29,7 @@ export function PostDetails({ postId, isPending, error }: PostDetailsProps) {
 
   return (
     <PostProvider postId={postId}>
-      <div className='space-y-4 px-4'>
+      <div className='w-full mx-auto max-w-140'>
         <PostCard />
         <CommentInputBar />
         <CommentList />

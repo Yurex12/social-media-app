@@ -18,33 +18,35 @@ export default async function Page({
   const query = typeof q === 'string' ? q.trim() : '';
 
   return (
-    <div className='grid grid-cols-[1.2fr_0.8fr]'>
+    <div className='grid xl:grid-cols-[1.2fr_0.8fr]'>
       <div className='border-r'>
-        <Header className='gap-2'>
+        <Header className='gap-2 sm:gap-2'>
           {query && <BackButton />}
           <SearchInput key={query} />
         </Header>
         <SearchTabs />
 
-        {!query && (
-          <div className='px-4 flex flex-col items-center justify-center h-[70vh] text-muted-foreground'>
-            <p className='text-lg font-medium'>Search for posts or people</p>
-            <p className='text-sm'>
-              Try searching for keywords, names, or usernames
-            </p>
-          </div>
-        )}
+        <div className='flex items-center justify-center flex-col gap-4 sm:px-4'>
+          {!query && (
+            <div className='flex flex-col items-center justify-center h-[70vh] text-muted-foreground'>
+              <p className='text-lg font-medium'>Search for posts or people</p>
+              <p className='text-sm'>
+                Try searching for keywords, names, or usernames
+              </p>
+            </div>
+          )}
 
-        {query && activeTab === 'posts' && (
-          <div className='px-4'>
-            <PostsSearchResults query={query} />
-          </div>
-        )}
-        {query && activeTab === 'users' && (
-          <div>
-            <UsersSearchResults query={query} />
-          </div>
-        )}
+          {query && activeTab === 'posts' && (
+            <div className='w-full sm:pt-4'>
+              <PostsSearchResults query={query} />
+            </div>
+          )}
+          {query && activeTab === 'users' && (
+            <div className='w-full sm:pt-4'>
+              <UsersSearchResults query={query} />
+            </div>
+          )}
+        </div>
       </div>
 
       <RightSidebar />

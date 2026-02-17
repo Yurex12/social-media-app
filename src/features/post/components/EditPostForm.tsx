@@ -75,6 +75,8 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
     const newImgs = [...images];
     newImgs.splice(id, 1);
     form.setValue('images', newImgs);
+
+    // form.trigger();
   }
 
   async function onSubmit(values: PostEditSchema) {
@@ -110,7 +112,7 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
                   <FormControl>
                     <Textarea
                       {...field}
-                      className='max-h-[40vh] min-h-5 resize-none border-none bg-transparent px-0 shadow-none focus-visible:ring-0 overflow-y-auto text-foreground/75'
+                      className='max-h-[40vh] min-h-5 resize-none border-none bg-transparent shadow-none focus-visible:ring-0 overflow-y-auto text-foreground/75 px-2'
                       placeholder='Edit your post...'
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {

@@ -91,13 +91,15 @@ export function CreatePost() {
     const newImgs = [...images];
     newImgs.splice(id, 1);
     form.setValue('images', newImgs);
+
+    form.trigger();
   }
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className='border rounded-xl px-4 py-2'
+        className='border rounded-xl px-4 py-2 w-full max-w-140 hidden sm:block'
       >
         <div className='flex gap-3'>
           <UserAvatar
@@ -116,7 +118,7 @@ export function CreatePost() {
                     <Textarea
                       {...field}
                       placeholder='What’s happening?'
-                      className='max-h-[50vh] min-h-5 resize-none border-none bg-transparent px-0 shadow-none focus-visible:ring-0 overflow-y-auto text-foreground/75'
+                      className='max-h-[50vh] min-h-5 resize-none border-none bg-transparent px-4 shadow-none focus-visible:ring-0 overflow-y-auto text-foreground/75'
                       disabled={isPosting}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {

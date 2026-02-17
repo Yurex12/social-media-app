@@ -7,6 +7,7 @@ export type TUserFromDB = Prisma.UserGetPayload<{
     image: true;
     username: true;
     createdAt: true;
+    coverImage: true;
     bio: true;
     followers: {
       select: {
@@ -49,6 +50,7 @@ export type TPostLikeFromDB = Prisma.PostLikeGetPayload<{
             username: true;
             createdAt: true;
             bio: true;
+            coverImage: true;
             _count: {
               select: { followers: true; following: true; posts: true };
             };
@@ -79,6 +81,7 @@ export type TFollowersFromBD = Prisma.FollowGetPayload<{
         image: true;
         bio: true;
         createdAt: true;
+        coverImage: true;
         followers: {
           where: { followerId: 'some-user-id' };
           select: { followerId: true };
@@ -109,6 +112,7 @@ export type TFollowingFromBD = Prisma.FollowGetPayload<{
         image: true;
         bio: true;
         createdAt: true;
+        coverImage: true;
         followers: {
           where: { followerId: 'some-user-id' };
           select: { followerId: true };

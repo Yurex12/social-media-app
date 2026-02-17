@@ -33,6 +33,7 @@ export async function GET(
         username: true,
         createdAt: true,
         bio: true,
+        coverImage: true,
         _count: {
           select: {
             posts: true,

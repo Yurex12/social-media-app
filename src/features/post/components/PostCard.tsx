@@ -12,13 +12,12 @@ export function PostCard() {
   const router = useRouter();
   const { post, user } = usePost();
 
-  const handleCardClick = () => {
+  const handleCardClick = () =>
     router.push(`/${user.username}/status/${post.id}`);
-  };
 
   return (
     <div
-      className='space-y-2 border rounded-lg py-4 hover:cursor-pointer'
+      className='space-y-2 py-4 hover:cursor-pointer overflow-hidden'
       onClick={handleCardClick}
     >
       <PostHeader />

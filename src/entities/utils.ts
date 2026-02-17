@@ -19,6 +19,7 @@ function mapUserEntity(user: UserWithRelations): UserEntity {
     followingCount: user.followingCount,
     postsCount: user.postsCount,
     createdAt: user.createdAt,
+    coverImage: user.coverImage,
   };
 }
 

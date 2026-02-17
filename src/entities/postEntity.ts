@@ -82,7 +82,6 @@ export const postEntitySlice: StateCreator<PostEntitySlice> = (set) => ({
     }),
 
   updatePost: (postId, updates) => {
-    console.log('UPDATING COMMENT', postId, updates);
     set((state) => ({
       posts: {
         ...state.posts,

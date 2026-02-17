@@ -24,7 +24,12 @@ export function TextExpander({
   if (!content?.trim()) return null;
 
   return (
-    <div className={cn('px-4 leading-relaxed text-foreground/75', className)}>
+    <div
+      className={cn(
+        'px-2 sm:px-4 leading-relaxed text-foreground/75',
+        className,
+      )}
+    >
       <p className='whitespace-pre-wrap wrap-break-word inline'>
         {isExpanded ? (
           content
@@ -45,7 +50,7 @@ export function TextExpander({
             e.stopPropagation();
             setIsExpanded(true);
           }}
-          className='ml-1 text-[15px] font-medium text-primary hover:underline inline-block cursor-pointer'
+          className='ml-1 text-sm font-medium text-primary hover:underline inline-block cursor-pointer'
         >
           Show more
         </button>

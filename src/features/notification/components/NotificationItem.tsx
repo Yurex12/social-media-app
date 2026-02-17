@@ -40,7 +40,7 @@ export function NotificationItem({
   return (
     <Link
       href={config.href}
-      className={`flex gap-3 p-4 border-b border-border/50 transition-colors group relative ${
+      className={`flex gap-3 px-2 py-4 not-last:border-b border-border/50 transition-colors group relative ${
         !notification.read
           ? 'bg-primary/5 hover:bg-primary/10'
           : 'hover:bg-accent/50'

@@ -14,6 +14,7 @@ export interface UserEntity {
   followingCount: number;
   postsCount: number;
   createdAt: Date;
+  coverImage: string | null;
 }
 
 export interface UserEntitySlice {

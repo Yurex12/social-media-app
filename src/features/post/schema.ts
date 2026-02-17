@@ -1,13 +1,6 @@
 import z from 'zod';
 
-import { MAX_FILE_SIZE } from '@/constants';
-
-const ACCEPTED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/webp',
-];
+import { MAX_FILE_SIZE, ACCEPTED_IMAGE_TYPES } from '@/constants';
 
 const basePostSchema = z.object({
   content: z
@@ -24,12 +17,12 @@ export const postSchema = basePostSchema
       .refine(
         (files) =>
           files.every((file) => file.size > 0 && file.size <= MAX_FILE_SIZE),
-        { message: 'Each file should be less than 5MB' }
+        { message: 'Each file should be less than 5MB' },
       )
       .refine(
         (files) =>
           files.every((file) => ACCEPTED_IMAGE_TYPES.includes(file.type)),
-        { message: 'Only JPEG, PNG, and WebP images are allowed' }
+        { message: 'Only JPEG, PNG, and WebP images are allowed' },
       ),
   })
   .refine((data) => data.content.trim().length > 0 || data.images.length > 0, {
@@ -43,7 +36,7 @@ export const postServerSchema = basePostSchema
         z.object({
           fileId: z.string(),
           url: z.url(),
-        })
+        }),
       )
       .max(2, 'Maximum 2 images allowed'),
   })
@@ -61,7 +54,7 @@ export const postEditSchema = basePostSchema
             fileId: z.string(),
             url: z.url(),
           }),
-        ])
+        ]),
       )
       .max(2, 'Maximum 2 images are allowed')
       .refine(
@@ -74,7 +67,7 @@ export const postEditSchema = basePostSchema
           }),
         {
           message: 'Each file should be less than 5MB',
-        }
+        },
       )
       .refine(
         (images) =>
@@ -84,7 +77,7 @@ export const postEditSchema = basePostSchema
             }
             return true;
           }),
-        { message: 'Only JPEG, PNG, and WebP images are allowed' }
+        { message: 'Only JPEG, PNG, and WebP images are allowed' },
       ),
   })
   .refine((data) => data.content.trim().length > 0 || data.images.length > 0, {
@@ -97,7 +90,7 @@ export const postEditServerSchema = basePostSchema.extend({
       z.object({
         fileId: z.string(),
         url: z.url(),
-      })
+      }),
     )
     .max(2, 'Maximum 2 images allowed'),
 

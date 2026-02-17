@@ -51,7 +51,7 @@ export function CommentInputBar() {
   const user = useSession().data?.user;
 
   return (
-    <div className='border rounded-md w-full max-w-140 mx-auto px-4 py-3'>
+    <div className='border-b sm:border sm:rounded-md w-full max-w-140 mx-auto px-2 sm:px-4 py-3'>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className='flex gap-3'>
           <UserAvatar image={user?.image} name={user?.name} />

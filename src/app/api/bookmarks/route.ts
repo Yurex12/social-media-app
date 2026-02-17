@@ -49,6 +49,7 @@ export async function GET(req: NextRequest) {
                 username: true,
                 bio: true,
                 createdAt: true,
+                coverImage: true,
                 _count: {
                   select: { followers: true, following: true, posts: true },
                 },

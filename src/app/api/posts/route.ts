@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
   try {
     const posts = (await prisma.post.findMany({
       take: limit + 1,
+
       where: whereClause,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: {
@@ -50,6 +51,7 @@ export async function GET(req: NextRequest) {
             username: true,
             createdAt: true,
             bio: true,
+            coverImage: true,
             _count: {
               select: { followers: true, following: true, posts: true },
             },
@@ -118,3 +120,8 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+// ...(cursor && {
+//   cursor: { id: cursor },
+//   skip: 1,
+// }),

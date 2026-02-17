@@ -9,7 +9,7 @@ export default function ProfileRelationsLayout({
   children: ReactNode;
 }) {
   return (
-    <div className='grid grid-cols-[1.2fr_0.8fr]'>
+    <div className='grid xl:grid-cols-[1.2fr_0.8fr]'>
       <div className='border-r'>
         <ProfileRelationsHeader />
 

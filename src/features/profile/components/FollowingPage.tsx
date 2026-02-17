@@ -18,5 +18,9 @@ export default function FollowingPage() {
 
   if (profileError || isLoadingProfile || !user) return null;
 
-  return <UserList {...queryState} emptyMessage='Not following anyone yet' />;
+  return (
+    <div className='sm:px-4'>
+      <UserList {...queryState} emptyMessage='Not following anyone yet' />;
+    </div>
+  );
 }

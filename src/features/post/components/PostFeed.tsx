@@ -61,10 +61,13 @@ export function PostFeed({
     );
 
   return (
-    <div className='flex flex-col w-full'>
-      <ul className='pb-4'>
+    <div className='w-full'>
+      <ul className='pb-4 flex items-center justify-center flex-col sm:space-y-4'>
         {postIds.map((postId) => (
-          <li key={postId} className='mt-4'>
+          <li
+            key={postId}
+            className='sm:border sm:rounded-lg w-full border-b rounded-none max-w-140'
+          >
             <PostProvider postId={postId}>
               <PostCard />
             </PostProvider>

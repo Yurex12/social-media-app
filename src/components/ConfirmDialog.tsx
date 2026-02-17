@@ -20,8 +20,10 @@ export function ConfirmDialog() {
     <AlertDialog open={isOpen} onOpenChange={closeConfirm}>
       <AlertDialogContent onClick={(e) => e.stopPropagation()}>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete {resourceName}</AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogTitle className='text-left'>
+            Delete {resourceName}
+          </AlertDialogTitle>
+          <AlertDialogDescription className='text-left'>
             {' '}
             Are you sure you want to delete this {resourceName}? This action
             cannot be undone

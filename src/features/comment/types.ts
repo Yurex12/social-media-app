@@ -11,6 +11,7 @@ export type TCommentFromBD = Prisma.CommentGetPayload<{
         username: true;
         bio: true;
         createdAt: true;
+        coverImage: true;
         followers: { select: { followerId: true } };
         following: { select: { followingId: true } };
         _count: { select: { followers: true; following: true; posts: true } };

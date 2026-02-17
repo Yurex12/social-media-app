@@ -29,7 +29,7 @@ export function ProfileNav() {
   if (session.data?.user.username !== username) return null;
 
   return (
-    <div className='flex border-b border-gray-200'>
+    <div className='flex border-b border-gray-200 max-w-140 w-full mx-auto'>
       {tabs.map((tab) => {
         const isActive = pathname === tab.href;
         return (

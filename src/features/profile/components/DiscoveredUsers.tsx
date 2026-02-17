@@ -23,12 +23,10 @@ export function DiscoveredUsers() {
     );
 
   return (
-    <div>
-      <div className='py-2 flex flex-col'>
-        {userIds.map((userId) => (
-          <UserCard userId={userId} key={userId} />
-        ))}
-      </div>
+    <div className='py-2 flex flex-col sm:px-4'>
+      {userIds.map((userId) => (
+        <UserCard userId={userId} key={userId} />
+      ))}
     </div>
   );
 }

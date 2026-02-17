@@ -52,7 +52,7 @@ export default function NotificationList() {
   }
 
   return (
-    <div className='flex flex-col'>
+    <div className='flex flex-col w-full'>
       <div>
         {notifications.map((notification) => (
           <NotificationItem key={notification.id} notification={notification} />

@@ -76,6 +76,7 @@ export async function GET(
             image: true,
             bio: true,
             createdAt: true,
+            coverImage: true,
             followers: {
               where: { followerId: userId },
               select: { followerId: true },

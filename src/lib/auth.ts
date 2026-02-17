@@ -57,6 +57,13 @@ export const auth = betterAuth({
         required: false,
         input: false,
       },
+      coverImage: {
+        type: 'string',
+        required: false,
+        input: false,
+      },
+      imageFileId: { type: 'string', required: false, input: false },
+      coverImageFileId: { type: 'string', required: false, input: false },
     },
   },
 

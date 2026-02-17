@@ -21,7 +21,7 @@ export function CommentItem({ comment }: { comment: CommentWithRelations }) {
 
   return (
     <div
-      className='flex gap-3 py-2 border-b border-border/50 last:border-0'
+      className='flex gap-3 py-2 border-b border-border/50 last:border-0 px-2 sm:px-4'
       id={comment.id}
     >
       <Link href={profileUrl}>

@@ -9,6 +9,8 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { NotificationListener } from '@/features/notification/components/NotificationListener';
 import { Toaster } from '@/components/ui/sonner';
 
+import { ThemeProvider } from '@/components/theme-provider';
+
 // const poppins = Poppins({
 //   subsets: ['latin'],
 //   variable: '--font-poppins',
@@ -34,17 +36,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='en'>
+    <html lang='en' suppressHydrationWarning>
       <body
-        className={`${outfit.className} antialiased h-screen overflow-y-scroll`}
+        className={`${outfit.className} antialiased h-screen overflow-y-scroll overflow-x-hidden`}
       >
+        <ThemeProvider
+          attribute='class'
+          defaultTheme='system'
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Providers>
+            <GlobalLightBox />
+            <ConfirmDialog />
+            <NotificationListener />
+            {children}
+          </Providers>
+        </ThemeProvider>
         <Toaster position='top-center' />
-        <Providers>
-          <GlobalLightBox />
-          <ConfirmDialog />
-          <NotificationListener />
-          {children}
-        </Providers>
       </body>
     </html>
   );

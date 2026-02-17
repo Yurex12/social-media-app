@@ -13,9 +13,6 @@ export function ProfileLikedPosts() {
   } = useProfile();
 
   if (profileError || isLoadingProfile || !user) return null;
-  return (
-    <div className='px-4'>
-      <PostFeed {...queryState} emptyMessage='No liked post.' />
-    </div>
-  );
+
+  return <PostFeed {...queryState} emptyMessage='No liked post.' />;
 }

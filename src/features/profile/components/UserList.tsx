@@ -60,7 +60,7 @@ export function UserList({
     );
 
   return (
-    <div className='flex flex-col w-full'>
+    <div className='w-full'>
       <div className='flex flex-col'>
         {userIds.map((userId) => (
           <UserCard userId={userId} key={userId} />

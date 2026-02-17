@@ -15,6 +15,7 @@ export type TPostFromDB = Prisma.PostGetPayload<{
         username: true;
         bio: true;
         createdAt: true;
+        coverImage: true;
         followers: { select: { followerId: true } };
         following: { select: { followingId: true } };
         _count: { select: { followers: true; following: true; posts: true } };
@@ -54,5 +55,10 @@ export interface PostFeedProps {
 
 export interface PostFeedResponse {
   posts: PostWithRelations[];
+  nextCursor: string | null;
+}
+
+export interface PostIdsPage {
+  postIds: string[];
   nextCursor: string | null;
 }

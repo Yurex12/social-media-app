@@ -16,7 +16,7 @@ export function PostInteractions() {
   const router = useRouter();
 
   return (
-    <div className='border-t border-border/40 px-4 pt-2 flex justify-between items-center'>
+    <div className='border-t border-border/40 px-2 sm:px-4 pt-2 flex justify-between items-center'>
       <div className='flex items-center gap-4'>
         <button
           onClick={(e) => {
