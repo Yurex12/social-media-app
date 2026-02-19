@@ -1,10 +1,19 @@
-import { Home, Search, Bell, User, Bookmark, LucideProps } from 'lucide-react';
+import {
+  Home,
+  Search,
+  Bell,
+  User,
+  Bookmark,
+  LucideProps,
+  Settings,
+} from 'lucide-react';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
 
 export const MIN_USERNAME_LENGTH = 4;
 export const MAX_USERNAME_LENGTH = 15;
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024;
+export const MOBILE_BREAK_POINT = 640;
 
 export const ACCEPTED_IMAGE_TYPES = [
   'image/jpeg',
@@ -46,5 +55,10 @@ export const links: Link[] = [
     href: '/profile',
     label: 'Profile',
     Icon: User,
+  },
+  {
+    href: '/settings',
+    label: 'Settings',
+    Icon: Settings,
   },
 ];

@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 import { getRequiredSession } from '@/lib/session';
 
 import { Sidebar } from '@/components/Sidebar';
+import MobileNavbar from '@/components/MobileNavbar';
 
 export default async function MainLayout({
   children,
@@ -15,6 +16,7 @@ export default async function MainLayout({
     <div className='grid max-w-7xl w-full mx-auto md:grid-cols-[280px_1fr]'>
       <Sidebar />
       <main className='border-l h-full'>{children}</main>
+      <MobileNavbar />
     </div>
   );
 }

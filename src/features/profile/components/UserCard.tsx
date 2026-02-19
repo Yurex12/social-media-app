@@ -59,6 +59,7 @@ export function UserCard({
 
         {!user.isCurrentUser && (
           <Button
+            size='sm'
             className='rounded-full cursor-pointer transition-none shadow-none'
             variant={user.isFollowing ? 'outline' : 'default'}
             onClick={handleFollowClick}

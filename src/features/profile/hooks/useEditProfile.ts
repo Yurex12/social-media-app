@@ -4,7 +4,7 @@ import { ActionError, ImageUploadResponse } from '@/types';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { editProfileAction } from '../action';
-import { EditProfileSchema } from '../schema';
+import { EditProfileFormValues } from '../schema';
 
 let toastId: string | number;
 
@@ -13,9 +13,9 @@ export function useEditProfile() {
 
   const { mutate: editProfile, isPending } = useMutation({
     mutationFn: async (
-      values: EditProfileSchema & {
-        coverImageFileId: string | null;
+      values: EditProfileFormValues & {
         imageFileId: string | null;
+        coverImageFileId: string | null;
       },
     ) => {
       toastId = toast.loading('Updating profile...');

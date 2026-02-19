@@ -33,7 +33,7 @@ export function usePostDetails(id: string) {
   });
 
   return {
-    postId: postInStore?.id,
+    post: postInStore,
     isPending: isPending && !postInStore,
     error,
   };

@@ -24,6 +24,9 @@ import { useDeletePost } from '../hooks/useDeletePost';
 import { usePost } from '../PostProvider';
 import EditPostDialog from './EditPostDialog';
 import { useConfirmDialogStore } from '@/store/useConfirmDialogStore';
+import { MOBILE_BREAK_POINT } from '@/constants';
+
+import { MouseEvent } from 'react';
 
 export function PostOptions() {
   const { post, user } = usePost();
@@ -46,6 +49,14 @@ export function PostOptions() {
       toast.success('Link copied to clipboard');
     } catch {
       toast.error('Could not copy link');
+    }
+  }
+  function handleEdit(e: MouseEvent<HTMLDivElement>) {
+    e.stopPropagation();
+    if (window.innerWidth >= MOBILE_BREAK_POINT) {
+      setShowEditDialog(true);
+    } else {
+      router.push(`/post/edit/${post.id}`);
     }
   }
 
@@ -92,10 +103,7 @@ export function PostOptions() {
             <>
               <DropdownMenuSeparator className='my-1' />
               <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowEditDialog(true);
-                }}
+                onClick={handleEdit}
                 className='cursor-pointer rounded-md px-3 py-2 text-sm'
               >
                 <PencilLine className='h-4 w-4' />

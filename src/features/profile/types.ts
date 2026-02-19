@@ -134,7 +134,7 @@ export type TFollowingFromBD = Prisma.FollowGetPayload<{
 }>;
 
 export interface AuthorCardProps {
-  postId: string | undefined;
+  userId: string | undefined;
   isPending: boolean;
   error: Error | null;
 }
@@ -143,3 +143,12 @@ export interface UserResponse {
   users: UserWithRelations[];
   nextCursor: string | null;
 }
+
+export type EditProfilePayload = {
+  bio?: string;
+  name?: string;
+  image?: string | File | null;
+  coverImage?: string | File | null;
+  imageFileId?: string | null;
+  coverImageFileId?: string | null;
+};

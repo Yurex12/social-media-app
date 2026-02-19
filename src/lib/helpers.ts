@@ -4,3 +4,5 @@ export function formatDate(date: Date | string | number) {
   const distance = formatDistanceToNowStrict(new Date(date));
   return distance.replace(/ (\w).*/, '$1');
 }
+
+// minutes => m, seconds => s

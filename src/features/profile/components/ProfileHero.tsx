@@ -13,14 +13,26 @@ import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { EditProfileForm } from './EditProfileForm';
 import { useSession } from '@/lib/auth-client';
+import { MOBILE_BREAK_POINT } from '@/constants';
+import { useRouter } from 'next/navigation';
 
 export function ProfileHero() {
+  const [openDialog, setOpenDialog] = useState(false);
+
   const { user, isPending, error } = useProfile();
   const { toggleFollow } = useToggleFollow();
 
   const session = useSession();
 
-  const [openDialog, setOpenDialog] = useState(false);
+  const router = useRouter();
+
+  function handleEdit() {
+    if (window.innerWidth >= MOBILE_BREAK_POINT) {
+      setOpenDialog(true);
+    } else {
+      router.push(`settings/profile`);
+    }
+  }
 
   if (isPending)
     return (
@@ -68,7 +80,7 @@ export function ProfileHero() {
                 <Button
                   variant='outline'
                   className='rounded-full cursor-pointer'
-                  onClick={() => setOpenDialog((cur) => !cur)}
+                  onClick={handleEdit}
                   disabled={session.isPending}
                 >
                   Edit profile
@@ -154,7 +166,7 @@ export function ProfileHero() {
       {openDialog && (
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogContent showCloseButton={false}>
-            <EditProfileForm />
+            <EditProfileForm onClose={() => setOpenDialog(false)} />
           </DialogContent>
         </Dialog>
       )}

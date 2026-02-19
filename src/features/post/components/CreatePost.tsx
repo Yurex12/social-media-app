@@ -118,7 +118,7 @@ export function CreatePost() {
                     <Textarea
                       {...field}
                       placeholder='What’s happening?'
-                      className='max-h-[50vh] min-h-5 resize-none border-none bg-transparent px-4 shadow-none focus-visible:ring-0 overflow-y-auto text-foreground/75'
+                      className='max-h-[50vh] min-h-5 resize-none border-none bg-transparent px-4 shadow-none focus-visible:ring-0 overflow-y-auto text-foreground/75 dark:bg-transparent'
                       disabled={isPosting}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {

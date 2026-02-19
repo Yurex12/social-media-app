@@ -9,6 +9,7 @@ import { signOut, useSession } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from './ui/button';
+import { LogOut } from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -21,56 +22,62 @@ export default function Navbar() {
   const { data: unreadCount } = useUnreadNotificationsCount();
 
   return (
-    <nav className='flex flex-col gap-3 p-3'>
-      {links.map(({ href, label, Icon }) => {
-        const isProfilePath = href === '/profile';
-        const isNotifications = href === '/notifications';
+    <nav className='flex flex-col h-[90vh] p-3'>
+      {/* Top section links */}
+      <div className='flex flex-col gap-3'>
+        {links.map(({ href, label, Icon }) => {
+          const isProfilePath = href === '/profile';
+          const isNotifications = href === '/notifications';
 
-        const finalHref =
-          isProfilePath && username ? `/profile/${username}` : href;
+          const finalHref =
+            isProfilePath && username ? `/profile/${username}` : href;
 
-        const isActive = isProfilePath
-          ? pathname.startsWith(finalHref)
-          : pathname === href;
+          const isActive = isProfilePath
+            ? pathname.startsWith(finalHref)
+            : pathname === href;
 
-        return (
-          <Link
-            key={href}
-            href={finalHref}
-            className={cn(
-              'flex items-center gap-3 rounded-full px-4 w-fit py-2 font-medium transition-colors hover:bg-primary/10 hover:text-primary',
-              isActive && 'bg-primary/15 text-primary',
-            )}
-          >
-            <div className='relative'>
-              <Icon className='h-5 w-5' />
-              {isNotifications && unreadCount && unreadCount > 0 ? (
-                <span className='absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white'>
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              ) : null}
-            </div>
-            <span>{label}</span>
-          </Link>
-        );
-      })}
+          return (
+            <Link
+              key={href}
+              href={finalHref}
+              className={cn(
+                'flex items-center gap-3 rounded-full px-4 w-fit py-2 font-medium transition-colors hover:bg-primary/10 hover:text-primary',
+                isActive && 'bg-primary/20 text-primary dark:bg-primary/25',
+              )}
+            >
+              <div className='relative'>
+                <Icon className='h-5 w-5' />
+                {isNotifications && unreadCount && unreadCount > 0 ? (
+                  <span className='absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white'>
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                ) : null}
+              </div>
+              <span>{label}</span>
+            </Link>
+          );
+        })}
+      </div>
 
-      <Button
-        variant='ghost'
-        className='mt-auto justify-start rounded-full'
-        onClick={async () => {
-          await signOut({
-            fetchOptions: {
-              onSuccess() {
-                router.replace('/login');
-                queryClient.clear();
+      <div className='mt-auto'>
+        <Button
+          variant='ghost'
+          className='group justify-start rounded-full w-fit px-4 gap-3 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer'
+          onClick={async () => {
+            await signOut({
+              fetchOptions: {
+                onSuccess() {
+                  queryClient.clear();
+                  router.replace('/login');
+                },
               },
-            },
-          });
-        }}
-      >
-        Logout
-      </Button>
+            });
+          }}
+        >
+          <LogOut className='h-5 w-5' />
+          <span>Logout</span>
+        </Button>
+      </div>
     </nav>
   );
 }

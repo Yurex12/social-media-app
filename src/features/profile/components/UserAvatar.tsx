@@ -40,6 +40,7 @@ export function UserAvatar({
           fill
           className='object-cover'
           referrerPolicy='no-referrer'
+          loading='eager'
         />
       ) : (
         <span

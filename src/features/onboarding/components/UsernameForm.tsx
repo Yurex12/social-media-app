@@ -108,12 +108,8 @@ export function UsernameForm({
     }
 
     toast.success('Username updated successfully!');
-    form.reset();
-    router.refresh();
-    router.replace('/');
+    router.replace('/onboarding/details');
   }
-
-  const handleSkip = () => router.replace('/');
 
   const isUpdating = form.formState.isSubmitting;
 
@@ -189,7 +185,7 @@ export function UsernameForm({
                 isUpdating ||
                 watchedUsername.length === 0
               }
-              className='w-full bg-linear-to-r from-blue-500 via-blue-600 to-indigo-700 text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.02] active:scale-100 disabled:opacity-40 disabled:hover:translate-y-0'
+              className='w-full bg-linear-to-r from-blue-500 via-blue-600 to-indigo-700 text-white shadow-md transition-all hover:scale-[1.01] active:scale-100 cursor-pointer'
             >
               {isUpdating ? <Spinner /> : null}
 
@@ -199,8 +195,8 @@ export function UsernameForm({
             <Button
               type='button'
               variant='ghost'
-              className='w-full text-gray-500 hover:text-gray-800'
-              onClick={handleSkip}
+              className='w-full text-gray-500 hover:text-gray-800 cursor-pointer'
+              onClick={() => router.replace('/onboarding/details')}
               disabled={isUpdating}
             >
               Skip for now

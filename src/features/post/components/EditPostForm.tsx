@@ -112,7 +112,7 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
                   <FormControl>
                     <Textarea
                       {...field}
-                      className='max-h-[40vh] min-h-5 resize-none border-none bg-transparent shadow-none focus-visible:ring-0 overflow-y-auto text-foreground/75 px-2'
+                      className='max-h-[40vh] min-h-5 resize-none border-none bg-transparent shadow-none focus-visible:ring-0 overflow-y-auto text-foreground/75 dark:bg-transparent'
                       placeholder='Edit your post...'
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {

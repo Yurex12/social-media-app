@@ -17,7 +17,7 @@ export default function ProfileMainLayout({
         <ProfileHeader />
         <ProfileHero />
         <ProfileNav />
-        <section className='sm:px-4'>{children}</section>
+        <section className='sm:px-4 sm:mt-2'>{children}</section>
       </div>
 
       <RightSidebar />

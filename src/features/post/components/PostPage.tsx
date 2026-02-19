@@ -10,7 +10,7 @@ import { useParams } from 'next/navigation';
 
 export function PostPage() {
   const { id } = useParams<{ id: string }>();
-  const { postId, isPending, error } = usePostDetails(id);
+  const { post, isPending, error } = usePostDetails(id);
 
   return (
     <div className='grid xl:grid-cols-[1.2fr_0.8fr] h-full'>
@@ -20,11 +20,11 @@ export function PostPage() {
           <h3 className='text-lg font-semibold'>Post</h3>
         </Header>
 
-        <PostDetails postId={postId} isPending={isPending} error={error} />
+        <PostDetails postId={post?.id} isPending={isPending} error={error} />
       </div>
 
       <RightSidebar>
-        <AuthorCard postId={postId} isPending={isPending} error={error} />
+        <AuthorCard userId={post?.userId} isPending={isPending} error={error} />
       </RightSidebar>
     </div>
   );

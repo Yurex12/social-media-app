@@ -1,6 +1,6 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Camera, X, AlertCircle } from 'lucide-react';
+import { AlertCircle, Camera, X } from 'lucide-react';
 import { ChangeEvent, useEffect, useMemo, useRef } from 'react';
 import { ControllerRenderProps, useForm, useWatch } from 'react-hook-form';
 
@@ -16,24 +16,24 @@ import {
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
+import { MAX_FILE_SIZE } from '@/constants';
 import { UserAvatar } from '@/features/profile/components/UserAvatar';
 import { useSession } from '@/lib/auth-client';
-import { editProfileSchema, type EditProfileSchema } from '../schema';
 import Image from 'next/image';
 import { useEditProfile } from '../hooks/useEditProfile';
-import { MAX_FILE_SIZE } from '@/constants';
+import { editProfileSchema, type EditProfileFormValues } from '../schema';
 
-export function EditProfileForm() {
+export function EditProfileForm({ onClose }: { onClose: VoidFunction }) {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
   const { editProfile, isPending: isEditing } = useEditProfile();
   const session = useSession();
 
-  const form = useForm<EditProfileSchema>({
+  const form = useForm<EditProfileFormValues>({
     resolver: zodResolver(editProfileSchema),
     mode: 'onChange',
-    defaultValues: {
+    values: {
       name: session.data?.user.name || '',
       bio: session.data?.user.bio || '',
       image: session.data?.user.image || '',
@@ -65,27 +65,50 @@ export function EditProfileForm() {
   }, [imageValue, coverValue]);
 
   useEffect(() => {
+    const profileUrl = previews.profile.src;
+    const coverUrl = previews.cover.src;
+
     return () => {
-      if (previews.profile.isFile) URL.revokeObjectURL(previews.profile.src);
-      if (previews.cover.isFile) URL.revokeObjectURL(previews.cover.src);
+      if (profileUrl.startsWith('blob:')) URL.revokeObjectURL(profileUrl);
+      if (coverUrl.startsWith('blob:')) URL.revokeObjectURL(coverUrl);
     };
-  }, [previews]);
+  }, [previews.profile.src, previews.cover.src]);
+
+  if (session.isPending) {
+    return (
+      <div className='flex items-center justify-center p-20'>
+        <Spinner className='size-8' />
+      </div>
+    );
+  }
 
   function handleFileChange(
     e: ChangeEvent<HTMLInputElement>,
-    field: ControllerRenderProps<EditProfileSchema, 'image' | 'coverImage'>,
+    field: ControllerRenderProps<EditProfileFormValues, 'image' | 'coverImage'>,
   ) {
     const file = e.target.files?.[0];
     if (file) field.onChange(file);
     e.target.value = '';
   }
 
-  async function onSubmit(values: EditProfileSchema) {
-    editProfile({
-      ...values,
-      imageFileId: session.data?.user.imageFileId ?? null,
-      coverImageFileId: session.data?.user.coverImageFileId ?? null,
-    });
+  async function onSubmit(values: EditProfileFormValues) {
+    editProfile(
+      {
+        ...values,
+        imageFileId: values.image
+          ? (session.data?.user.imageFileId ?? null)
+          : null,
+        coverImageFileId: values.coverImage
+          ? (session.data?.user.coverImageFileId ?? null)
+          : null,
+      },
+      {
+        onSuccess: () => {
+          session.refetch();
+          onClose();
+        },
+      },
+    );
   }
 
   return (
@@ -99,7 +122,7 @@ export function EditProfileForm() {
             render={({ field }) => (
               <FormItem className='space-y-0 relative'>
                 <FormControl>
-                  <div className='relative group'>
+                  <div className='relative'>
                     <div
                       onClick={() => coverInputRef.current?.click()}
                       className='relative h-32 w-full bg-muted rounded-lg overflow-hidden border cursor-pointer'
@@ -109,14 +132,14 @@ export function EditProfileForm() {
                           src={previews.cover.src}
                           alt='Cover'
                           fill
-                          className={`object-cover ${previews.cover.isLarge ? 'grayscale brightness-[0.3]' : ''}`}
+                          className={`object-cover ${previews.cover.isLarge ? 'grayscale brightness-[0.3]' : 'brightness-[0.7]'}`}
                           priority
                         />
                       ) : (
                         <div className='w-full h-full bg-neutral-200 dark:bg-neutral-800' />
                       )}
 
-                      <div className='absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity'>
+                      <div className='absolute inset-0 flex items-center justify-center bg-black/20 transition-opacity'>
                         <Camera className='text-white size-8 drop-shadow-lg' />
                       </div>
 
@@ -157,6 +180,7 @@ export function EditProfileForm() {
             )}
           />
 
+          {/* Profile Image Section */}
           <div className='relative -mt-12 px-4 mb-2 z-10'>
             <FormField
               control={form.control}
@@ -164,7 +188,7 @@ export function EditProfileForm() {
               render={({ field }) => (
                 <FormItem className='inline-block'>
                   <FormControl>
-                    <div className='relative group'>
+                    <div className='relative'>
                       <div
                         onClick={() => imageInputRef.current?.click()}
                         className='relative size-24 rounded-full border-4 border-background cursor-pointer overflow-hidden bg-muted'
@@ -172,10 +196,10 @@ export function EditProfileForm() {
                         <UserAvatar
                           image={previews.profile.src}
                           name={session.data?.user.name}
-                          className={`size-full ${previews.profile.isLarge ? 'grayscale brightness-[0.3]' : ''}`}
+                          className={`size-full ${previews.profile.isLarge ? 'grayscale brightness-[0.3]' : 'brightness-[0.7]'}`}
                         />
 
-                        <div className='absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity'>
+                        <div className='absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity'>
                           <Camera className='text-white size-6' />
                         </div>
 
@@ -273,11 +297,10 @@ export function EditProfileForm() {
 
             <div className='flex items-center justify-end gap-2'>
               <Button
-                type='button'
-                variant='ghost'
+                variant='secondary'
                 size='sm'
-                className='rounded-full px-4'
-                onClick={() => form.reset()}
+                className='px-4 w-24 rounded-full'
+                onClick={onClose}
                 disabled={isUpdating}
               >
                 Cancel
@@ -285,7 +308,7 @@ export function EditProfileForm() {
               <Button
                 type='submit'
                 size='sm'
-                className='rounded-full px-4 w-24'
+                className='px-4 w-24 rounded-full'
                 disabled={isUpdating || !isValid}
               >
                 {isUpdating ? <Spinner /> : <span>Save</span>}
