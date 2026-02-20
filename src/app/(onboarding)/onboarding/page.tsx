@@ -9,15 +9,13 @@ export default async function Page() {
   const usernames = generateSuggestions(user.name);
 
   return (
-    <Card className='w-full max-w-sm border-gray-200 bg-white shadow'>
+    <Card className='w-full max-w-sm border'>
       <CardHeader className='flex flex-col items-center justify-center'>
-        <div className='inline-flex size-14 items-center justify-center rounded-full bg-blue-100'>
-          <UserIcon className='h-7 w-7 text-blue-600' />
+        <div className='inline-flex size-14 items-center justify-center rounded-full bg-primary-foreground/90 dark:bg-primary-foreground/10'>
+          <UserIcon className='h-7 w-7 text-primary' />
         </div>
-        <h1 className='text-2xl font-semibold text-gray-900'>
-          Set Your Username
-        </h1>
-        <p className='text-gray-600'>Make it uniquely yours</p>
+        <h1 className='text-2xl font-semibold'>Set Your Username</h1>
+        <p className='text-muted-foreground'>Make it uniquely yours</p>
       </CardHeader>
 
       <UsernameForm

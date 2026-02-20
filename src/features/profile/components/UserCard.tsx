@@ -51,7 +51,7 @@ export function UserCard({
                 {user.name}
               </h2>
             </Link>
-            <span className='text-sm font-medium text-muted-foreground truncate'>
+            <span className='text-xs font-medium text-muted-foreground truncate'>
               @{user.username}
             </span>
           </div>

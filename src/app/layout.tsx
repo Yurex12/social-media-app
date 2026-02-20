@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-// import { Poppins } from 'next/font/google';
-import { Outfit } from 'next/font/google';
+import { Inter } from 'next/font/google';
 
 import './globals.css';
 import Providers from './Providers';
@@ -11,13 +10,7 @@ import { Toaster } from '@/components/ui/sonner';
 
 import { ThemeProvider } from '@/components/theme-provider';
 
-// const poppins = Poppins({
-//   subsets: ['latin'],
-//   variable: '--font-poppins',
-//   weight: '500',
-// });
-
-const outfit = Outfit({
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
 });
@@ -38,12 +31,12 @@ export default function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <body
-        className={`${outfit.className} antialiased h-screen overflow-y-scroll overflow-x-hidden`}
+        className={`${inter.className} antialiased h-screen overflow-y-scroll overflow-x-hidden`}
       >
         <ThemeProvider
           attribute='class'
-          defaultTheme='system'
-          enableSystem
+          defaultTheme='light'
+          enableSystem={false}
           disableTransitionOnChange
         >
           <Providers>

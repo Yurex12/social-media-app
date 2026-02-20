@@ -93,7 +93,7 @@ export function OnboardingProfileForm({ user }: { user: User }) {
                   <div className='relative group'>
                     <div
                       onClick={() => fileInputRef.current?.click()}
-                      className='relative h-24 w-24 sm:h-32 sm:w-32 rounded-full border-4 border-background cursor-pointer overflow-hidden shadow-sm ring-1 ring-border'
+                      className='relative h-24 w-24 sm:h-32 sm:w-32 rounded-full border cursor-pointer overflow-hidden shadow-sm'
                     >
                       <UserAvatar
                         image={previewUrl}

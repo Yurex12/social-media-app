@@ -1,13 +1,13 @@
-import { UserNavActions } from '@/features/profile/components/UserNavActions';
 import { ReactNode } from 'react';
 import { Header } from './Header';
 import { WhoToFollow } from '@/features/profile/components/WhoToFollow';
+import { ModeToggle } from './ModeToggle';
 
 export function RightSidebar({ children }: { children?: ReactNode }) {
   return (
-    <aside className='hidden xl:block space-y-4'>
+    <aside className='hidden xl:block space-y-4 h-dvh border-l sticky top-0'>
       <Header className='justify-end'>
-        <UserNavActions />
+        <ModeToggle />
       </Header>
 
       <div className='px-4 h-fit sticky top-20'>

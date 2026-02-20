@@ -14,7 +14,7 @@ export function SearchTabs() {
   ];
 
   return (
-    <div className='flex border-b border-gray-200 bg-background max-w-140 w-full mx-auto sticky top-12 sm:top-15 z-50'>
+    <div className='flex border-b bg-background max-w-140 w-full mx-auto sticky top-15 z-50'>
       {tabs.map((tab) => (
         <Link
           key={tab.value}

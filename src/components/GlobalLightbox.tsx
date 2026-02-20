@@ -14,9 +14,6 @@ export function GlobalLightBox() {
       index={photoIndex}
       slides={slides}
       controller={{ closeOnBackdropClick: true, closeOnPullDown: true }}
-      styles={{
-        container: { backgroundColor: 'rgba(0, 0, 0, 0.98)' },
-      }}
     />
   );
 }

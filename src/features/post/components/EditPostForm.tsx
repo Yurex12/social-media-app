@@ -164,7 +164,6 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
                         </Button>
                       </div>
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -177,9 +176,10 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
                     (!content.trim() && !images.length) ||
                     !isValid
                   }
-                  className='w-24'
+                  size='sm'
+                  className='w-18 rounded-full'
                 >
-                  {isUpdating ? <Spinner /> : 'Edit Post'}
+                  {isUpdating ? <Spinner /> : 'Edit'}
                 </Button>
               </div>
             </div>

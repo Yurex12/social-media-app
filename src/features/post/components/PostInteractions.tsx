@@ -69,7 +69,7 @@ export function PostInteractions() {
 
       {/* Right: Timestamp */}
       <div className='pr-2'>
-        <span className='text-[0.7rem] font-semibold uppercase tracking-wider text-muted-foreground/60'>
+        <span className='text-[0.7rem] font-semibold uppercase tracking-wider text-muted-foreground/60 dark:text-muted-foreground/70'>
           {postTimeStamp}
         </span>
       </div>

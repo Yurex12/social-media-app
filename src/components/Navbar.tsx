@@ -41,8 +41,8 @@ export default function Navbar() {
               key={href}
               href={finalHref}
               className={cn(
-                'flex items-center gap-3 rounded-full px-4 w-fit py-2 font-medium transition-colors hover:bg-primary/10 hover:text-primary',
-                isActive && 'bg-primary/20 text-primary dark:bg-primary/25',
+                'flex items-center gap-3 rounded-full px-4 w-fit py-2 font-medium transition-colors hover:bg-primary/20 ',
+                isActive && 'bg-primary/20  dark:bg-primary/25',
               )}
             >
               <div className='relative'>
@@ -62,7 +62,7 @@ export default function Navbar() {
       <div className='mt-auto'>
         <Button
           variant='ghost'
-          className='group justify-start rounded-full w-fit px-4 gap-3 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer'
+          className='group justify-start rounded-full w-fit px-4 gap-3 text-destructive hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/10 transition-colors cursor-pointer'
           onClick={async () => {
             await signOut({
               fetchOptions: {

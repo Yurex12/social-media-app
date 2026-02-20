@@ -12,6 +12,7 @@ export function GoogleLoginButton() {
       await signIn.social({
         provider: 'google',
         callbackURL: '/home',
+        newUserCallbackURL: '/onboarding',
         fetchOptions: {
           onError: (ctx) => {
             toast.error(ctx.error.message || 'Something went wrong');
@@ -24,7 +25,7 @@ export function GoogleLoginButton() {
   return (
     <Button
       variant='outline'
-      className='w-full'
+      className='w-full cursor-pointer'
       onClick={loginWithGoogle}
       disabled={isPending}
     >

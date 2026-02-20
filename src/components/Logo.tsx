@@ -7,14 +7,14 @@ function Logo({ className }: { className?: string }) {
       href='/'
       className={cn(
         'flex items-center gap-2 font-semibold text-primary',
-        className
+        className,
       )}
     >
       <span className='flex h-8 w-8 items-center justify-center rounded-md bg-primary text-white text-sm font-bold'>
-        Y
+        V
       </span>
 
-      <span className='text-lg tracking-tight'>Yusblog</span>
+      <span className='text-lg tracking-tight'>VOX</span>
     </Link>
   );
 }

@@ -30,7 +30,7 @@ export function ProfileHero() {
     if (window.innerWidth >= MOBILE_BREAK_POINT) {
       setOpenDialog(true);
     } else {
-      router.push(`settings/profile`);
+      router.push(`/settings/profile`);
     }
   }
 

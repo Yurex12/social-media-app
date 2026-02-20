@@ -20,7 +20,7 @@ export default function FollowingPage() {
 
   return (
     <div className='sm:px-4'>
-      <UserList {...queryState} emptyMessage='Not following anyone yet' />;
+      <UserList {...queryState} emptyMessage='Not following anyone yet' />
     </div>
   );
 }

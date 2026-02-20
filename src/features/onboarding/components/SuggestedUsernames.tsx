@@ -9,14 +9,14 @@ export function SuggestedUsernames({
 
   return (
     <div className='flex flex-wrap items-center gap-2'>
-      <span className='text-sm font-medium text-gray-500'>Suggestions:</span>
+      <span className='text-sm font-medium'>Suggestions:</span>
       <div className='flex flex-wrap gap-1'>
         {suggestions.map((suggestion, index) => (
           <button
             key={`${suggestion}-${index}`}
             type='button'
             onClick={() => onSelectUsername(suggestion)}
-            className='text-sm text-blue-600 hover:text-blue-800 hover:underline font-medium'
+            className='text-sm cursor-pointer text-primary hover:underline font-medium'
           >
             {suggestion}
             {index < suggestions.length - 1 ? ',' : ''}

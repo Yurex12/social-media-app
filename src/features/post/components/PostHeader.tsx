@@ -14,14 +14,14 @@ export function PostHeader() {
       >
         <UserAvatar image={user.image} name={user.name} className='shrink-0' />
 
-        <span className='flex flex-col min-w-0 flex-1'>
+        <div className='flex flex-col min-w-0 flex-1 gap-0.5'>
           <span className='font-semibold text-foreground/80 leading-none tracking-tight line-clamp-1 group-hover:underline'>
             {user.name}
           </span>
-          <span className='text-sm font-medium text-muted-foreground truncate'>
+          <span className='text-xs font-medium text-muted-foreground truncate'>
             @{user.username}
           </span>
-        </span>
+        </div>
       </Link>
 
       <PostOptions />

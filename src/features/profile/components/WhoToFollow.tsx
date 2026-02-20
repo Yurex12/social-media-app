@@ -35,7 +35,7 @@ export function WhoToFollow() {
   return (
     <div className='rounded-md border overflow-hidden'>
       <div className='px-4 pt-4 pb-2'>
-        <h2 className='text-xl font-bold tracking-tight'>Who to follow</h2>
+        <h2 className='text-lg font-semibold tracking-tight'>Who to follow</h2>
       </div>
 
       <div className='flex flex-col'>

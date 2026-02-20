@@ -67,23 +67,22 @@ export function UserList({
         ))}
       </div>
 
-      {(hasNextPage || isFetchingNextPage || isFetchNextPageError) && (
-        <div
-          ref={ref}
-          className='py-12 flex flex-col items-center justify-center border-t border-border/50'
-        >
-          {isFetchingNextPage && <Spinner className='size-6 text-primary' />}
-
-          {isFetchNextPageError && (
-            <button
-              onClick={() => fetchNextPage()}
-              className='text-sm text-primary hover:underline font-medium'
-            >
-              Retry loading users
-            </button>
-          )}
-        </div>
+      {hasNextPage && (
+        <div ref={ref} className='h-1 w-full' aria-hidden='true' />
       )}
+
+      <div className='flex flex-col items-center justify-center mb-20 sm:mb-0'>
+        {isFetchingNextPage && <Spinner className='size-6' />}
+
+        {isFetchNextPageError && !isFetchingNextPage && (
+          <button
+            onClick={() => fetchNextPage()}
+            className='text-sm text-primary font-medium px-4 py-2 bg-primary/5 hover:bg-primary/10 rounded-full transition-colors'
+          >
+            Tap to retry
+          </button>
+        )}
+      </div>
     </div>
   );
 }

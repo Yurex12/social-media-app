@@ -137,7 +137,7 @@ export function LoginForm() {
         />
 
         <Button type='submit' className='w-full' disabled={isLoginIn}>
-          {isLoginIn ? <Spinner /> : <span> Login</span>}
+          {isLoginIn ? <Spinner className='text-white' /> : <span> Login</span>}
         </Button>
       </form>
     </Form>

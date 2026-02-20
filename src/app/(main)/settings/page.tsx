@@ -14,7 +14,7 @@ export default async function Page() {
         </Header>
 
         <div className='flex items-center justify-center flex-col gap-4 sm:px-4 w-full'>
-          <SettingsPage />;
+          <SettingsPage />
         </div>
       </div>
 

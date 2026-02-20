@@ -170,7 +170,6 @@ export function CreatePost() {
                         </Button>
                       </div>
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
