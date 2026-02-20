@@ -17,12 +17,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | yusufblog',
-    default: 'yusufblog',
+    template: 'Vox',
+    absolute: 'Vox',
   },
-  description: 'Say your mind',
+  description: 'Your voice, amplified.',
 };
-
 export default function RootLayout({
   children,
 }: {
@@ -35,8 +34,8 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute='class'
-          defaultTheme='light'
-          enableSystem={false}
+          defaultTheme='system'
+          enableSystem
           disableTransitionOnChange
         >
           <Providers>

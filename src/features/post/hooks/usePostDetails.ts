@@ -14,6 +14,8 @@ export function usePostDetails(id: string) {
   const { isPending, error } = useQuery({
     queryKey: ['posts', id],
     enabled: !!id,
+    staleTime: 0,
+    gcTime: 1000 * 60 * 15,
     queryFn: async () => {
       const post = await getPostById(id);
 

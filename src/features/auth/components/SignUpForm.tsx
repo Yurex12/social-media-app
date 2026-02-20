@@ -2,6 +2,8 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 import { Button } from '@/components//ui/button';
 import {
@@ -17,15 +19,19 @@ import { signupSchema, SignupSchema } from '../schemas/SignupSchema';
 import { signUp } from '@/lib/auth-client';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { Spinner } from '@/components/ui/spinner';
 
 export function SignupForm() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const form = useForm<SignupSchema>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
-      email: 'yusuf@gmail.com',
-      password: 'Adeyemi@17',
-      name: 'Ekungomi yusuf',
-      confirmPassword: 'Adeyemi@17',
+      email: '',
+      password: '',
+      name: '',
+      confirmPassword: '',
     },
   });
 
@@ -45,6 +51,8 @@ export function SignupForm() {
     }
   }
 
+  const isSigningUp = form.formState.isSubmitting;
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onsubmit)} className='space-y-6'>
@@ -59,7 +67,7 @@ export function SignupForm() {
                   placeholder='john doe'
                   type='text'
                   {...field}
-                  disabled={form.formState.isSubmitting}
+                  disabled={isSigningUp}
                   className='py-4 shadow-none placeholder:text-sm'
                 />
               </FormControl>
@@ -78,7 +86,7 @@ export function SignupForm() {
                   placeholder='johndoe@gmail.com'
                   type='email'
                   {...field}
-                  disabled={form.formState.isSubmitting}
+                  disabled={isSigningUp}
                   className='py-4 shadow-none placeholder:text-sm'
                 />
               </FormControl>
@@ -93,13 +101,27 @@ export function SignupForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input
-                  placeholder='********'
-                  type='password'
-                  {...field}
-                  disabled={form.formState.isSubmitting}
-                  className='py-4 shadow-none placeholder:text-sm'
-                />
+                <div className='relative'>
+                  <Input
+                    placeholder='********'
+                    type={showPassword ? 'text' : 'password'}
+                    {...field}
+                    disabled={isSigningUp}
+                    className='py-4 pr-10 shadow-none placeholder:text-sm'
+                  />
+                  <button
+                    type='button'
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={isSigningUp}
+                    className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors'
+                  >
+                    {showPassword ? (
+                      <EyeOff className='h-4 w-4' />
+                    ) : (
+                      <Eye className='h-4 w-4' />
+                    )}
+                  </button>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -112,24 +134,38 @@ export function SignupForm() {
             <FormItem>
               <FormLabel>Confirm Password</FormLabel>
               <FormControl>
-                <Input
-                  placeholder='********'
-                  type='password'
-                  {...field}
-                  disabled={form.formState.isSubmitting}
-                  className='py-4 shadow-none placeholder:text-sm'
-                />
+                <div className='relative'>
+                  <Input
+                    placeholder='********'
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    {...field}
+                    disabled={isSigningUp}
+                    className='py-4 pr-10 shadow-none placeholder:text-sm'
+                  />
+                  <button
+                    type='button'
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    disabled={isSigningUp}
+                    className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors'
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className='h-4 w-4' />
+                    ) : (
+                      <Eye className='h-4 w-4' />
+                    )}
+                  </button>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button
-          type='submit'
-          className='w-full'
-          disabled={form.formState.isSubmitting}
-        >
-          Sign up
+        <Button type='submit' className='w-full' disabled={isSigningUp}>
+          {isSigningUp ? (
+            <Spinner className='text-white' />
+          ) : (
+            <span> Sign up</span>
+          )}
         </Button>
       </form>
     </Form>

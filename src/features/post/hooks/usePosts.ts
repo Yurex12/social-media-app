@@ -18,7 +18,10 @@ export function usePosts() {
   } = useInfiniteQuery({
     queryKey: ['posts', 'home'],
     initialPageParam: null as string | null,
-    // staleTime: 1000 * 60 * 5,
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     queryFn: async ({ pageParam }) => {
       const res = await getPosts(pageParam ?? undefined);
 

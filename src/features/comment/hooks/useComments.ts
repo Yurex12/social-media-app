@@ -19,7 +19,6 @@ export function useComments(postId: string) {
     queryKey: ['comments', postId],
     enabled: !!postId,
     staleTime: 0,
-    gcTime: 1000 * 60 * 5,
     queryFn: async ({ pageParam }) => {
       const res = await getComments(postId, pageParam ?? undefined);
 

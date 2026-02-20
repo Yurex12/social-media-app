@@ -10,10 +10,16 @@ import {
 } from '@/components/ui/card';
 import { LoginForm } from '@/features/auth/components/LoginForm';
 import { SocialLogin } from '@/features/auth/components/SocialLogin';
+import { getSession } from '@/lib/session';
+import { redirect } from 'next/navigation';
 
-export default function Page() {
+export default async function Page() {
+  const session = await getSession();
+
+  if (session?.user) redirect('/home');
+
   return (
-    <div className='flex h-svh flex-col items-center justify-center p-2'>
+    <div className='flex h-dvh flex-col items-center justify-center p-2'>
       <div className='flex w-full max-w-sm flex-col gap-6'>
         <Logo className='mx-auto' />
         <Card className='shadow-none'>

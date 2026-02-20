@@ -17,6 +17,8 @@ export function useBookmarks() {
     isFetchNextPageError,
   } = useInfiniteQuery({
     queryKey: ['posts', 'bookmarks'],
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 30,
     initialPageParam: null as string | null,
     queryFn: async ({ pageParam }) => {
       const res = await getBookmarks(pageParam ?? undefined);

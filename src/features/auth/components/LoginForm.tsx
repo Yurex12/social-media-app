@@ -2,8 +2,10 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
-import { Button } from '@/components//ui/button';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
@@ -23,16 +25,17 @@ import { toast } from 'sonner';
 import { LoginSchema, loginSchema } from '../schemas/LoginSchema';
 
 export function LoginForm() {
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      identifier: 'yusuf2@gmail.com',
-      password: 'Adeyemi@17',
-      rememberMe: false,
+      identifier: 'johndoe@gmail.con',
+      password: '12345678',
+      rememberMe: true,
     },
   });
-
-  const router = useRouter();
 
   async function handleSuccess() {
     toast.success('Login successful.');
@@ -103,13 +106,27 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input
-                  placeholder='********'
-                  type='password'
-                  {...field}
-                  disabled={isLoginIn}
-                  className='py-4 shadow-none placeholder:text-sm'
-                />
+                <div className='relative'>
+                  <Input
+                    placeholder='********'
+                    type={showPassword ? 'text' : 'password'}
+                    {...field}
+                    disabled={isLoginIn}
+                    className='py-4 pr-10 shadow-none placeholder:text-sm'
+                  />
+                  <button
+                    type='button'
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={isLoginIn}
+                    className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors'
+                  >
+                    {showPassword ? (
+                      <EyeOff className='h-4 w-4' />
+                    ) : (
+                      <Eye className='h-4 w-4' />
+                    )}
+                  </button>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -119,7 +136,7 @@ export function LoginForm() {
           control={form.control}
           name='rememberMe'
           render={({ field }) => (
-            <FormItem className='flex items-center'>
+            <FormItem className='flex items-center space-x-2 space-y-0'>
               <FormControl>
                 <Checkbox
                   id='rememberMe'
@@ -127,10 +144,12 @@ export function LoginForm() {
                   onCheckedChange={(checked) => field.onChange(checked)}
                   onBlur={field.onBlur}
                   disabled={isLoginIn}
-                  className='shadow-none'
+                  className='shadow-none dark:text-foreground'
                 />
               </FormControl>
-              <FormLabel htmlFor='rememberMe'>Remember me</FormLabel>
+              <FormLabel htmlFor='rememberMe' className='cursor-pointer'>
+                Remember me
+              </FormLabel>
               <FormMessage />
             </FormItem>
           )}
