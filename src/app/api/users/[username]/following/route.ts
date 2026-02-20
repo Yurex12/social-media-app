@@ -1,10 +1,9 @@
+import { LIMIT } from '@/constants';
 import { TFollowingFromBD, UserWithRelations } from '@/features/profile/types';
 import { Prisma } from '@/generated/prisma/client';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { NextRequest, NextResponse } from 'next/server';
-
-const LIMIT = 10;
 
 export async function GET(
   request: NextRequest,
@@ -21,7 +20,7 @@ export async function GET(
 
     const { searchParams } = new URL(request.url);
     const cursor = searchParams.get('cursor');
-    const limit = parseInt(searchParams.get('limit') || LIMIT.toString());
+    const limit = parseInt(searchParams.get('limit') || LIMIT);
 
     if (!username) {
       return NextResponse.json(

@@ -3,8 +3,7 @@ import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@/generated/prisma/client';
-
-const LIMIT = 10;
+import { LIMIT } from '@/constants';
 
 export async function GET(req: NextRequest) {
   try {
@@ -16,7 +15,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const query = decodeURIComponent(searchParams.get('q') || '').trim();
     const cursor = searchParams.get('cursor');
-    const limit = parseInt(searchParams.get('limit') || LIMIT.toString());
+    const limit = parseInt(searchParams.get('limit') || LIMIT);
 
     const userId = session.user.id;
 

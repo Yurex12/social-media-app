@@ -48,7 +48,7 @@ export function ProfileHero() {
       </div>
     );
 
-  if (!user) return <p>User not found</p>;
+  if (!user) return <p>Something went wrong</p>;
 
   return (
     <>

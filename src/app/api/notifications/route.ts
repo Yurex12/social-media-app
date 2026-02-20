@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { Prisma } from '@/generated/prisma/client';
-
-const LIMIT = '10';
+import { LIMIT } from '@/constants';
 
 export async function GET(req: NextRequest) {
   const session = await getSession();

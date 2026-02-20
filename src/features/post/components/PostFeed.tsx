@@ -43,16 +43,18 @@ export function PostFeed({
 
   if (isPending)
     return (
-      <div className='flex items-center justify-center'>
+      <div className='flex items-center justify-center mt-6'>
         <Spinner className='size-6' />
       </div>
     );
 
   if (error && !postIds?.length)
-    return <p className='mt-4 text-muted-foreground'>{error.message}</p>;
+    return <p className='mt-4 px-4 text-muted-foreground'>{error.message}</p>;
 
   if (!postIds?.length)
-    return <div className='mt-4 text-muted-foreground'>{emptyMessage}</div>;
+    return (
+      <div className='mt-4 px-4 text-muted-foreground'>{emptyMessage}</div>
+    );
 
   return (
     <div className='w-full'>

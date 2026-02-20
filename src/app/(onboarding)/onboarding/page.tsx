@@ -1,5 +1,5 @@
 import { Card, CardHeader } from '@/components/ui/card';
-import { UsernameForm } from '@/features/onboarding/components/UsernameForm';
+import { UpdateUsernameForm } from '@/features/settings/components/UpdateUsernameForm';
 import { getRequiredSession } from '@/lib/session';
 import { generateSuggestions } from '@/lib/suggestion';
 import { UserIcon } from 'lucide-react';
@@ -18,9 +18,11 @@ export default async function Page() {
         <p className='text-muted-foreground'>Make it uniquely yours</p>
       </CardHeader>
 
-      <UsernameForm
+      <UpdateUsernameForm
         currentUsername={user.username!}
         usernameSuggestions={usernames}
+        showSkip={true}
+        redirectUrl='/onboarding/details'
       />
     </Card>
   );

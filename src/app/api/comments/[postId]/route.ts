@@ -1,10 +1,9 @@
+import { LIMIT } from '@/constants';
 import { CommentWithRelations, TCommentFromBD } from '@/features/comment/types';
 import { Prisma } from '@/generated/prisma/client';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { NextRequest, NextResponse } from 'next/server';
-
-const LIMIT = 10;
 
 export async function GET(
   req: NextRequest,
@@ -18,7 +17,7 @@ export async function GET(
   const { searchParams } = new URL(req.url);
 
   const cursor = searchParams.get('cursor');
-  const limit = parseInt(searchParams.get('limit') || LIMIT.toString());
+  const limit = parseInt(searchParams.get('limit') || LIMIT);
   const userId = session.user.id;
 
   let whereClause: Prisma.CommentWhereInput = { postId };

@@ -5,8 +5,8 @@ import { getSession } from '@/lib/session';
 
 import { PostWithRelations, TPostFromDB } from '@/features/post/types';
 import { Prisma } from '@/generated/prisma/client';
+import { LIMIT } from '@/constants';
 
-const LIMIT = '10';
 export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session)

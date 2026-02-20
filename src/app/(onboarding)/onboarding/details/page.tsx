@@ -1,7 +1,8 @@
 import { Card, CardHeader } from '@/components/ui/card';
 import { UserIcon } from 'lucide-react';
-import { OnboardingProfileForm } from '@/features/onboarding/components/OnboardingProfileForm';
+
 import { getRequiredSession } from '@/lib/session';
+import { OnboardingProfileForm } from '@/features/profile/components/OnboardingProfileForm';
 
 export default async function Page() {
   const { user } = await getRequiredSession();

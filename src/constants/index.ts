@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
 
+export const LIMIT = '10';
+
 export const MIN_USERNAME_LENGTH = 4;
 export const MAX_USERNAME_LENGTH = 15;
 

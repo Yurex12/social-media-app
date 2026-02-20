@@ -20,27 +20,34 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 
-import { usernameSchema, UsernameSchema } from '../schemas/usernameSchema';
 import { CurrentUsername } from './CurrentUsername';
-import { SuggestedUsernames } from './SuggestedUsernames';
-import { isUsernameAvailable, updateUser } from '@/lib/auth-client';
-import { UsernameFormProps } from '../types';
-import { Spinner } from '@/components/ui/spinner';
 
-export function UsernameForm({
+import { isUsernameAvailable, updateUser, useSession } from '@/lib/auth-client';
+
+import { Spinner } from '@/components/ui/spinner';
+import { cn } from '@/lib/utils';
+import { UsernameFormProps } from '../types';
+import { UsernameFormValues, usernameSchema } from '../schema';
+import { SuggestedUsernames } from './SuggestedUsernames';
+
+export function UpdateUsernameForm({
   currentUsername,
   usernameSuggestions,
+  showSkip = false,
+  redirectUrl,
+  className,
 }: UsernameFormProps) {
   const router = useRouter();
+  const session = useSession();
 
   const [availability, setAvailability] = useState<
     'idle' | 'checking' | 'available' | 'taken'
   >('idle');
 
-  const form = useForm<UsernameSchema>({
+  const form = useForm<UsernameFormValues>({
     resolver: zodResolver(usernameSchema),
     mode: 'onChange',
-    defaultValues: { username: '' },
+    values: { username: '' },
   });
 
   const watchedUsername = useWatch({
@@ -86,7 +93,7 @@ export function UsernameForm({
     form.trigger('username');
   }
 
-  async function onSubmit({ username }: UsernameSchema) {
+  async function onSubmit({ username }: UsernameFormValues) {
     if (username.toLowerCase() === currentUsername?.toLowerCase()) {
       toast.error("That's already your current username!");
       return;
@@ -107,14 +114,15 @@ export function UsernameForm({
       return;
     }
 
+    session.refetch();
     toast.success('Username updated successfully!');
-    router.replace('/onboarding/details');
+    if (redirectUrl) router.replace(redirectUrl);
   }
 
   const isUpdating = form.formState.isSubmitting;
 
   return (
-    <CardContent className='space-y-6'>
+    <CardContent className={cn('space-y-6', className)}>
       <CurrentUsername username={currentUsername} />
 
       <Form {...form}>
@@ -187,20 +195,24 @@ export function UsernameForm({
               }
               className='w-full bg-linear-to-r from-blue-500 via-blue-600 to-indigo-700 text-white shadow-md transition-all hover:scale-[1.01] active:scale-100 cursor-pointer'
             >
-              {isUpdating ? <Spinner /> : null}
-
-              {isUpdating ? 'Updating' : ' Update Username'}
+              {isUpdating ? (
+                <Spinner className='text-white' />
+              ) : (
+                <span>Update Username</span>
+              )}
             </Button>
 
-            <Button
-              type='button'
-              variant='ghost'
-              className='w-full text-gray-500 hover:text-gray-800 cursor-pointer'
-              onClick={() => router.replace('/onboarding/details')}
-              disabled={isUpdating}
-            >
-              Skip for now
-            </Button>
+            {showSkip && (
+              <Button
+                type='button'
+                variant='ghost'
+                className='w-full text-muted-foreground cursor-pointer'
+                onClick={() => router.replace(redirectUrl || '/home')}
+                disabled={isUpdating}
+              >
+                Skip for now
+              </Button>
+            )}
           </div>
         </form>
       </Form>
