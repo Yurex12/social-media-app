@@ -21,36 +21,46 @@ export function MediaGallery({ images }: MediaGalleryProps) {
         imageLength === 1 ? 'grid-cols-1' : 'grid-cols-2',
       )}
     >
-      {images.map((image, i) => (
-        <div
-          key={image.id}
-          className={cn(
-            'relative bg-muted overflow-hidden',
-            // 1 image = auto height based on width. 2+ images = fixed uniform height.
-            imageLength === 1 ? 'w-full h-auto' : 'h-64 sm:h-80',
-          )}
-          // For 1 image, we use the DB width/height to set the box shape
-          style={
-            imageLength === 1
-              ? { aspectRatio: `${image.width} / ${image.height}` }
-              : {}
-          }
-        >
-          <Image
-            src={image.url}
-            alt={`Post image ${i + 1}`}
-            fill
-            className='object-cover cursor-pointer hover:opacity-95 transition-opacity'
-            onClick={(e) => {
-              e.stopPropagation();
-              openLightbox(i, images);
-            }}
-            // Priority for single images to prevent layout shift
-            priority={imageLength === 1}
-            sizes={imageLength === 1 ? '100vw' : '50vw'}
-          />
-        </div>
-      ))}
+      {images.map((image, i) => {
+        if (imageLength === 1) {
+          return (
+            <div key={image.id} className='bg-muted overflow-hidden'>
+              <Image
+                src={image.url}
+                alt={`Post image ${i + 1}`}
+                width={image.width}
+                height={image.height}
+                className='w-full h-auto object-cover cursor-pointer hover:opacity-95 transition-opacity'
+                priority
+                sizes='100vw'
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openLightbox(i, images);
+                }}
+              />
+            </div>
+          );
+        }
+
+        return (
+          <div
+            key={image.id}
+            className='relative h-64 sm:h-80 bg-muted overflow-hidden'
+          >
+            <Image
+              src={image.url}
+              alt={`Post image ${i + 1}`}
+              fill
+              className='object-cover cursor-pointer hover:opacity-95 transition-opacity'
+              sizes='50vw'
+              onClick={(e) => {
+                e.stopPropagation();
+                openLightbox(i, images);
+              }}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }

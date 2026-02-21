@@ -51,20 +51,9 @@ export function EditPostFormMobile() {
 
   useEffect(() => {
     if (post) {
-      textareaRef.current?.focus();
-      const length = textareaRef.current?.value.length || 0;
-      textareaRef.current?.setSelectionRange(length, length);
+      form.reset({ content: post.content || '', images: post.images });
     }
-  }, [post]);
-
-  useEffect(() => {
-    textareaRef.current?.focus();
-
-    if (textareaRef.current) {
-      const length = textareaRef.current.value.length;
-      textareaRef.current.setSelectionRange(length, length);
-    }
-  }, []);
+  }, [post, form]);
 
   const isEditing = form.formState.isSubmitting || isUpdating;
   const isValid = form.formState.isValid;
@@ -106,7 +95,7 @@ export function EditPostFormMobile() {
     );
   }
 
-  if (isPending && !post) {
+  if (isPending) {
     return (
       <div className='flex h-dvh items-center justify-center'>
         <Spinner className='size-6' />
@@ -114,7 +103,11 @@ export function EditPostFormMobile() {
     );
   }
 
-  if (error && !post) {
+  if (error) {
+    return <div className='p-4 text-center'>{error.message}</div>;
+  }
+
+  if (!post) {
     return <div className='p-4 text-center'>Post not found.</div>;
   }
 
@@ -158,7 +151,13 @@ export function EditPostFormMobile() {
                     <Textarea
                       {...field}
                       placeholder='Edit post...'
-                      className='min-h-6 resize-none border-none bg-transparent p-0 shadow-none focus-visible:ring-0  overflow-hidden'
+                      className='min-h-6 resize-none border-none bg-transparent p-0 shadow-none focus-visible:ring-0  overflow-hidden dark:bg-transparent'
+                      autoFocus
+                      onFocus={(e) => {
+                        const length = e.target.value.length;
+                        e.target.setSelectionRange(length, length);
+                        adjustHeight();
+                      }}
                       ref={(e) => {
                         field.ref(e);
                         textareaRef.current = e;

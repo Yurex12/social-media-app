@@ -68,7 +68,7 @@ export function SignupForm() {
                   type='text'
                   {...field}
                   disabled={isSigningUp}
-                  className='py-4 shadow-none placeholder:text-sm'
+                  className='py-5 shadow-none placeholder:text-sm'
                 />
               </FormControl>
               <FormMessage />
@@ -87,7 +87,7 @@ export function SignupForm() {
                   type='email'
                   {...field}
                   disabled={isSigningUp}
-                  className='py-4 shadow-none placeholder:text-sm'
+                  className='py-5 shadow-none placeholder:text-sm'
                 />
               </FormControl>
               <FormMessage />
@@ -107,7 +107,7 @@ export function SignupForm() {
                     type={showPassword ? 'text' : 'password'}
                     {...field}
                     disabled={isSigningUp}
-                    className='py-4 pr-10 shadow-none placeholder:text-sm'
+                    className='py-5 pr-10 shadow-none placeholder:text-sm'
                   />
                   <button
                     type='button'
@@ -140,7 +140,7 @@ export function SignupForm() {
                     type={showConfirmPassword ? 'text' : 'password'}
                     {...field}
                     disabled={isSigningUp}
-                    className='py-4 pr-10 shadow-none placeholder:text-sm'
+                    className='py-5 pr-10 shadow-none placeholder:text-sm'
                   />
                   <button
                     type='button'

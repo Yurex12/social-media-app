@@ -31,7 +31,7 @@ export function LoginForm() {
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      identifier: 'johndoe@gmail.con',
+      identifier: 'johndoe@gmail.com',
       password: '12345678',
       rememberMe: true,
     },
@@ -92,7 +92,7 @@ export function LoginForm() {
                   type='text'
                   {...field}
                   disabled={isLoginIn}
-                  className='py-4 shadow-none placeholder:text-sm'
+                  className='py-5 shadow-none placeholder:text-sm'
                 />
               </FormControl>
               <FormMessage />
@@ -112,7 +112,7 @@ export function LoginForm() {
                     type={showPassword ? 'text' : 'password'}
                     {...field}
                     disabled={isLoginIn}
-                    className='py-4 pr-10 shadow-none placeholder:text-sm'
+                    className='py-5 pr-10 shadow-none placeholder:text-sm'
                   />
                   <button
                     type='button'

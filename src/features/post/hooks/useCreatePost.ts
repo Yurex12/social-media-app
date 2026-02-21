@@ -46,6 +46,8 @@ export function useCreatePost() {
     },
 
     onSuccess(res) {
+      toast.success(res.message);
+
       const { post: normalizedPost, user: normalizedUser } = normalizePost(
         res.data,
       );

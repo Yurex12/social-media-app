@@ -2,26 +2,25 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ImageIcon } from 'lucide-react';
-import { ChangeEvent, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { ChangeEvent, useRef } from 'react';
 import { ControllerRenderProps, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 
-import { ImagePreviews } from './ImagePreviews';
 import { UserAvatar } from '@/features/profile/components/UserAvatar';
 import { useSession } from '@/lib/auth-client';
 import { useCreatePost } from '../hooks/useCreatePost';
 import { postSchema, type PostSchema } from '../schema';
+import { ImagePreviews } from './ImagePreviews';
 
 export function CreatePostFormMobile() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { createPost, isPending: isCreating } = useCreatePost();
   const session = useSession();
 
@@ -39,10 +38,6 @@ export function CreatePostFormMobile() {
 
   const isPosting = form.formState.isSubmitting || isCreating;
   const isValid = form.formState.isValid;
-
-  useEffect(() => {
-    textareaRef.current?.focus();
-  }, []);
 
   async function onSubmit(values: PostSchema) {
     createPost(values, {
@@ -113,12 +108,9 @@ export function CreatePostFormMobile() {
                     <Textarea
                       {...field}
                       placeholder='What’s happening?'
-                      className='min-h-6 bg-transparent dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0 text-lg overflow-hidden'
+                      className='min-h-6 bg-transparent dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
                       disabled={isPosting}
-                      ref={(e) => {
-                        field.ref(e);
-                        textareaRef.current = e;
-                      }}
+                      autoFocus
                       onChange={(e) => {
                         field.onChange(e);
                         e.target.style.height = 'inherit';

@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <body
-        className={`${inter.className} antialiased h-screen overflow-y-scroll overflow-x-hidden`}
+        className={`${inter.className} antialiased h-dvh overflow-y-scroll overflow-x-hidden`}
       >
         <ThemeProvider
           attribute='class'

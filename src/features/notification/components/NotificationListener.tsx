@@ -1,15 +1,17 @@
 'use client';
-
-import { useEntityStore } from '@/entities/store';
-import { CommentResponse } from '@/features/comment/types';
-import { UserAvatar } from '@/features/profile/components/UserAvatar';
-import { NotificationType } from '@/generated/prisma/enums';
-import { useSession } from '@/lib/auth-client';
-import { pusherClient } from '@/lib/pusher';
-import { InfiniteData, useQueryClient } from '@tanstack/react-query';
-import { Heart, MessageCircle, UserPlus } from 'lucide-react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import { useSession } from '@/lib/auth-client';
+import { InfiniteData, useQueryClient } from '@tanstack/react-query';
+import { Heart, MessageCircle, UserPlus } from 'lucide-react';
+
+import { pusherClient } from '@/lib/pusher';
+
+import { useEntityStore } from '@/entities/store';
+import { UserAvatar } from '@/features/profile/components/UserAvatar';
+
+import { NotificationType } from '@/generated/prisma/enums';
+import { CommentResponse } from '@/features/comment/types';
 import { NotificationData } from '../types';
 
 export function NotificationListener() {
@@ -22,7 +24,9 @@ export function NotificationListener() {
     (state) => state.incrementPostCount,
   );
 
-  const incUserCount = useEntityStore((state) => state.incrementUserCount);
+  const incrementUserCount = useEntityStore(
+    (state) => state.incrementUserCount,
+  );
 
   useEffect(() => {
     if (!userId) return;
@@ -44,7 +48,7 @@ export function NotificationListener() {
         refetchType: 'active',
       });
 
-      if (data.type === 'FOLLOW') incUserCount(userId, 'followersCount');
+      if (data.type === 'FOLLOW') incrementUserCount(userId, 'followersCount');
 
       if (data.type === 'LIKE_POST' && data.postId)
         incrementPostCount(data.postId, 'likesCount');
@@ -130,7 +134,7 @@ export function NotificationListener() {
     return () => {
       pusherClient.unsubscribe(`user-${userId}`);
     };
-  }, [userId, queryClient]);
+  }, [userId, queryClient, incrementUserCount, incrementPostCount]);
 
   return null;
 }
