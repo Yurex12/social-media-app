@@ -1,22 +1,16 @@
 'use client';
 
+import { useEntityStore } from '@/entities/store';
+import { CommentResponse } from '@/features/comment/types';
 import { UserAvatar } from '@/features/profile/components/UserAvatar';
 import { NotificationType } from '@/generated/prisma/enums';
 import { useSession } from '@/lib/auth-client';
 import { pusherClient } from '@/lib/pusher';
-import { useQueryClient } from '@tanstack/react-query';
+import { InfiniteData, useQueryClient } from '@tanstack/react-query';
 import { Heart, MessageCircle, UserPlus } from 'lucide-react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
-
-type Data = {
-  type: NotificationType;
-  commentId?: string;
-  issuerId: string;
-  postId?: string;
-  name: string;
-  image: string;
-};
+import { NotificationData } from '../types';
 
 export function NotificationListener() {
   const session = useSession();
@@ -24,12 +18,18 @@ export function NotificationListener() {
 
   const queryClient = useQueryClient();
 
+  const incrementPostCount = useEntityStore(
+    (state) => state.incrementPostCount,
+  );
+
+  const incUserCount = useEntityStore((state) => state.incrementUserCount);
+
   useEffect(() => {
     if (!userId) return;
 
     const channel = pusherClient.subscribe(`user-${userId}`);
 
-    channel.bind('new-notification', async (data: Data) => {
+    channel.bind('new-notification', async (data: NotificationData) => {
       await queryClient.cancelQueries({
         queryKey: ['notifications', 'unread-count'],
       });
@@ -43,6 +43,34 @@ export function NotificationListener() {
         queryKey: ['notifications'],
         refetchType: 'active',
       });
+
+      if (data.type === 'FOLLOW') incUserCount(userId, 'followersCount');
+
+      if (data.type === 'LIKE_POST' && data.postId)
+        incrementPostCount(data.postId, 'likesCount');
+
+      if (data.type === 'COMMENT_POST' && data.postId)
+        incrementPostCount(data.postId, 'commentsCount');
+
+      if (data.type === 'LIKE_COMMENT' && data.commentId && data.postId) {
+        queryClient.setQueryData<InfiniteData<CommentResponse>>(
+          ['comments', data.postId],
+          (oldData) => {
+            if (!oldData) return oldData;
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                comments: page.comments.map((comment) =>
+                  comment.id === data.commentId
+                    ? { ...comment, likesCount: comment.likesCount + 1 }
+                    : comment,
+                ),
+              })),
+            };
+          },
+        );
+      }
 
       const config: Record<
         NotificationType,

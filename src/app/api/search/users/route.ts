@@ -1,7 +1,8 @@
 import { NextResponse, NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
-import { TUserFromDB, UserWithRelations } from '@/features/profile/types';
+import { UserFromDB, User } from '@/features/profile/types';
+import { getUserSelect } from '@/lib/prisma-fragments';
 import { Prisma } from '@/generated/prisma/client';
 import { LIMIT } from '@/constants';
 
@@ -50,41 +51,26 @@ export async function GET(req: NextRequest) {
       take: limit + 1,
       where: whereClause,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      select: {
-        id: true,
-        name: true,
-        image: true,
-        username: true,
-        createdAt: true,
-        bio: true,
-        coverImage: true,
-        _count: {
-          select: { followers: true, following: true, posts: true },
-        },
-        followers: {
-          where: { followerId: userId },
-          select: { followerId: true },
-        },
-        following: {
-          where: { followingId: userId },
-          select: { followingId: true },
-        },
-      },
-    })) as unknown as TUserFromDB[];
+      select: getUserSelect(userId),
+    })) as unknown as UserFromDB[];
 
     const hasNextPage = users.length > limit;
     const usersToReturn = hasNextPage ? users.slice(0, -1) : users;
     const lastUser = usersToReturn[usersToReturn.length - 1];
 
-    const transformedUsers = usersToReturn.map((user) => ({
-      ...user,
-      isFollowing: user.followers.length > 0,
-      followsYou: user.following.length > 0,
-      isCurrentUser: user.id === userId,
-      followersCount: user._count.followers,
-      followingCount: user._count.following,
-      postsCount: user._count.posts,
-    })) satisfies UserWithRelations[];
+    const transformedUsers = usersToReturn.map((user) => {
+      const { followers, following, _count, ...restUser } = user;
+
+      return {
+        ...restUser,
+        isFollowing: followers.length > 0,
+        followsYou: following.length > 0,
+        isCurrentUser: restUser.id === userId,
+        followersCount: _count.followers,
+        followingCount: _count.following,
+        postsCount: _count.posts,
+      };
+    }) satisfies User[];
 
     return NextResponse.json({
       users: transformedUsers,

@@ -1,35 +1,11 @@
 import { Prisma } from '@/generated/prisma/client';
+import { getUserSelect } from '@/lib/prisma-fragments';
 
-export type TUserFromDB = Prisma.UserGetPayload<{
-  select: {
-    id: true;
-    name: true;
-    image: true;
-    username: true;
-    createdAt: true;
-    coverImage: true;
-    bio: true;
-    followers: {
-      select: {
-        followerId: true;
-      };
-    };
-    following: {
-      select: {
-        followingId: true;
-      };
-    };
-    _count: {
-      select: {
-        followers: true;
-        following: true;
-        posts: true;
-      };
-    };
-  };
+export type UserFromDB = Prisma.UserGetPayload<{
+  select: ReturnType<typeof getUserSelect>;
 }>;
 
-export type UserWithRelations = TUserFromDB & {
+export type User = Omit<UserFromDB, 'followers' | 'following' | '_count'> & {
   isCurrentUser: boolean;
   isFollowing: boolean;
   followsYou: boolean;
@@ -38,98 +14,19 @@ export type UserWithRelations = TUserFromDB & {
   postsCount: number;
 };
 
-export type TPostLikeFromDB = Prisma.PostLikeGetPayload<{
-  include: {
-    post: {
-      include: {
-        user: {
-          select: {
-            id: true;
-            name: true;
-            image: true;
-            username: true;
-            createdAt: true;
-            bio: true;
-            coverImage: true;
-            _count: {
-              select: { followers: true; following: true; posts: true };
-            };
-            followers: {
-              select: { followerId: true };
-            };
-            following: {
-              select: { followingId: true };
-            };
-          };
-        };
-        images: { select: { id: true; url: true; fileId: true } };
-        postLikes: { select: { id: true } };
-        bookmarks: { select: { id: true } };
-        _count: { select: { postLikes: true; comments: true } };
-      };
-    };
+export type FollowerFromDB = Prisma.FollowGetPayload<{
+  select: {
+    createdAt: true;
+    followerId: true;
+    follower: { select: ReturnType<typeof getUserSelect> };
   };
 }>;
 
-export type TFollowersFromBD = Prisma.FollowGetPayload<{
-  include: {
-    follower: {
-      select: {
-        id: true;
-        name: true;
-        username: true;
-        image: true;
-        bio: true;
-        createdAt: true;
-        coverImage: true;
-        followers: {
-          where: { followerId: 'some-user-id' };
-          select: { followerId: true };
-        };
-        following: {
-          where: { followingId: 'some-user-id' };
-          select: { followingId: true };
-        };
-        _count: {
-          select: {
-            posts: true;
-            followers: true;
-            following: true;
-          };
-        };
-      };
-    };
-  };
-}>;
-
-export type TFollowingFromBD = Prisma.FollowGetPayload<{
-  include: {
-    following: {
-      select: {
-        id: true;
-        name: true;
-        username: true;
-        image: true;
-        bio: true;
-        createdAt: true;
-        coverImage: true;
-        followers: {
-          where: { followerId: 'some-user-id' };
-          select: { followerId: true };
-        };
-        following: {
-          where: { followingId: 'some-user-id' };
-          select: { followingId: true };
-        };
-        _count: {
-          select: {
-            posts: true;
-            followers: true;
-            following: true;
-          };
-        };
-      };
-    };
+export type FollowingFromDB = Prisma.FollowGetPayload<{
+  select: {
+    createdAt: true;
+    followingId: true;
+    following: { select: ReturnType<typeof getUserSelect> };
   };
 }>;
 
@@ -140,7 +37,7 @@ export interface AuthorCardProps {
 }
 
 export interface UserResponse {
-  users: UserWithRelations[];
+  users: User[];
   nextCursor: string | null;
 }
 

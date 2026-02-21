@@ -1,5 +1,7 @@
-import { PostWithRelations, TPostFromDB } from '@/features/post/types';
+import { Post, PostFromDB } from '@/features/post/types';
+
 import prisma from '@/lib/prisma';
+import { getPostSelect } from '@/lib/prisma-fragments';
 import { getSession } from '@/lib/session';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -12,73 +14,42 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
-
   const userId = session.user.id;
 
   try {
     const post = (await prisma.post.findUnique({
       where: { id },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            username: true,
-            bio: true,
-            createdAt: true,
-            coverImage: true,
-            _count: {
-              select: { followers: true, following: true, posts: true },
-            },
-            followers: {
-              where: { followerId: userId },
-              select: { followerId: true },
-            },
-            following: {
-              where: { followingId: userId },
-              select: { followingId: true },
-            },
-          },
-        },
-        images: { select: { id: true, url: true, fileId: true } },
-
-        postLikes: {
-          where: { userId },
-          select: { id: true },
-        },
-
-        bookmarks: {
-          where: { userId },
-          select: { id: true },
-        },
-
-        _count: {
-          select: { postLikes: true, comments: true },
-        },
-      },
-    })) as TPostFromDB;
+      select: getPostSelect(userId),
+    })) as unknown as PostFromDB | null;
 
     if (!post) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
 
+    const {
+      postLikes,
+      bookmarks,
+      _count,
+      user: { followers, following, _count: userCount, ...restUser },
+      ...restPost
+    } = post;
+
     const transformedPost = {
-      ...post,
-      isBookmarked: post.bookmarks.length > 0,
-      isLiked: post.postLikes.length > 0,
-      likesCount: post._count.postLikes,
-      commentsCount: post._count.comments,
+      ...restPost,
+      isBookmarked: bookmarks.length > 0,
+      isLiked: postLikes.length > 0,
+      likesCount: _count.postLikes,
+      commentsCount: _count.comments,
       user: {
-        ...post.user,
-        isFollowing: post.user.followers.length > 0,
-        followsYou: post.user.following.length > 0,
-        isCurrentUser: post.userId === userId,
-        followersCount: post.user._count.followers,
-        followingCount: post.user._count.following,
-        postsCount: post.user._count.posts,
+        ...restUser,
+        isFollowing: followers.length > 0,
+        followsYou: following.length > 0,
+        isCurrentUser: restUser.id === userId,
+        followersCount: userCount.followers,
+        followingCount: userCount.following,
+        postsCount: userCount.posts,
       },
-    } satisfies PostWithRelations;
+    } satisfies Post;
 
     return NextResponse.json(transformedPost);
   } catch {

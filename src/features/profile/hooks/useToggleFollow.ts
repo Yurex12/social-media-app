@@ -1,3 +1,5 @@
+'use client';
+
 import { useEntityStore } from '@/entities/store';
 import { useSession } from '@/lib/auth-client';
 import { ActionError } from '@/types';
@@ -8,12 +10,19 @@ import { toggleFollowAction } from '../action';
 export function useToggleFollow() {
   const updateUser = useEntityStore((state) => state.updateUser);
   const removeUser = useEntityStore((state) => state.removeUser);
+  const incrementUserCount = useEntityStore(
+    (state) => state.incrementUserCount,
+  );
+  const decrementUserCount = useEntityStore(
+    (state) => state.decrementUserCount,
+  );
+
   const session = useSession();
   const currentUserId = session.data?.user.id;
 
   const { mutate: toggleFollow } = useMutation({
-    mutationFn: async (postId: string) => {
-      const res = await toggleFollowAction(postId);
+    mutationFn: async (followingId: string) => {
+      const res = await toggleFollowAction(followingId);
       if (!res.success)
         throw { code: res.error, message: res.message } as ActionError;
       return res;
@@ -34,19 +43,18 @@ export function useToggleFollow() {
 
       const isFollowing = !targetUser.isFollowing;
 
-      updateUser(followingId, {
-        isFollowing,
-        followersCount: isFollowing
-          ? targetUser.followersCount + 1
-          : Math.max(0, targetUser.followersCount - 1),
-      });
+      updateUser(followingId, { isFollowing });
 
-      if (currentUser && currentUserId) {
-        updateUser(currentUserId, {
-          followingCount: isFollowing
-            ? currentUser.followingCount + 1
-            : Math.max(0, currentUser.followingCount - 1),
-        });
+      if (isFollowing) {
+        incrementUserCount(followingId, 'followersCount');
+        if (currentUserId && currentUser) {
+          incrementUserCount(currentUserId, 'followingCount');
+        }
+      } else {
+        decrementUserCount(followingId, 'followersCount');
+        if (currentUserId && currentUser) {
+          decrementUserCount(currentUserId, 'followingCount');
+        }
       }
 
       return { previousTarget, previousMe };

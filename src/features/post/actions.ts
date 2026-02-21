@@ -13,11 +13,12 @@ import {
 
 import { Prisma } from '@/generated/prisma/client';
 import { ActionResponse } from '@/types';
-import { PostWithRelations } from './types';
+import { Post, PostFromDB } from './types';
+import { getPostSelect } from '@/lib/prisma-fragments';
 
 export async function createPostAction(
   data: PostServerSchema,
-): Promise<ActionResponse<PostWithRelations>> {
+): Promise<ActionResponse<Post>> {
   const result = postServerSchema.safeParse(data);
 
   if (!result.success) {
@@ -47,10 +48,12 @@ export async function createPostAction(
       ? images.map((image) => ({
           url: image.url,
           fileId: image.fileId,
+          width: image.width,
+          height: image.height,
         }))
       : [];
 
-    const post = await prisma.post.create({
+    const post = (await prisma.post.create({
       data: {
         content,
         images: {
@@ -64,62 +67,33 @@ export async function createPostAction(
           },
         },
       },
-      include: {
-        _count: {
-          select: { postLikes: true, comments: true },
-        },
-        images: { select: { id: true, url: true, fileId: true } },
+      select: getPostSelect(userId),
+    })) as unknown as PostFromDB;
 
-        postLikes: {
-          where: { userId },
-          select: { id: true },
-        },
-
-        bookmarks: {
-          where: { userId },
-          select: { id: true },
-        },
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            username: true,
-            createdAt: true,
-            coverImage: true,
-            bio: true,
-            _count: {
-              select: { followers: true, following: true, posts: true },
-            },
-            followers: {
-              where: { followerId: userId },
-              select: { followerId: true },
-            },
-            following: {
-              where: { followingId: userId },
-              select: { followingId: true },
-            },
-          },
-        },
-      },
-    });
+    const {
+      postLikes,
+      bookmarks,
+      _count,
+      user: { followers, following, _count: userCount, ...restUser },
+      ...restPost
+    } = post;
 
     const transformedPost = {
-      ...post,
-      isBookmarked: post.bookmarks.length > 0,
-      isLiked: post.postLikes.length > 0,
-      likesCount: post._count.postLikes,
-      commentsCount: post._count.comments,
+      ...restPost,
+      isBookmarked: bookmarks.length > 0,
+      isLiked: postLikes.length > 0,
+      likesCount: _count.postLikes,
+      commentsCount: _count.comments,
       user: {
-        ...post.user,
-        isFollowing: post.user.followers.length > 0,
-        followsYou: post.user.following.length > 0,
-        isCurrentUser: post.userId === userId,
-        followersCount: post.user._count.followers,
-        followingCount: post.user._count.following,
-        postsCount: post.user._count.posts,
+        ...restUser,
+        isFollowing: followers.length > 0,
+        followsYou: following.length > 0,
+        isCurrentUser: restUser.id === userId,
+        followersCount: userCount.followers,
+        followingCount: userCount.following,
+        postsCount: userCount.posts,
       },
-    } satisfies PostWithRelations;
+    } satisfies Post;
 
     return {
       success: true,
@@ -138,7 +112,7 @@ export async function createPostAction(
 export async function editPostAction(
   postId: string,
   data: PostEditServerSchema,
-): Promise<ActionResponse<PostWithRelations>> {
+): Promise<ActionResponse<Post>> {
   const result = postEditServerSchema.safeParse(data);
 
   if (!result.success) {
@@ -195,7 +169,7 @@ export async function editPostAction(
           });
         }
 
-        const updatedPost = await tx.post.update({
+        const updatedPost = (await tx.post.update({
           where: { id: postId },
           data: {
             content,
@@ -204,66 +178,39 @@ export async function editPostAction(
                 data: images.map((img) => ({
                   url: img.url,
                   fileId: img.fileId,
+                  height: img.height,
+                  width: img.width,
                 })),
               },
             },
           },
-          include: {
-            _count: {
-              select: { postLikes: true, comments: true },
-            },
-            images: { select: { id: true, url: true, fileId: true } },
+          select: getPostSelect(userId),
+        })) as unknown as PostFromDB;
 
-            postLikes: {
-              where: { userId },
-              select: { id: true },
-            },
-
-            bookmarks: {
-              where: { userId },
-              select: { id: true },
-            },
-            user: {
-              select: {
-                id: true,
-                name: true,
-                image: true,
-                username: true,
-                createdAt: true,
-                coverImage: true,
-                bio: true,
-                _count: {
-                  select: { followers: true, following: true, posts: true },
-                },
-                followers: {
-                  where: { followerId: userId },
-                  select: { followerId: true },
-                },
-                following: {
-                  where: { followingId: userId },
-                  select: { followingId: true },
-                },
-              },
-            },
-          },
-        });
+        const {
+          postLikes,
+          bookmarks,
+          _count,
+          user: { followers, following, _count: userCount, ...restUser },
+          ...restPost
+        } = updatedPost;
 
         return {
-          ...updatedPost,
-          isBookmarked: updatedPost.bookmarks.length > 0,
-          isLiked: updatedPost.postLikes.length > 0,
-          likesCount: updatedPost._count.postLikes,
-          commentsCount: updatedPost._count.comments,
+          ...restPost,
+          isBookmarked: bookmarks.length > 0,
+          isLiked: postLikes.length > 0,
+          likesCount: _count.postLikes,
+          commentsCount: _count.comments,
           user: {
-            ...updatedPost.user,
-            isFollowing: updatedPost.user.followers.length > 0,
-            followsYou: updatedPost.user.following.length > 0,
-            isCurrentUser: updatedPost.userId === userId,
-            followersCount: updatedPost.user._count.followers,
-            followingCount: updatedPost.user._count.following,
-            postsCount: updatedPost.user._count.posts,
+            ...restUser,
+            isFollowing: followers.length > 0,
+            followsYou: following.length > 0,
+            isCurrentUser: restUser.id === userId,
+            followersCount: userCount.followers,
+            followingCount: userCount.following,
+            postsCount: userCount.posts,
           },
-        } satisfies PostWithRelations;
+        } satisfies Post;
       },
       { timeout: 10_000 },
     );

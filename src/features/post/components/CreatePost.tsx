@@ -90,9 +90,7 @@ export function CreatePost() {
   function removeImage(id: number) {
     const newImgs = [...images];
     newImgs.splice(id, 1);
-    form.setValue('images', newImgs);
-
-    form.trigger();
+    form.setValue('images', newImgs, { shouldValidate: true });
   }
 
   return (

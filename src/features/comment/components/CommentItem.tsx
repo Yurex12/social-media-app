@@ -7,9 +7,9 @@ import { formatDate } from '@/lib/helpers';
 import { useConfirmDialogStore } from '@/store/useConfirmDialogStore';
 import { useDeleteComment } from '../hooks/useDeleteComment';
 import { useToggleCommentLike } from '../hooks/useToggleCommentLike';
-import { CommentWithRelations } from '../types';
+import { Comment } from '../types';
 
-export function CommentItem({ comment }: { comment: CommentWithRelations }) {
+export function CommentItem({ comment }: { comment: Comment }) {
   const { toggleCommentLike } = useToggleCommentLike();
   const { deleteComment } = useDeleteComment();
 

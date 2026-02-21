@@ -8,7 +8,7 @@ import { ActionResponse } from '@/types';
 
 import { deleteImages } from '@/lib/action';
 import { editProfileServerSchema, EditProfileServerSchema } from './schema';
-import { UserWithRelations } from './types';
+import { User } from './types';
 
 export async function toggleFollowAction(
   followingId: string,
@@ -120,7 +120,7 @@ export async function toggleFollowAction(
 
 export async function editProfileAction(
   values: EditProfileServerSchema,
-): Promise<ActionResponse<UserWithRelations>> {
+): Promise<ActionResponse<User>> {
   try {
     const session = await getSession();
 
@@ -195,7 +195,7 @@ export async function editProfileAction(
       followersCount: updatedUser._count.followers,
       followingCount: updatedUser._count.following,
       postsCount: updatedUser._count.posts,
-    } satisfies UserWithRelations;
+    } satisfies User;
 
     try {
       const idsToDelete: string[] = [];

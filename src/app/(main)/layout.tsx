@@ -4,7 +4,7 @@ import { getRequiredSession } from '@/lib/session';
 
 import { Sidebar } from '@/components/Sidebar';
 import { MobileNavbar } from '@/components/MobileNavbar';
-import { MobileCreatePostButton } from '@/components/MobileCreatePostButton';
+import { MobileCreatePostButton } from '@/features/post/components/MobileCreatePostButton';
 
 export default async function MainLayout({
   children,

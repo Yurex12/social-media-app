@@ -1,4 +1,4 @@
-import { Prisma } from '@/generated/prisma/client';
+import { NotificationType, Prisma } from '@/generated/prisma/client';
 
 export type NotificationWithRelations = Prisma.NotificationGetPayload<{
   include: {
@@ -11,3 +11,12 @@ export type NotificationWithRelations = Prisma.NotificationGetPayload<{
     };
   };
 }>;
+
+export type NotificationData = {
+  type: NotificationType;
+  commentId?: string;
+  issuerId: string;
+  postId?: string;
+  name: string;
+  image: string;
+};

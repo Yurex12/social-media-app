@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { PostFeedResponse, PostWithRelations } from './types';
+import { PostFeedResponse, Post } from './types';
 
 export async function getPosts(cursor?: string) {
   try {
@@ -17,7 +17,7 @@ export async function getPosts(cursor?: string) {
 
 export async function getPostById(postId: string) {
   try {
-    const post = await axios.get<PostWithRelations>(`/api/posts/${postId}`);
+    const post = await axios.get<Post>(`/api/posts/${postId}`);
     return post.data;
   } catch (error: unknown) {
     console.log(error);

@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 
-import { PostWithRelations, TPostFromDB } from '@/features/post/types';
+import prisma from '@/lib/prisma';
+import { getPostSelect } from '@/lib/prisma-fragments';
 import { Prisma } from '@/generated/prisma/client';
+import { PostFromDB, Post } from '@/features/post/types';
+
 import { LIMIT } from '@/constants';
 
 export async function GET(req: NextRequest) {
@@ -39,49 +41,10 @@ export async function GET(req: NextRequest) {
   try {
     const posts = (await prisma.post.findMany({
       take: limit + 1,
-
       where: whereClause,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            username: true,
-            createdAt: true,
-            bio: true,
-            coverImage: true,
-            _count: {
-              select: { followers: true, following: true, posts: true },
-            },
-            followers: {
-              where: { followerId: userId },
-              select: { followerId: true },
-            },
-            following: {
-              where: { followerId: userId },
-              select: { followerId: true },
-            },
-          },
-        },
-        images: { select: { id: true, url: true, fileId: true } },
-
-        postLikes: {
-          where: { userId },
-          select: { id: true },
-        },
-
-        bookmarks: {
-          where: { userId },
-          select: { id: true },
-        },
-
-        _count: {
-          select: { postLikes: true, comments: true },
-        },
-      },
-    })) as TPostFromDB[];
+      select: getPostSelect(userId),
+    })) as unknown as PostFromDB[];
 
     const hasNextPage = posts.length > limit;
     const postToReturn = hasNextPage ? posts.slice(0, -1) : posts;
@@ -89,23 +52,31 @@ export async function GET(req: NextRequest) {
     const lastPost = postToReturn[postToReturn.length - 1];
 
     const transformedPosts = postToReturn.map((post) => {
+      const {
+        postLikes,
+        bookmarks,
+        _count,
+        user: { followers, following, _count: userCount, ...restUser },
+        ...restPost
+      } = post;
+
       return {
-        ...post,
+        ...restPost,
         user: {
-          ...post.user,
-          isFollowing: post.user.followers.length > 0,
-          followsYou: post.user.following.length > 0,
-          isCurrentUser: post.user.id === userId,
-          followersCount: post.user._count.followers,
-          followingCount: post.user._count.following,
-          postsCount: post.user._count.posts,
+          ...restUser,
+          isFollowing: followers.length > 0,
+          followsYou: following.length > 0,
+          isCurrentUser: restUser.id === userId,
+          followersCount: userCount.followers,
+          followingCount: userCount.following,
+          postsCount: userCount.posts,
         },
-        isBookmarked: post.bookmarks.length > 0,
-        isLiked: post.postLikes.length > 0,
-        likesCount: post._count.postLikes,
-        commentsCount: post._count.comments,
+        isBookmarked: bookmarks.length > 0,
+        isLiked: postLikes.length > 0,
+        likesCount: _count.postLikes,
+        commentsCount: _count.comments,
       };
-    }) satisfies PostWithRelations[];
+    }) satisfies Post[];
 
     return NextResponse.json({
       posts: transformedPosts,
@@ -120,8 +91,3 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-
-// ...(cursor && {
-//   cursor: { id: cursor },
-//   skip: 1,
-// }),

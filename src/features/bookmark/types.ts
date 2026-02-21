@@ -1,29 +1,10 @@
 import { Prisma } from '@/generated/prisma/client';
+import { getPostSelect } from '@/lib/prisma-fragments';
 
-export type TBookmarkFromDB = Prisma.BookmarkGetPayload<{
-  include: {
-    post: {
-      include: {
-        user: {
-          select: {
-            id: true;
-            name: true;
-            image: true;
-            username: true;
-            bio: true;
-            createdAt: true;
-            coverImage: true;
-            _count: {
-              select: { followers: true; following: true; posts: true };
-            };
-            followers: { select: { followerId: true } };
-            following: { select: { followingId: true } };
-          };
-        };
-        images: { select: { id: true; url: true; fileId: true } };
-        postLikes: { select: { id: true } };
-        _count: { select: { postLikes: true; comments: true } };
-      };
-    };
+export type BookmarkFromDB = Prisma.BookmarkGetPayload<{
+  select: {
+    id: true;
+    createdAt: true;
+    post: { select: ReturnType<typeof getPostSelect> };
   };
 }>;

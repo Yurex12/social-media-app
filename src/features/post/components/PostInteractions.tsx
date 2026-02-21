@@ -24,7 +24,7 @@ export function PostInteractions() {
             toggleLike(post.id);
           }}
           className={cn(
-            'group flex items-center gap-1 transition-colors hover:cursor-pointer',
+            'group flex items-center gap-1 hover:cursor-pointer',
             post.isLiked
               ? 'text-red-500'
               : 'text-muted-foreground hover:text-red-500',

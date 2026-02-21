@@ -1,9 +1,9 @@
 import { LIMIT } from '@/constants';
-import { TFollowersFromBD, UserWithRelations } from '@/features/profile/types';
+import { FollowerFromDB, User } from '@/features/profile/types';
+import { getUserSelect } from '@/lib/prisma-fragments';
 import { Prisma } from '@/generated/prisma/client';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
-
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
@@ -66,35 +66,12 @@ export async function GET(
       take: limit + 1,
       where: whereClause,
       orderBy: [{ createdAt: 'desc' }, { followerId: 'desc' }],
-      include: {
-        follower: {
-          select: {
-            id: true,
-            name: true,
-            username: true,
-            image: true,
-            bio: true,
-            createdAt: true,
-            coverImage: true,
-            followers: {
-              where: { followerId: userId },
-              select: { followerId: true },
-            },
-            following: {
-              where: { followingId: userId },
-              select: { followingId: true },
-            },
-            _count: {
-              select: {
-                posts: true,
-                followers: true,
-                following: true,
-              },
-            },
-          },
-        },
+      select: {
+        createdAt: true,
+        followerId: true,
+        follower: { select: getUserSelect(userId) },
       },
-    })) as TFollowersFromBD[];
+    })) as unknown as FollowerFromDB[];
 
     const hasNextPage = followersList.length > limit;
     const followersToReturn = hasNextPage
@@ -103,17 +80,18 @@ export async function GET(
     const lastFollower = followersToReturn[followersToReturn.length - 1];
 
     const transformedFollowers = followersToReturn.map((f) => {
-      const user = f.follower;
+      const { followers, following, _count, ...restUser } = f.follower;
+
       return {
-        ...user,
-        isCurrentUser: userId === user.id,
-        isFollowing: user.followers.length > 0,
-        followsYou: user.following.length > 0,
-        followersCount: user._count.followers,
-        followingCount: user._count.following,
-        postsCount: user._count.posts,
+        ...restUser,
+        isCurrentUser: userId === restUser.id,
+        isFollowing: followers.length > 0,
+        followsYou: following.length > 0,
+        followersCount: _count.followers,
+        followingCount: _count.following,
+        postsCount: _count.posts,
       };
-    }) satisfies UserWithRelations[];
+    }) satisfies User[];
 
     return NextResponse.json({
       users: transformedFollowers,

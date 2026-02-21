@@ -1,23 +1,16 @@
 import { StateCreator } from 'zustand';
 import { reconcileCount } from './helpers';
+import { Post } from '@/features/post/types';
 
 export interface PostImage {
   id: string;
   url: string;
   fileId: string;
+  width: number;
+  height: number;
 }
 
-export interface PostEntity {
-  id: string;
-  content: string | null;
-  images: PostImage[];
-  userId: string;
-  isLiked: boolean;
-  isBookmarked: boolean;
-  likesCount: number;
-  commentsCount: number;
-  createdAt: Date;
-}
+export type PostEntity = Omit<Post, 'user'>;
 
 export interface PostEntitySlice {
   posts: Record<string, PostEntity>;
@@ -26,6 +19,14 @@ export interface PostEntitySlice {
   addPosts: (post: PostEntity[]) => void;
   updatePost: (postId: string, post: Partial<PostEntity>) => void;
   removePost: (postId: string) => void;
+  incrementPostCount: (
+    postId: string,
+    field: 'likesCount' | 'commentsCount',
+  ) => void;
+  decrementPostCount: (
+    postId: string,
+    field: 'likesCount' | 'commentsCount',
+  ) => void;
 }
 
 export const postEntitySlice: StateCreator<PostEntitySlice> = (set) => ({
@@ -96,5 +97,29 @@ export const postEntitySlice: StateCreator<PostEntitySlice> = (set) => ({
     set((state) => {
       const { [postId]: _, ...rest } = state.posts;
       return { posts: rest };
+    }),
+
+  incrementPostCount: (postId, field) =>
+    set((state) => {
+      const post = state.posts[postId];
+      if (!post) return state;
+      return {
+        posts: {
+          ...state.posts,
+          [postId]: { ...post, [field]: post[field] + 1 },
+        },
+      };
+    }),
+
+  decrementPostCount: (postId, field) =>
+    set((state) => {
+      const post = state.posts[postId];
+      if (!post || post[field] <= 0) return state;
+      return {
+        posts: {
+          ...state.posts,
+          [postId]: { ...post, [field]: post[field] - 1 },
+        },
+      };
     }),
 });

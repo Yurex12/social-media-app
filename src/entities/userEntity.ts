@@ -1,21 +1,8 @@
 import { StateCreator } from 'zustand';
 import { reconcileCount } from './helpers';
+import { User } from '@/features/profile/types';
 
-export interface UserEntity {
-  id: string;
-  name: string;
-  username: string;
-  image: string | null;
-  bio: string | null;
-  isFollowing: boolean;
-  followsYou: boolean;
-  isCurrentUser: boolean;
-  followersCount: number;
-  followingCount: number;
-  postsCount: number;
-  createdAt: Date;
-  coverImage: string | null;
-}
+export type UserEntity = User;
 
 export interface UserEntitySlice {
   users: Record<string, UserEntity>;
@@ -25,6 +12,15 @@ export interface UserEntitySlice {
   addUsers: (users: UserEntity[]) => void;
   updateUser: (userId: string, updates: Partial<UserEntity>) => void;
   removeUser: (userId: string) => void;
+
+  incrementUserCount: (
+    userId: string,
+    field: 'followersCount' | 'followingCount',
+  ) => void;
+  decrementUserCount: (
+    userId: string,
+    field: 'followersCount' | 'followingCount',
+  ) => void;
 }
 
 export const userEntitySlice: StateCreator<UserEntitySlice> = (set) => ({
@@ -132,5 +128,29 @@ export const userEntitySlice: StateCreator<UserEntitySlice> = (set) => ({
       if (user) delete nextMap[user.username.toLowerCase()];
 
       return { users: restUsers, usernameToId: nextMap };
+    }),
+
+  incrementUserCount: (userId, field) =>
+    set((state) => {
+      const user = state.users[userId];
+      if (!user) return state;
+      return {
+        users: {
+          ...state.users,
+          [userId]: { ...user, [field]: user[field] + 1 },
+        },
+      };
+    }),
+
+  decrementUserCount: (userId, field) =>
+    set((state) => {
+      const user = state.users[userId];
+      if (!user || user[field] <= 0) return state;
+      return {
+        users: {
+          ...state.users,
+          [userId]: { ...user, [field]: user[field] - 1 },
+        },
+      };
     }),
 });

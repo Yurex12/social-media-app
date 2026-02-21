@@ -1,11 +1,11 @@
-import { PostWithRelations } from '@/features/post/types';
-import { UserWithRelations } from '@/features/profile/types';
+import { Post } from '@/features/post/types';
+import { User } from '@/features/profile/types';
 import { PostEntity } from './postEntity';
 import { UserEntity } from './userEntity';
 
-import { CommentWithRelations } from '@/features/comment/types';
+import { Comment } from '@/features/comment/types';
 
-function mapUserEntity(user: UserWithRelations): UserEntity {
+function mapUserEntity(user: User): UserEntity {
   return {
     id: user.id,
     name: user.name,
@@ -24,22 +24,22 @@ function mapUserEntity(user: UserWithRelations): UserEntity {
 }
 
 // --- USERS ---
-export function normalizeUser(user: UserWithRelations) {
+export function normalizeUser(user: User) {
   return { normalizedUser: mapUserEntity(user) };
 }
 
-export function normalizeUsers(users: UserWithRelations[]) {
+export function normalizeUsers(users: User[]) {
   return { normalizedUsers: users.map(mapUserEntity) };
 }
 
 // --- POSTS ---
-export function normalizePost(post: PostWithRelations) {
+export function normalizePost(post: Post) {
   return {
     post: {
       id: post.id,
       content: post.content,
       images: post.images,
-      userId: post.user.id,
+      userId: post.userId,
       isLiked: post.isLiked,
       isBookmarked: post.isBookmarked,
       likesCount: post.likesCount,
@@ -50,7 +50,7 @@ export function normalizePost(post: PostWithRelations) {
   };
 }
 
-export function normalizePosts(posts: PostWithRelations[]) {
+export function normalizePosts(posts: Post[]) {
   const normalizedPosts: PostEntity[] = [];
   const normalizedUsers: UserEntity[] = [];
 
@@ -63,6 +63,6 @@ export function normalizePosts(posts: PostWithRelations[]) {
   return { posts: normalizedPosts, users: normalizedUsers };
 }
 
-export function extractUsersFromComments(comments: CommentWithRelations[]) {
+export function extractUsersFromComments(comments: Comment[]) {
   return comments.map((c) => mapUserEntity(c.user));
 }

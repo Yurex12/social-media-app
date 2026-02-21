@@ -7,10 +7,10 @@ export function MobileCreatePostButton() {
     <Button
       asChild
       size='icon'
-      className='fixed bottom-20 right-4 z-50 size-12 rounded-full bg-primary text-white shadow-lg hover:bg-primary/90 sm:hidden'
+      className='fixed bottom-20 right-4 z-50 size-14 rounded-full bg-primary text-white shadow-lg hover:bg-primary/90 sm:hidden'
     >
       <Link href='/post/create'>
-        <Plus className='size-6' />
+        <Plus className='size-7' />
         <span className='sr-only'>Create Post</span>
       </Link>
     </Button>

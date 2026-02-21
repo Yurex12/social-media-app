@@ -36,6 +36,8 @@ export const postServerSchema = basePostSchema
         z.object({
           fileId: z.string(),
           url: z.url(),
+          width: z.int(),
+          height: z.int(),
         }),
       )
       .max(2, 'Maximum 2 images allowed'),
@@ -84,18 +86,24 @@ export const postEditSchema = basePostSchema
     message: 'Please provide either content or at least one image',
   });
 
-export const postEditServerSchema = basePostSchema.extend({
-  images: z
-    .array(
-      z.object({
-        fileId: z.string(),
-        url: z.url(),
-      }),
-    )
-    .max(2, 'Maximum 2 images allowed'),
+export const postEditServerSchema = basePostSchema
+  .extend({
+    images: z
+      .array(
+        z.object({
+          fileId: z.string(),
+          url: z.url(),
+          width: z.int(),
+          height: z.int(),
+        }),
+      )
+      .max(2, 'Maximum 2 images allowed'),
 
-  imagesToDeleteId: z.array(z.string()),
-});
+    imagesToDeleteId: z.array(z.string()),
+  })
+  .refine((data) => data.content.trim().length > 0 || data.images.length > 0, {
+    message: 'Please provide either content or at least one image',
+  });
 
 export type PostSchema = z.infer<typeof postSchema>;
 export type PostEditSchema = z.infer<typeof postEditSchema>;

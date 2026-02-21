@@ -8,13 +8,13 @@ import { CommentFormValues, commentSchema } from './schema';
 import { ActionResponse } from '@/types';
 
 import { Prisma } from '@/generated/prisma/client';
-import { CommentWithRelations } from './types';
+import { Comment } from './types';
 import { pusherServer } from '@/lib/pusher';
 
 export async function createCommentAction(
   postId: string,
   data: CommentFormValues,
-): Promise<ActionResponse<CommentWithRelations>> {
+): Promise<ActionResponse<Comment>> {
   try {
     if (!postId || typeof postId !== 'string') {
       return {
@@ -140,7 +140,7 @@ export async function createCommentAction(
         followingCount: comment.user._count.following,
         postsCount: comment.user._count.posts,
       },
-    } satisfies CommentWithRelations;
+    } satisfies Comment;
 
     return {
       success: true,

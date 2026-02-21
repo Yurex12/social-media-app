@@ -10,7 +10,7 @@ import {
 } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { createCommentAction } from '../action';
-import { CommentResponse, CommentWithRelations } from '../types';
+import { CommentResponse, Comment } from '../types';
 
 export function useCreateComment() {
   const queryClient = useQueryClient();
@@ -36,7 +36,7 @@ export function useCreateComment() {
     },
 
     onSuccess(res, { postId }) {
-      const newComment = res.data as CommentWithRelations;
+      const newComment = res.data as Comment;
 
       const users = extractUsersFromComments([newComment]);
       addUsers(users);

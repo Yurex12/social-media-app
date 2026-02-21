@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { PostFeedResponse } from '../post/types';
-import { UserResponse, UserWithRelations } from './types';
+import { UserResponse, User } from './types';
 
 export async function getProfile(username: string) {
   try {
-    const user = await axios.get<UserWithRelations>(`/api/users/${username}`);
+    const user = await axios.get<User>(`/api/users/${username}`);
     return user.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response) {
@@ -54,12 +54,9 @@ export async function getUserPosts(username: string, cursor?: string) {
 
 export async function getSuggestedUsers(limit?: number) {
   try {
-    const { data } = await axios.get<UserWithRelations[]>(
-      `/api/users/suggested`,
-      {
-        params: { limit },
-      },
-    );
+    const { data } = await axios.get<User[]>(`/api/users/suggested`, {
+      params: { limit },
+    });
     return data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response) {

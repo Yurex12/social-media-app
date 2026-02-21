@@ -1,7 +1,8 @@
 import { LIMIT } from '@/constants';
-import { CommentWithRelations, TCommentFromBD } from '@/features/comment/types';
+import { CommentFromDB, Comment } from '@/features/comment/types';
 import { Prisma } from '@/generated/prisma/client';
 import prisma from '@/lib/prisma';
+import { getUserSelect } from '@/lib/prisma-fragments';
 import { getSession } from '@/lib/session';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -42,67 +43,45 @@ export async function GET(
       take: limit + 1,
       where: whereClause,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            username: true,
-            bio: true,
-            image: true,
-            createdAt: true,
-            coverImage: true,
-            _count: {
-              select: {
-                posts: true,
-                followers: true,
-                following: true,
-              },
-            },
-            followers: {
-              where: { followerId: userId },
-              select: { followerId: true },
-            },
-            following: {
-              where: { followingId: userId },
-              select: { followingId: true },
-            },
-          },
-        },
-        commentLikes: {
-          where: {
-            userId,
-          },
-          select: { userId: true },
-        },
-        _count: {
-          select: {
-            commentLikes: true,
-          },
-        },
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        postId: true,
+        userId: true,
+        user: { select: getUserSelect(userId) },
+        commentLikes: { where: { userId }, select: { userId: true } },
+        _count: { select: { commentLikes: true } },
       },
-    })) as TCommentFromBD[];
+    })) as unknown as CommentFromDB[];
 
     const hasNextPage = comments.length > limit;
     const itemsToReturn = hasNextPage ? comments.slice(0, -1) : comments;
     const lastItem = itemsToReturn[itemsToReturn.length - 1];
 
     const transformedComments = itemsToReturn.map((comment) => {
+      const {
+        commentLikes,
+        _count,
+        user: { followers, following, _count: userCount, ...restUser },
+        ...restComment
+      } = comment;
+
       return {
-        ...comment,
-        isLiked: comment.commentLikes.length > 0,
-        likesCount: comment._count.commentLikes,
+        ...restComment,
+        isLiked: commentLikes.length > 0,
+        likesCount: _count.commentLikes,
         user: {
-          ...comment.user,
-          isCurrentUser: comment.user.id === userId,
-          followsYou: comment.user.following.length > 0,
-          isFollowing: comment.user.followers.length > 0,
-          followersCount: comment.user._count.followers,
-          followingCount: comment.user._count.following,
-          postsCount: comment.user._count.posts,
+          ...restUser,
+          isCurrentUser: restUser.id === userId,
+          followsYou: following.length > 0,
+          isFollowing: followers.length > 0,
+          followersCount: userCount.followers,
+          followingCount: userCount.following,
+          postsCount: userCount.posts,
         },
       };
-    }) satisfies CommentWithRelations[];
+    }) satisfies Comment[];
 
     return NextResponse.json({
       comments: transformedComments,

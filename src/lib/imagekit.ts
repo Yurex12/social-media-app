@@ -33,6 +33,8 @@ export async function uploadImages(images: File[]): Promise<ImageUploadResult> {
     const formattedData: ImageUploadResponse[] = results.map((res) => ({
       fileId: res.fileId!,
       url: res.url!,
+      height: res.height!,
+      width: res.width!,
     }));
 
     return {

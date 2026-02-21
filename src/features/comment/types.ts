@@ -1,34 +1,30 @@
 import { Prisma } from '@/generated/prisma/client';
-import { UserWithRelations } from '../profile/types';
+import { getUserSelect } from '@/lib/prisma-fragments';
+import { User } from '../profile/types';
 
-export type TCommentFromBD = Prisma.CommentGetPayload<{
-  include: {
-    user: {
-      select: {
-        id: true;
-        name: true;
-        image: true;
-        username: true;
-        bio: true;
-        createdAt: true;
-        coverImage: true;
-        followers: { select: { followerId: true } };
-        following: { select: { followingId: true } };
-        _count: { select: { followers: true; following: true; posts: true } };
-      };
-    };
+export type CommentFromDB = Prisma.CommentGetPayload<{
+  select: {
+    id: true;
+    content: true;
+    createdAt: true;
+    postId: true;
+    userId: true;
+    user: { select: ReturnType<typeof getUserSelect> };
     commentLikes: { select: { userId: true } };
     _count: { select: { commentLikes: true } };
   };
 }>;
 
-export type CommentWithRelations = Omit<TCommentFromBD, 'user'> & {
-  user: UserWithRelations;
+export type Comment = Omit<
+  CommentFromDB,
+  'commentLikes' | '_count' | 'user'
+> & {
+  user: User;
   likesCount: number;
   isLiked: boolean;
 };
 
 export type CommentResponse = {
-  comments: CommentWithRelations[];
+  comments: Comment[];
   nextCursor: string | null;
 };

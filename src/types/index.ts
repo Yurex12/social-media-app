@@ -8,7 +8,12 @@ export type ActionResponse<T> =
       message: string;
     };
 
-export type ImageUploadResponse = { fileId: string; url: string };
+export type ImageUploadResponse = {
+  fileId: string;
+  url: string;
+  width: number;
+  height: number;
+};
 
 export type ImageUploadResult =
   | { success: true; message: string; data: ImageUploadResponse[] }

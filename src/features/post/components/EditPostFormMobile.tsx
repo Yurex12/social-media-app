@@ -51,13 +51,20 @@ export function EditPostFormMobile() {
 
   useEffect(() => {
     if (post) {
-      form.reset({
-        content: post.content || '',
-        images: post.images || [],
-      });
-      setTimeout(adjustHeight, 0);
+      textareaRef.current?.focus();
+      const length = textareaRef.current?.value.length || 0;
+      textareaRef.current?.setSelectionRange(length, length);
     }
-  }, [post, form]);
+  }, [post]);
+
+  useEffect(() => {
+    textareaRef.current?.focus();
+
+    if (textareaRef.current) {
+      const length = textareaRef.current.value.length;
+      textareaRef.current.setSelectionRange(length, length);
+    }
+  }, []);
 
   const isEditing = form.formState.isSubmitting || isUpdating;
   const isValid = form.formState.isValid;
@@ -83,7 +90,7 @@ export function EditPostFormMobile() {
   function removeImage(idx: number) {
     const newImgs = [...images];
     newImgs.splice(idx, 1);
-    form.setValue('images', newImgs, { shouldDirty: true });
+    form.setValue('images', newImgs, { shouldValidate: true });
   }
 
   async function onSubmit(values: PostEditSchema) {
@@ -101,7 +108,7 @@ export function EditPostFormMobile() {
 
   if (isPending && !post) {
     return (
-      <div className='flex h-screen items-center justify-center'>
+      <div className='flex h-dvh items-center justify-center'>
         <Spinner className='size-6' />
       </div>
     );
@@ -115,9 +122,8 @@ export function EditPostFormMobile() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className='flex flex-col h-screen bg-background'
+        className='flex flex-col h-dvh bg-background'
       >
-        {/* Header */}
         <div className='flex items-center justify-between px-2 sm:px-4 py-2 border-b'>
           <Button
             type='button'
@@ -133,9 +139,9 @@ export function EditPostFormMobile() {
             disabled={
               isEditing || (!content.trim() && !images.length) || !isValid
             }
-            className='w-24'
+            className='w-18 rounded-full'
           >
-            {isUpdating ? <Spinner className='text-white' /> : 'Edit Post'}
+            {isUpdating ? <Spinner className='text-white' /> : 'Edit'}
           </Button>
         </div>
 
@@ -151,7 +157,6 @@ export function EditPostFormMobile() {
                   <FormControl>
                     <Textarea
                       {...field}
-                      autoFocus
                       placeholder='Edit post...'
                       className='min-h-6 resize-none border-none bg-transparent p-0 shadow-none focus-visible:ring-0  overflow-hidden'
                       ref={(e) => {

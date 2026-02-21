@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/session';
-import { TUserFromDB, UserWithRelations } from '@/features/profile/types';
+import { UserFromDB, User } from '@/features/profile/types';
+import { getUserSelect } from '@/lib/prisma-fragments';
 
 export async function GET(req: Request) {
   try {
@@ -19,48 +20,29 @@ export async function GET(req: Request) {
     const result = (await prisma.user.findMany({
       where: {
         id: { not: userId },
-        followers: {
-          none: {
-            followerId: userId,
-          },
-        },
+        followers: { none: { followerId: userId } },
       },
-
-      select: {
-        id: true,
-        name: true,
-        username: true,
-        image: true,
-        bio: true,
-        createdAt: true,
-        coverImage: true,
-        following: {
-          where: { followingId: userId },
-          select: { followingId: true },
-        },
-        _count: {
-          select: {
-            posts: true,
-            followers: true,
-            following: true,
-          },
-        },
-      },
+      select: getUserSelect(userId),
       take: 50,
-    })) as TUserFromDB[];
+    })) as unknown as UserFromDB[];
 
     const shuffled = result.sort(() => 0.5 - Math.random());
     const users = limit ? shuffled.slice(0, limit) : shuffled;
 
-    const transformedUsers = users.map((user) => ({
-      ...user,
-      isFollowing: false,
-      followsYou: user.following.length > 0,
-      isCurrentUser: false,
-      followersCount: user._count.followers,
-      followingCount: user._count.following,
-      postsCount: user._count.posts,
-    })) satisfies UserWithRelations[];
+    const transformedUsers = users.map((user) => {
+      const { followers, following, _count, ...restUser } = user;
+
+      return {
+        ...restUser,
+        //  isFollowing -> always false
+        isFollowing: followers.length > 0,
+        followsYou: following.length > 0,
+        isCurrentUser: false,
+        followersCount: _count.followers,
+        followingCount: _count.following,
+        postsCount: _count.posts,
+      };
+    }) satisfies User[];
 
     return NextResponse.json(transformedUsers);
   } catch {

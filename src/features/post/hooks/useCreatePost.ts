@@ -12,8 +12,6 @@ import { toast } from 'sonner';
 import { createPostAction } from '../actions';
 import { PostIdsPage } from '../types';
 
-let toastId: string | number;
-
 export function useCreatePost() {
   const queryClient = useQueryClient();
   const addPost = useEntityStore((state) => state.addPost);
@@ -26,8 +24,6 @@ export function useCreatePost() {
       content: string;
       images: File[];
     }) => {
-      toastId = toast.loading('Uploading your post...');
-
       let uploadedImages: ImageUploadResponse[] = [];
 
       if (images.length) {
@@ -50,8 +46,6 @@ export function useCreatePost() {
     },
 
     onSuccess(res) {
-      toast.success(res.message, { id: toastId });
-
       const { post: normalizedPost, user: normalizedUser } = normalizePost(
         res.data,
       );
@@ -81,9 +75,7 @@ export function useCreatePost() {
     },
 
     onError(err) {
-      toast.error(err.message || 'Something went wrong', {
-        id: toastId,
-      });
+      toast.error(err.message || 'Something went wrong');
     },
   });
   return { createPost, isPending };

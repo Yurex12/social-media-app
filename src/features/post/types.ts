@@ -1,60 +1,45 @@
-import { Prisma } from '@/generated/prisma/client';
 import { ReactNode } from 'react';
+
+import { Prisma } from '@/generated/prisma/client';
+import { getPostSelect } from '@/lib/prisma-fragments';
+
+import { User } from '../profile/types';
 
 export type CreatePostResponse = { id: string };
 
 export type GetPostsResponse = { content: string; id: string }[];
 
-export type TPostFromDB = Prisma.PostGetPayload<{
-  include: {
-    user: {
-      select: {
-        id: true;
-        name: true;
-        image: true;
-        username: true;
-        bio: true;
-        createdAt: true;
-        coverImage: true;
-        followers: { select: { followerId: true } };
-        following: { select: { followingId: true } };
-        _count: { select: { followers: true; following: true; posts: true } };
-      };
-    };
-    images: { select: { id: true; url: true; fileId: true } };
-    postLikes: { select: { id: true } };
-    bookmarks: { select: { id: true } };
-    _count: { select: { postLikes: true; comments: true } };
-  };
+export type PostFromDB = Prisma.PostGetPayload<{
+  select: ReturnType<typeof getPostSelect>;
 }>;
 
-export type PostWithRelations = Omit<
-  TPostFromDB,
+export type Post = Omit<
+  PostFromDB,
   'postLikes' | 'bookmarks' | '_count' | 'user'
 > & {
+  user: User;
   isBookmarked: boolean;
   isLiked: boolean;
   likesCount: number;
   commentsCount: number;
-  user: TPostFromDB['user'] & {
-    isFollowing: boolean;
-    followsYou: boolean;
-    isCurrentUser: boolean;
-    followersCount: number;
-    followingCount: number;
-    postsCount: number;
-  };
 };
 
+export type PostLikeFromDB = Prisma.PostLikeGetPayload<{
+  select: {
+    id: true;
+    createdAt: true;
+    post: { select: ReturnType<typeof getPostSelect> };
+  };
+}>;
 export interface PostFeedProps {
-  posts: PostWithRelations[] | undefined;
+  posts: Post[] | undefined;
   isPending: boolean;
   error: Error | null;
   emptyMessage?: string | ReactNode;
 }
 
 export interface PostFeedResponse {
-  posts: PostWithRelations[];
+  posts: Post[];
   nextCursor: string | null;
 }
 

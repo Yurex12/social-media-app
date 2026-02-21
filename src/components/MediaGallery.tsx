@@ -1,4 +1,3 @@
-// components/post/media-gallery.tsx
 'use client';
 
 import { cn } from '@/lib/utils';
@@ -6,7 +5,7 @@ import { useLightboxStore } from '@/store/useLightboxStore';
 import Image from 'next/image';
 
 type MediaGalleryProps = {
-  images: { id: string; url: string }[];
+  images: { id: string; url: string; width: number; height: number }[];
 };
 
 export function MediaGallery({ images }: MediaGalleryProps) {
@@ -18,7 +17,7 @@ export function MediaGallery({ images }: MediaGalleryProps) {
   return (
     <div
       className={cn(
-        'mx-auto mt-2 grid w-full gap-0.5 overflow-hidden rounded-lg',
+        'mx-auto mt-2 grid w-full gap-0.5 overflow-hidden rounded-xl border',
         imageLength === 1 ? 'grid-cols-1' : 'grid-cols-2',
       )}
     >
@@ -26,9 +25,16 @@ export function MediaGallery({ images }: MediaGalleryProps) {
         <div
           key={image.id}
           className={cn(
-            'relative bg-muted',
-            imageLength === 1 ? 'aspect-video' : 'h-64 sm:h-80',
+            'relative bg-muted overflow-hidden',
+            // 1 image = auto height based on width. 2+ images = fixed uniform height.
+            imageLength === 1 ? 'w-full h-auto' : 'h-64 sm:h-80',
           )}
+          // For 1 image, we use the DB width/height to set the box shape
+          style={
+            imageLength === 1
+              ? { aspectRatio: `${image.width} / ${image.height}` }
+              : {}
+          }
         >
           <Image
             src={image.url}
@@ -39,7 +45,9 @@ export function MediaGallery({ images }: MediaGalleryProps) {
               e.stopPropagation();
               openLightbox(i, images);
             }}
-            sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+            // Priority for single images to prevent layout shift
+            priority={imageLength === 1}
+            sizes={imageLength === 1 ? '100vw' : '50vw'}
           />
         </div>
       ))}
