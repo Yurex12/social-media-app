@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 
 const hiddenLinks = ['settings', 'notifications'];
 
-export default function MobileNavbar() {
+export function MobileNavbar() {
   const pathname = usePathname();
   const { data: sessionData } = useSession();
   const username = sessionData?.user?.username;

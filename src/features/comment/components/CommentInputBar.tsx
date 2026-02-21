@@ -18,6 +18,7 @@ import { SendHorizonal } from 'lucide-react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useCreateComment } from '../hooks/useCreateComment';
 import { CommentFormValues, commentSchema } from '../schema';
+import { Spinner } from '@/components/ui/spinner';
 
 export function CommentInputBar() {
   const { post } = usePost();
@@ -86,7 +87,11 @@ export function CommentInputBar() {
             disabled={isSubmitting || !content.trim().length || !isValid}
             className='shrink-0 mb-1 rounded-full h-9 w-9'
           >
-            <SendHorizonal className='h-4 w-4' />
+            {isSubmitting ? (
+              <Spinner className='text-white' />
+            ) : (
+              <SendHorizonal className='h-4 w-4' />
+            )}
           </Button>
         </form>
       </Form>

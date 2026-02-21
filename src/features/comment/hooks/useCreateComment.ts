@@ -12,8 +12,6 @@ import { toast } from 'sonner';
 import { createCommentAction } from '../action';
 import { CommentResponse, CommentWithRelations } from '../types';
 
-let toastId: string | number;
-
 export function useCreateComment() {
   const queryClient = useQueryClient();
   const addUsers = useEntityStore((state) => state.addUsers);
@@ -28,8 +26,6 @@ export function useCreateComment() {
       content: string;
       postId: string;
     }) => {
-      toastId = toast.loading('Posting your comment...');
-
       const res = await createCommentAction(postId, { content });
 
       if (!res.success) {
@@ -40,8 +36,6 @@ export function useCreateComment() {
     },
 
     onSuccess(res, { postId }) {
-      toast.success(res.message, { id: toastId });
-
       const newComment = res.data as CommentWithRelations;
 
       const users = extractUsersFromComments([newComment]);
@@ -80,7 +74,7 @@ export function useCreateComment() {
         removePost(postId);
       }
 
-      toast.error(error.message || 'Something went wrong', { id: toastId });
+      toast.error(error.message || 'Something went wrong');
     },
   });
 

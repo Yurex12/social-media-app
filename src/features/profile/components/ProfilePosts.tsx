@@ -15,5 +15,5 @@ export function ProfilePosts() {
 
   if (profileError || isLoadingProfile || !user) return null;
 
-  return <PostFeed {...queryState} emptyMessage="You haven't made any post" />;
+  return <PostFeed {...queryState} emptyMessage='No posts yet' />;
 }

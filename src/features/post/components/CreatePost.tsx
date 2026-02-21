@@ -182,7 +182,11 @@ export function CreatePost() {
                   (!content.trim() && !images.length) || isPosting || !isValid
                 }
               >
-                {isPosting ? <Spinner /> : <span> Post</span>}
+                {isPosting ? (
+                  <Spinner className='text-white' />
+                ) : (
+                  <span> Post</span>
+                )}
               </Button>
             </div>
           </div>

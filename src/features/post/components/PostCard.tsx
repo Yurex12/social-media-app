@@ -17,7 +17,7 @@ export function PostCard() {
 
   return (
     <div
-      className='space-y-2 py-4 hover:cursor-pointer overflow-hidden'
+      className='space-y-2 py-4 hover:cursor-pointer sm:border sm:rounded-lg w-full border-b rounded-none max-w-140'
       onClick={handleCardClick}
     >
       <PostHeader />

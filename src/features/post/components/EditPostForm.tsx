@@ -179,7 +179,7 @@ export function EditPostForm({ onClose }: { onClose: VoidFunction }) {
                   size='sm'
                   className='w-18 rounded-full'
                 >
-                  {isUpdating ? <Spinner /> : 'Edit'}
+                  {isUpdating ? <Spinner className='text-white' /> : 'Edit'}
                 </Button>
               </div>
             </div>

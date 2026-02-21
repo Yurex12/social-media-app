@@ -58,18 +58,13 @@ export function PostFeed({
 
   return (
     <div className='w-full'>
-      <ul className='pb-4 flex items-center justify-center flex-col sm:space-y-4'>
+      <div className='pb-4 flex items-center justify-center flex-col sm:space-y-4'>
         {postIds.map((postId) => (
-          <li
-            key={postId}
-            className='sm:border sm:rounded-lg w-full border-b rounded-none max-w-140'
-          >
-            <PostProvider postId={postId}>
-              <PostCard />
-            </PostProvider>
-          </li>
+          <PostProvider postId={postId} key={postId}>
+            <PostCard />
+          </PostProvider>
         ))}
-      </ul>
+      </div>
 
       {hasNextPage && (
         <div ref={ref} className='h-1 w-full' aria-hidden='true' />

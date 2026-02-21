@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Camera, Loader2, X } from 'lucide-react';
+import { Camera, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -17,6 +17,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 
+import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { UserAvatar } from '@/features/profile/components/UserAvatar';
 import { useEditProfile } from '@/features/profile/hooks/useEditProfile';
@@ -24,8 +25,8 @@ import {
   onboardingSchema,
   OnboardingSchemaFormValues,
 } from '@/features/profile/schema';
-import { useSession } from '@/lib/auth-client';
 import { User } from '@/lib/auth';
+import { useSession } from '@/lib/auth-client';
 
 export function OnboardingProfileForm({ user }: { user: User }) {
   const router = useRouter();
@@ -174,8 +175,11 @@ export function OnboardingProfileForm({ user }: { user: User }) {
               disabled={!isValid || isSubmitting}
               className='w-full bg-linear-to-r from-blue-500 via-blue-600 to-indigo-700 text-white shadow-md transition-all hover:scale-[1.01] active:scale-100 cursor-pointer'
             >
-              {isSubmitting && <Loader2 className='mr-2 size-4 animate-spin' />}
-              {isSubmitting ? 'Updating' : ' Update profile'}
+              {isSubmitting ? (
+                <Spinner className='text-white' />
+              ) : (
+                ' Update profile'
+              )}
             </Button>
 
             <Button

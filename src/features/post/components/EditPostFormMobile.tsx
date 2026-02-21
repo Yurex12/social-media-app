@@ -102,7 +102,7 @@ export function EditPostFormMobile() {
   if (isPending && !post) {
     return (
       <div className='flex h-screen items-center justify-center'>
-        <Spinner />
+        <Spinner className='size-6' />
       </div>
     );
   }
@@ -135,7 +135,7 @@ export function EditPostFormMobile() {
             }
             className='w-24'
           >
-            {isUpdating ? <Spinner /> : 'Edit Post'}
+            {isUpdating ? <Spinner className='text-white' /> : 'Edit Post'}
           </Button>
         </div>
 

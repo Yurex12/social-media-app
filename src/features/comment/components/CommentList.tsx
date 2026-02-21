@@ -68,10 +68,6 @@ export function CommentList() {
             Tap to retry
           </button>
         )}
-
-        {!hasNextPage && (
-          <p className='text-sm text-muted-foreground'>No more comments.</p>
-        )}
       </div>
     </div>
   );

@@ -3,7 +3,8 @@ import { ReactNode } from 'react';
 import { getRequiredSession } from '@/lib/session';
 
 import { Sidebar } from '@/components/Sidebar';
-import MobileNavbar from '@/components/MobileNavbar';
+import { MobileNavbar } from '@/components/MobileNavbar';
+import { MobileCreatePostButton } from '@/components/MobileCreatePostButton';
 
 export default async function MainLayout({
   children,
@@ -17,6 +18,7 @@ export default async function MainLayout({
       <Sidebar />
       <main className='border-l h-full'>{children}</main>
       <MobileNavbar />
+      <MobileCreatePostButton />
     </div>
   );
 }

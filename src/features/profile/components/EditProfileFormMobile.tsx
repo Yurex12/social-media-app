@@ -136,10 +136,14 @@ export function EditProfileFormMobile() {
           <Button
             type='submit'
             size='sm'
-            className='px-4 w-24 rounded-full'
+            className='px-4 w-24 rounded-full '
             disabled={isUpdating || !isValid}
           >
-            {isUpdating ? <Spinner /> : <span>Save</span>}
+            {isUpdating ? (
+              <Spinner className='text-white' />
+            ) : (
+              <span>Save</span>
+            )}
           </Button>
         </div>
 

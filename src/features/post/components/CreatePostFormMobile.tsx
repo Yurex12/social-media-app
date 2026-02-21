@@ -88,7 +88,7 @@ export function CreatePostFormMobile() {
               (!content.trim() && !images.length) || isPosting || !isValid
             }
           >
-            {isPosting ? <Spinner /> : 'Post'}
+            {isPosting ? <Spinner className='text-white' /> : 'Post'}
           </Button>
         </div>
 
@@ -146,39 +146,37 @@ export function CreatePostFormMobile() {
             )}
           </div>
 
-          <div className='flex items-center'>
-            <FormField
-              control={form.control}
-              name='images'
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <>
-                      <input
-                        ref={fileInputRef}
-                        type='file'
-                        accept='image/*'
-                        multiple
-                        hidden
-                        onChange={(e) => handleImageSelect(e, field)}
-                      />
+          <FormField
+            control={form.control}
+            name='images'
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <div className='flex items-center'>
+                    <input
+                      ref={fileInputRef}
+                      type='file'
+                      accept='image/*'
+                      multiple
+                      hidden
+                      onChange={(e) => handleImageSelect(e, field)}
+                    />
 
-                      <Button
-                        type='button'
-                        variant='ghost'
-                        size='icon'
-                        className='text-primary rounded-full'
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={images.length >= 2 || isPosting}
-                      >
-                        <ImageIcon className='size-6' />
-                      </Button>
-                    </>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </div>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='icon'
+                      className='text-primary rounded-full'
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={images.length >= 2 || isPosting}
+                    >
+                      <ImageIcon className='size-6' />
+                    </Button>
+                  </div>
+                </FormControl>
+              </FormItem>
+            )}
+          />
         </div>
       </form>
     </Form>

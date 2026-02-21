@@ -42,8 +42,9 @@ export function AuthorCard({ userId, isPending, error }: AuthorCardProps) {
           </div>
 
           <div onClick={(e) => e.stopPropagation()}>
-            {user.isCurrentUser && (
+            {!user.isCurrentUser && (
               <Button
+                size='sm'
                 className='rounded-full cursor-pointer shadow-none'
                 variant={user.isFollowing ? 'outline' : 'default'}
                 onClick={() => toggleFollow(user.id)}
