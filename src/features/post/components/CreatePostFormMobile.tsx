@@ -12,17 +12,17 @@ import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 
+import { BackButton } from '@/components/BackButton';
 import { UserAvatar } from '@/features/profile/components/UserAvatar';
-import { useSession } from '@/lib/auth-client';
+import { User } from '@/lib/auth';
 import { useCreatePost } from '../hooks/useCreatePost';
 import { postSchema, type PostSchema } from '../schema';
 import { ImagePreviews } from './ImagePreviews';
 
-export function CreatePostFormMobile() {
+export function CreatePostFormMobile({ user }: { user: User }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { createPost, isPending: isCreating } = useCreatePost();
-  const session = useSession();
 
   const form = useForm<PostSchema>({
     resolver: zodResolver(postSchema),
@@ -65,19 +65,9 @@ export function CreatePostFormMobile() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className='flex flex-col h-dvh'
-      >
-        <div className='flex items-center justify-between px-3 border py-2 border-b bg-background'>
-          <Button
-            type='button'
-            variant='ghost'
-            onClick={() => router.back()}
-            disabled={isPosting}
-          >
-            Cancel
-          </Button>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col'>
+        <div className='sticky top-0 z-30 h-15 w-full bg-background/80 backdrop-blur-md border-b border-border/50 flex items-center justify-between px-4'>
+          <BackButton />
 
           <Button
             type='submit'
@@ -92,11 +82,7 @@ export function CreatePostFormMobile() {
         </div>
 
         <div className='flex-1 overflow-y-auto p-4 flex gap-3'>
-          <UserAvatar
-            image={session.data?.user.image}
-            name={session.data?.user.name}
-            isPending={session.isPending}
-          />
+          <UserAvatar image={user.image} name={user.name} />
 
           <div className='flex-1 flex flex-col'>
             <FormField
@@ -108,7 +94,7 @@ export function CreatePostFormMobile() {
                     <Textarea
                       {...field}
                       placeholder='What’s happening?'
-                      className='min-h-6 bg-transparent dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
+                      className='min-h-40 max-h-80 overflow-y-scroll dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
                       disabled={isPosting}
                       autoFocus
                       onChange={(e) => {

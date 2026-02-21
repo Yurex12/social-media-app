@@ -30,7 +30,7 @@ export function TextExpander({
         className,
       )}
     >
-      <p className='whitespace-pre-wrap wrap-break-word inline'>
+      <p className='whitespace-pre-wrap break-all inline text-[0.85rem]'>
         {isExpanded ? (
           content
         ) : (

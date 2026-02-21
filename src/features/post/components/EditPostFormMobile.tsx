@@ -18,12 +18,12 @@ import { usePostDetails } from '../hooks/usePostDetails';
 import { useEditPost } from '../hooks/useEditPost';
 import { postEditSchema, type PostEditSchema } from '../schema';
 import { useSession } from '@/lib/auth-client';
+import { BackButton } from '@/components/BackButton';
 
 export function EditPostFormMobile() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { post, isPending, error } = usePostDetails(id);
 
@@ -41,13 +41,6 @@ export function EditPostFormMobile() {
 
   const images = useWatch({ control: form.control, name: 'images' });
   const content = useWatch({ control: form.control, name: 'content' });
-
-  const adjustHeight = () => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'inherit';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  };
 
   useEffect(() => {
     if (post) {
@@ -115,17 +108,10 @@ export function EditPostFormMobile() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className='flex flex-col h-dvh bg-background'
+        className='flex flex-col bg-background'
       >
-        <div className='flex items-center justify-between px-2 sm:px-4 py-2 border-b'>
-          <Button
-            type='button'
-            variant='ghost'
-            onClick={() => router.back()}
-            disabled={isEditing}
-          >
-            Cancel
-          </Button>
+        <div className='sticky top-0 z-30 h-15 w-full bg-background/80 backdrop-blur-md border-b border-border/50 flex items-center justify-between px-4'>
+          <BackButton />
 
           <Button
             type='submit'
@@ -151,20 +137,11 @@ export function EditPostFormMobile() {
                     <Textarea
                       {...field}
                       placeholder='Edit post...'
-                      className='min-h-6 resize-none border-none bg-transparent p-0 shadow-none focus-visible:ring-0  overflow-hidden dark:bg-transparent'
+                      className='min-h-40 max-h-80 overflow-y-scroll dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
                       autoFocus
                       onFocus={(e) => {
                         const length = e.target.value.length;
                         e.target.setSelectionRange(length, length);
-                        adjustHeight();
-                      }}
-                      ref={(e) => {
-                        field.ref(e);
-                        textareaRef.current = e;
-                      }}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        adjustHeight();
                       }}
                     />
                   </FormControl>
