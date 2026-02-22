@@ -1,9 +1,8 @@
-'use client';
 import { BackButton } from '@/components/BackButton';
 import { Header } from '@/components/Header';
-import { DiscoveredUsers } from './DiscoveredUsers';
+import { DiscoveredUsers } from '@/features/profile/components/DiscoveredUsers';
 
-export function DiscoverPage() {
+export default function Page() {
   return (
     <div>
       <Header>

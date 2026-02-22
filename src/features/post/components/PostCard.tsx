@@ -1,7 +1,5 @@
-// PostCard.tsx
-
-import { MediaGallery } from '@/components/MediaGallery';
 import { TextExpander } from '@/components/TextExpander';
+import { PostImages } from '@/features/post/components/PostImages';
 import { useRouter } from 'next/navigation';
 
 import { usePost } from '../PostProvider';
@@ -24,7 +22,7 @@ export function PostCard() {
 
       {post.content && <TextExpander content={post.content} />}
 
-      {post.images.length > 0 && <MediaGallery images={post.images} />}
+      {post.images.length > 0 && <PostImages images={post.images} />}
 
       <PostInteractions />
     </div>

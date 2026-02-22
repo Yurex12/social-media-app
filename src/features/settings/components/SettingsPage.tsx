@@ -1,16 +1,14 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { LogOut, UserPen, ChevronRight } from 'lucide-react';
-import Link from 'next/link';
 import { useQueryClient } from '@tanstack/react-query';
+import { ChevronRight, LogOut, UserPen } from 'lucide-react';
+import Link from 'next/link';
 
+import { ModeToggle } from '@/components/ModeToggle';
 import { Button } from '@/components/ui/button';
 import { signOut } from '@/lib/auth-client';
-import { ModeToggle } from '@/components/ModeToggle';
 
 export default function SettingsPage() {
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   const handleLogout = async () => {
@@ -18,7 +16,7 @@ export default function SettingsPage() {
       fetchOptions: {
         onSuccess() {
           queryClient.clear();
-          router.replace('/login');
+          window.location.href = '/login';
         },
       },
     });

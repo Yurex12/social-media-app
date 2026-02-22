@@ -1,3 +1,4 @@
+'use client';
 import { Spinner } from '@/components/ui/spinner';
 import { useSuggestedUsers } from '../hooks/useSuggestedUser';
 import { UserCard } from './UserCard';

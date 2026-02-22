@@ -1,22 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 import { links } from '@/constants';
 import { useUnreadNotificationsCount } from '@/features/notification/hooks/useUnreadNotificationsCount';
-import { signOut, useSession } from '@/lib/auth-client';
+import { signOut } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button } from './ui/button';
 import { LogOut } from 'lucide-react';
+import { Button } from './ui/button';
 
-export default function Navbar() {
+export default function Navbar({ username }: { username: string }) {
   const pathname = usePathname();
-  const { data: sessionData } = useSession();
-  const username = sessionData?.user?.username;
 
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   const { data: unreadCount } = useUnreadNotificationsCount();
@@ -68,7 +65,7 @@ export default function Navbar() {
               fetchOptions: {
                 onSuccess() {
                   queryClient.clear();
-                  router.replace('/login');
+                  window.location.href = '/login';
                 },
               },
             });

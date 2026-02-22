@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
-function Logo({ className }: { className?: string }) {
+export function Logo({ className }: { className?: string }) {
   return (
     <Link
       href='/'
@@ -18,5 +18,3 @@ function Logo({ className }: { className?: string }) {
     </Link>
   );
 }
-
-export default Logo;

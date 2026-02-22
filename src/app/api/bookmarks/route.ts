@@ -43,6 +43,7 @@ export async function GET(req: NextRequest) {
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       select: {
         id: true,
+        createdAt: true,
         post: { select: getPostSelect(userId) },
       },
     })) as unknown as BookmarkFromDB[];

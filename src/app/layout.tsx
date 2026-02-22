@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { LightBox } from '@/components/LightBox';
+import { Toaster } from '@/components/ui/sonner';
+import { NotificationListener } from '@/features/notification/components/NotificationListener';
 import './globals.css';
 import Providers from './Providers';
-import { GlobalLightBox } from '@/components/GlobalLightbox';
-import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { NotificationListener } from '@/features/notification/components/NotificationListener';
-import { Toaster } from '@/components/ui/sonner';
 
 import { ThemeProvider } from '@/components/theme-provider';
 
@@ -39,7 +39,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Providers>
-            <GlobalLightBox />
+            <LightBox />
             <ConfirmDialog />
             <NotificationListener />
             {children}

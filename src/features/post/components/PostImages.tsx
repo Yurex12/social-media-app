@@ -1,14 +1,12 @@
 'use client';
 
-import { cn } from '@/lib/utils';
-import { useLightboxStore } from '@/store/useLightboxStore';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
-type MediaGalleryProps = {
-  images: { id: string; url: string; width: number; height: number }[];
-};
+import { useLightboxStore } from '@/store/useLightboxStore';
+import { PostImagesProps } from '../types';
 
-export function MediaGallery({ images }: MediaGalleryProps) {
+export function PostImages({ images }: PostImagesProps) {
   const openLightbox = useLightboxStore((state) => state.openLightbox);
   const imageLength = images.length;
 

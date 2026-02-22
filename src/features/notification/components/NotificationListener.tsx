@@ -105,7 +105,7 @@ export function NotificationListener() {
       const { icon, text, color } = config[data.type];
 
       toast.custom(() => (
-        <div className='flex items-center gap-3 bg-background border border-border p-3 rounded-xl shadow-lg w-[320px]'>
+        <div className='flex items-center gap-3 bg-background border border-border p-3 rounded-xl shadow w-full sm:w-[320px]'>
           <div className='relative shrink-0'>
             <UserAvatar
               image={data.image}

@@ -4,7 +4,7 @@ import { useLightboxStore } from '@/store/useLightboxStore';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 
-export function GlobalLightBox() {
+export function LightBox() {
   const { isOpen, slides, photoIndex, closeLightbox } = useLightboxStore();
 
   return (
@@ -13,7 +13,20 @@ export function GlobalLightBox() {
       close={closeLightbox}
       index={photoIndex}
       slides={slides}
-      controller={{ closeOnBackdropClick: true, closeOnPullDown: true }}
+      render={{
+        buttonPrev: () => null,
+        buttonNext: () => null,
+      }}
+      carousel={{
+        padding: 0,
+        preload: 1,
+      }}
+      animation={{ fade: 250, swipe: 300 }}
+      controller={{
+        closeOnBackdropClick: true,
+        closeOnPullDown: true,
+        preventDefaultWheelY: true,
+      }}
     />
   );
 }

@@ -1,26 +1,35 @@
 'use client';
+import { useState } from 'react';
+
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+import { format } from 'date-fns';
+import { CalendarDays } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import Image from 'next/image';
-import Link from 'next/link';
+
 import { useProfile } from '../hooks/useProfile';
 import { useToggleFollow } from '../hooks/useToggleFollow';
+
+import { cn } from '@/lib/utils';
 import { UserAvatar } from './UserAvatar';
-import { CalendarDays } from 'lucide-react';
-import { format } from 'date-fns';
-import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { EditProfileForm } from './EditProfileForm';
 import { useSession } from '@/lib/auth-client';
+
 import { MOBILE_BREAK_POINT } from '@/constants';
-import { useRouter } from 'next/navigation';
+
+import { useLightboxStore } from '@/store/useLightboxStore';
 
 export function ProfileHero() {
   const [openDialog, setOpenDialog] = useState(false);
 
   const { user, isPending, error } = useProfile();
   const { toggleFollow } = useToggleFollow();
+  const { openLightbox } = useLightboxStore();
 
   const session = useSession();
 
@@ -53,7 +62,15 @@ export function ProfileHero() {
   return (
     <>
       <div className='w-full max-w-140 mx-auto'>
-        <div className='relative h-32 w-full bg-muted sm:h-48'>
+        <div
+          className={cn(
+            'relative h-32 w-full bg-muted sm:h-48',
+            user.coverImage && 'cursor-pointer',
+          )}
+          onClick={() =>
+            user.coverImage && openLightbox(0, [{ url: user.coverImage }])
+          }
+        >
           {user.coverImage ? (
             <Image
               src={user.coverImage}
@@ -68,12 +85,19 @@ export function ProfileHero() {
 
         <div className='relative px-4'>
           <div className='flex justify-between items-start'>
-            <UserAvatar
-              image={user.image}
-              name={user.name}
-              textClassName='text-4xl'
-              className='-mt-12 h-24 w-24 sm:h-32 sm:w-32'
-            />
+            <div
+              className={cn(user.image && 'cursor-pointer')}
+              onClick={() =>
+                user.image && openLightbox(0, [{ url: user.image }])
+              }
+            >
+              <UserAvatar
+                image={user.image}
+                name={user.name}
+                textClassName='text-4xl'
+                className='-mt-12 h-24 w-24 sm:h-32 sm:w-32 border-4 border-background'
+              />
+            </div>
 
             <div className='mt-3'>
               {user.isCurrentUser ? (
@@ -99,7 +123,6 @@ export function ProfileHero() {
             </div>
           </div>
 
-          {/* 4. User Info */}
           <div className='mt-3 flex flex-col gap-3'>
             <div>
               <h2 className='text-xl font-extrabold leading-tight'>
@@ -123,7 +146,6 @@ export function ProfileHero() {
               <p className='text-[15px] leading-normal'>{user.bio}</p>
             )}
 
-            {/* Metadata Row */}
             <div className='flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground text-[14px]'>
               <div className='flex items-center gap-1'>
                 <CalendarDays size={16} />
@@ -133,7 +155,6 @@ export function ProfileHero() {
               </div>
             </div>
 
-            {/* Stats Row */}
             <div className='flex gap-4 text-sm'>
               <Link
                 href={`/profile/${user.username}/following`}

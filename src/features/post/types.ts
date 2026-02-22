@@ -47,3 +47,7 @@ export interface PostIdsPage {
   postIds: string[];
   nextCursor: string | null;
 }
+
+export type PostImagesProps = {
+  images: { id: string; url: string; width: number; height: number }[];
+};

@@ -74,7 +74,7 @@ export async function getUserFollowers(username: string, cursor?: string) {
       `/api/users/${username}/followers`,
       { params: { cursor } },
     );
-    console.log(user.data);
+
     return user.data;
   } catch (error: unknown) {
     console.log(error);

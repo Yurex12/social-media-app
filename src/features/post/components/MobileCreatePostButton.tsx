@@ -1,8 +1,25 @@
+'use client';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+const activeRoutes = ['/home', '/profile', '/bookmarks', '/search'];
+const hiddenProfileRoutes = ['/followers', '/following'];
 
 export function MobileCreatePostButton() {
+  const pathname = usePathname();
+
+  let isVisible = false;
+
+  if (activeRoutes.includes(pathname)) {
+    isVisible = true;
+  } else if (pathname.startsWith('/profile')) {
+    isVisible = !hiddenProfileRoutes.some((r) => pathname.endsWith(r));
+  }
+
+  if (!isVisible) return null;
+
   return (
     <Button
       asChild

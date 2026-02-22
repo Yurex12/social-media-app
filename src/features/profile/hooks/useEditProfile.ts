@@ -6,8 +6,6 @@ import { toast } from 'sonner';
 import { editProfileAction } from '../action';
 import { EditProfileFormValues } from '../schema';
 
-let toastId: string | number;
-
 export function useEditProfile() {
   const addUser = useEntityStore((state) => state.addUser);
 
@@ -18,8 +16,6 @@ export function useEditProfile() {
         coverImageFileId: string | null;
       },
     ) => {
-      toastId = toast.loading('Updating profile...');
-
       const uploadTasks: Record<string, File> = {};
       if (values.image instanceof File) uploadTasks.image = values.image;
       if (values.coverImage instanceof File)
@@ -69,13 +65,13 @@ export function useEditProfile() {
     },
 
     onSuccess(res) {
-      toast.success(res.message, { id: toastId });
+      toast.success(res.message);
 
       addUser(res.data);
     },
 
     onError(err: Error | ActionError) {
-      toast.error(err.message || 'Something went wrong', { id: toastId });
+      toast.error(err.message || 'Something went wrong');
     },
   });
 

@@ -94,7 +94,7 @@ export function CreatePostFormMobile({ user }: { user: User }) {
                     <Textarea
                       {...field}
                       placeholder='What’s happening?'
-                      className='min-h-40 max-h-80 overflow-y-scroll dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
+                      className='min-h-40 max-h-80 overflow-y-auto dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
                       disabled={isPosting}
                       autoFocus
                       onChange={(e) => {

@@ -124,8 +124,7 @@ export function EditPostFormMobile() {
           </Button>
         </div>
 
-        {/* Content Area */}
-        <div className='flex-1 overflow-y-auto px-2 sm:px-4 mt-2 flex gap-3'>
+        <div className='flex-1 overflow-y-auto p-4 flex gap-3'>
           <UserAvatar image={session?.user.image} name={session?.user.name} />
           <div className='flex-1 flex flex-col'>
             <FormField
@@ -137,7 +136,7 @@ export function EditPostFormMobile() {
                     <Textarea
                       {...field}
                       placeholder='Edit post...'
-                      className='min-h-40 max-h-80 overflow-y-scroll dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
+                      className='min-h-40 max-h-80 overflow-y-auto dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
                       autoFocus
                       onFocus={(e) => {
                         const length = e.target.value.length;
@@ -157,10 +156,10 @@ export function EditPostFormMobile() {
         </div>
 
         {/* Footer */}
-        <div className='border-t p-2 bg-background'>
+        <div className='border-t bg-background px-4 py-2'>
           <div className='px-1 pb-2'>
             {form.formState.errors.content && (
-              <p className='text-[12px] font-medium text-destructive animate-in fade-in slide-in-from-bottom-1'>
+              <p className='text-sm text-destructive'>
                 {form.formState.errors.content.message}
               </p>
             )}
