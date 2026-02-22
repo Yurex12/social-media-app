@@ -106,10 +106,7 @@ export function EditPostFormMobile() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className='flex flex-col bg-background'
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col'>
         <div className='sticky top-0 z-30 h-15 w-full bg-background/80 backdrop-blur-md border-b border-border/50 flex items-center justify-between px-4'>
           <BackButton />
 
@@ -136,7 +133,7 @@ export function EditPostFormMobile() {
                     <Textarea
                       {...field}
                       placeholder='Edit post...'
-                      className='min-h-40 max-h-80 overflow-y-auto dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
+                      className='min-h-20 max-h-80 overflow-y-auto bg-transparent dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
                       autoFocus
                       onFocus={(e) => {
                         const length = e.target.value.length;
@@ -156,7 +153,7 @@ export function EditPostFormMobile() {
         </div>
 
         {/* Footer */}
-        <div className='border-t bg-background px-4 py-2'>
+        <div className='border-t px-4 py-2'>
           <div className='px-1 pb-2'>
             {form.formState.errors.content && (
               <p className='text-sm text-destructive'>

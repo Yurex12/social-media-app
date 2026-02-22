@@ -20,6 +20,7 @@ export function LightBox() {
       carousel={{
         padding: 0,
         preload: 1,
+        finite: true,
       }}
       animation={{ fade: 250, swipe: 300 }}
       controller={{

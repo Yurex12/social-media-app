@@ -14,7 +14,7 @@ export function MobileNavbar({ user }: { user: User }) {
   const pathname = usePathname();
 
   return (
-    <nav className='fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-t bg-background pb-safe md:hidden'>
+    <nav className='fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t bg-background pb-safe md:hidden'>
       {links
         .filter((link) => !hiddenLinks.includes(link.label.toLowerCase()))
         .map(({ href, label, Icon }) => {

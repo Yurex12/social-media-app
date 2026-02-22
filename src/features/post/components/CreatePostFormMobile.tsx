@@ -94,14 +94,9 @@ export function CreatePostFormMobile({ user }: { user: User }) {
                     <Textarea
                       {...field}
                       placeholder='What’s happening?'
-                      className='min-h-40 max-h-80 overflow-y-auto dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
+                      className='min-h-20 max-h-80 overflow-y-auto dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
                       disabled={isPosting}
                       autoFocus
-                      onChange={(e) => {
-                        field.onChange(e);
-                        e.target.style.height = 'inherit';
-                        e.target.style.height = `${e.target.scrollHeight}px`;
-                      }}
                     />
                   </FormControl>
                 </FormItem>
@@ -120,7 +115,7 @@ export function CreatePostFormMobile({ user }: { user: User }) {
           </div>
         </div>
 
-        <div className='border-t bg-background px-4 py-2'>
+        <div className='border-t px-4 py-2'>
           <div className='px-1 pb-2'>
             {form.formState.errors.content && (
               <p className='text-sm text-destructive'>

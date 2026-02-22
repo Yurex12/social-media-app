@@ -1,9 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
-
 import { useLightboxStore } from '@/store/useLightboxStore';
+import Image from 'next/image';
 import { PostImagesProps } from '../types';
 
 export function PostImages({ images }: PostImagesProps) {
@@ -22,13 +21,16 @@ export function PostImages({ images }: PostImagesProps) {
       {images.map((image, i) => {
         if (imageLength === 1) {
           return (
-            <div key={image.id} className='bg-muted overflow-hidden'>
+            <div
+              key={image.id}
+              className='bg-muted overflow-hidden max-h-127.5'
+            >
               <Image
                 src={image.url}
                 alt={`Post image ${i + 1}`}
                 width={image.width}
                 height={image.height}
-                className='w-full h-auto object-cover cursor-pointer hover:opacity-95 transition-opacity'
+                className='w-full h-auto max-h-127.5 object-cover cursor-pointer hover:opacity-95 transition-opacity'
                 priority
                 sizes='100vw'
                 onClick={(e) => {

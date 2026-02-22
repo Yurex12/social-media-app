@@ -32,7 +32,7 @@ export function LoginForm() {
     resolver: zodResolver(loginSchema),
     defaultValues: {
       identifier: 'johndoe@gmail.com',
-      password: '12345678',
+      password: 'Abdce123',
       rememberMe: true,
     },
   });
