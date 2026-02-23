@@ -1,5 +1,5 @@
-import { EditPostFormMobile } from '@/features/post/components/EditPostFormMobile';
+import { EditPostPage } from '@/features/post/components/EditPostPage';
 
 export default function Page() {
-  return <EditPostFormMobile />;
+  return <EditPostPage />;
 }

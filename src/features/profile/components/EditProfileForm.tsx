@@ -33,7 +33,7 @@ export function EditProfileForm({ onClose }: { onClose: VoidFunction }) {
   const form = useForm<EditProfileFormValues>({
     resolver: zodResolver(editProfileSchema),
     mode: 'onChange',
-    values: {
+    defaultValues: {
       name: session.data?.user.name || '',
       bio: session.data?.user.bio || '',
       image: session.data?.user.image || '',

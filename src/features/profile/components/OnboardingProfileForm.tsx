@@ -39,7 +39,7 @@ export function OnboardingProfileForm({ user }: { user: User }) {
   const form = useForm<OnboardingSchemaFormValues>({
     resolver: zodResolver(onboardingSchema),
     mode: 'onChange',
-    values: {
+    defaultValues: {
       bio: user.bio || '',
       image: user.image || '',
     },

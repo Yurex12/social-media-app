@@ -18,6 +18,7 @@ import { User } from '@/lib/auth';
 import { useCreatePost } from '../hooks/useCreatePost';
 import { postSchema, type PostSchema } from '../schema';
 import { ImagePreviews } from './ImagePreviews';
+import { Header } from '@/components/Header';
 
 export function CreatePostFormMobile({ user }: { user: User }) {
   const router = useRouter();
@@ -66,7 +67,7 @@ export function CreatePostFormMobile({ user }: { user: User }) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col'>
-        <div className='sticky top-0 z-30 h-15 w-full bg-background/80 backdrop-blur-md border-b border-border/50 flex items-center justify-between px-4'>
+        <Header className='justify-between px-2'>
           <BackButton />
 
           <Button
@@ -79,7 +80,7 @@ export function CreatePostFormMobile({ user }: { user: User }) {
           >
             {isPosting ? <Spinner className='text-white' /> : 'Post'}
           </Button>
-        </div>
+        </Header>
 
         <div className='flex-1 overflow-y-auto p-4 flex gap-3'>
           <UserAvatar image={user.image} name={user.name} />
@@ -93,10 +94,15 @@ export function CreatePostFormMobile({ user }: { user: User }) {
                   <FormControl>
                     <Textarea
                       {...field}
-                      placeholder='What’s happening?'
-                      className='min-h-20 max-h-80 overflow-y-auto dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
+                      placeholder={`What's happening?`}
+                      className='min-h-10 bg-transparent dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
                       disabled={isPosting}
                       autoFocus
+                      onChange={(e) => {
+                        field.onChange(e);
+                        e.target.style.height = 'auto';
+                        e.target.style.height = `${e.target.scrollHeight}px`;
+                      }}
                     />
                   </FormControl>
                 </FormItem>
@@ -115,7 +121,7 @@ export function CreatePostFormMobile({ user }: { user: User }) {
           </div>
         </div>
 
-        <div className='border-t px-4 py-2'>
+        <div className='border-t px-4 py-2 sticky bottom-0 z-10 bg-background'>
           <div className='px-1 pb-2'>
             {form.formState.errors.content && (
               <p className='text-sm text-destructive'>

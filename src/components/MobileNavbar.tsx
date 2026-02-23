@@ -43,7 +43,9 @@ export function MobileNavbar({ user }: { user: User }) {
                     image={user.image}
                     className={cn(
                       'size-7 transition-all ',
-                      isActive ? 'ring-2 ring-offset-1 ring-primary' : '',
+                      isActive
+                        ? 'ring-2 ring-offset-1 ring-primary ring-offset-background'
+                        : '',
                     )}
                   />
                 ) : (

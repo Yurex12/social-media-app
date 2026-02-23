@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useRef, ChangeEvent } from 'react';
-import { useForm, useWatch, ControllerRenderProps } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ImageIcon } from 'lucide-react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { ChangeEvent, useRef } from 'react';
+import { ControllerRenderProps, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -14,18 +14,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { UserAvatar } from '@/features/profile/components/UserAvatar';
 import { ImagePreviews } from './ImagePreviews';
 
-import { usePostDetails } from '../hooks/usePostDetails';
+import { BackButton } from '@/components/BackButton';
+import { PostEntity } from '@/entities/postEntity';
+import { useSession } from '@/lib/auth-client';
 import { useEditPost } from '../hooks/useEditPost';
 import { postEditSchema, type PostEditSchema } from '../schema';
-import { useSession } from '@/lib/auth-client';
-import { BackButton } from '@/components/BackButton';
+import { Header } from '@/components/Header';
 
-export function EditPostFormMobile() {
-  const { id } = useParams() as { id: string };
+export function EditPostFormMobile({ post }: { post: PostEntity }) {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { post, isPending, error } = usePostDetails(id);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { editPost, isPending: isUpdating } = useEditPost();
   const { data: session } = useSession();
@@ -41,12 +40,6 @@ export function EditPostFormMobile() {
 
   const images = useWatch({ control: form.control, name: 'images' });
   const content = useWatch({ control: form.control, name: 'content' });
-
-  useEffect(() => {
-    if (post) {
-      form.reset({ content: post.content || '', images: post.images });
-    }
-  }, [post, form]);
 
   const isEditing = form.formState.isSubmitting || isUpdating;
   const isValid = form.formState.isValid;
@@ -88,26 +81,10 @@ export function EditPostFormMobile() {
     );
   }
 
-  if (isPending) {
-    return (
-      <div className='flex h-dvh items-center justify-center'>
-        <Spinner className='size-6' />
-      </div>
-    );
-  }
-
-  if (error) {
-    return <div className='p-4 text-center'>{error.message}</div>;
-  }
-
-  if (!post) {
-    return <div className='p-4 text-center'>Post not found.</div>;
-  }
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col'>
-        <div className='sticky top-0 z-30 h-15 w-full bg-background/80 backdrop-blur-md border-b border-border/50 flex items-center justify-between px-4'>
+        <Header className='justify-between px-2'>
           <BackButton />
 
           <Button
@@ -119,7 +96,7 @@ export function EditPostFormMobile() {
           >
             {isUpdating ? <Spinner className='text-white' /> : 'Edit'}
           </Button>
-        </div>
+        </Header>
 
         <div className='flex-1 overflow-y-auto p-4 flex gap-3'>
           <UserAvatar image={session?.user.image} name={session?.user.name} />
@@ -133,11 +110,18 @@ export function EditPostFormMobile() {
                     <Textarea
                       {...field}
                       placeholder='Edit post...'
-                      className='min-h-20 max-h-80 overflow-y-auto bg-transparent dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
+                      className='min-h-10 bg-transparent dark:bg-transparent resize-none border-none p-0 shadow-none focus-visible:ring-0'
                       autoFocus
                       onFocus={(e) => {
+                        e.target.style.height = 'auto';
+                        e.target.style.height = `${e.target.scrollHeight}px`;
                         const length = e.target.value.length;
                         e.target.setSelectionRange(length, length);
+                      }}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        e.target.style.height = 'auto';
+                        e.target.style.height = `${e.target.scrollHeight}px`;
                       }}
                     />
                   </FormControl>
@@ -153,7 +137,7 @@ export function EditPostFormMobile() {
         </div>
 
         {/* Footer */}
-        <div className='border-t px-4 py-2'>
+        <div className='border-t px-4 py-2 sticky bottom-0 bg-background'>
           <div className='px-1 pb-2'>
             {form.formState.errors.content && (
               <p className='text-sm text-destructive'>

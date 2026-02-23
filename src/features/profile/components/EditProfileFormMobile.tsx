@@ -21,26 +21,29 @@ import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { MAX_FILE_SIZE } from '@/constants';
 import { UserAvatar } from '@/features/profile/components/UserAvatar';
-import { useSession } from '@/lib/auth-client';
+
 import { useEditProfile } from '../hooks/useEditProfile';
 import { editProfileSchema, type EditProfileFormValues } from '../schema';
+import { User } from '@/lib/auth';
+import { useSession } from '@/lib/auth-client';
 
-export function EditProfileFormMobile() {
+export function EditProfileFormMobile({ user }: { user: User }) {
   const router = useRouter();
   const imageInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
   const { editProfile, isPending: isEditing } = useEditProfile();
+
   const session = useSession();
 
   const form = useForm<EditProfileFormValues>({
     resolver: zodResolver(editProfileSchema),
     mode: 'onChange',
     values: {
-      name: session.data?.user.name || '',
-      bio: session.data?.user.bio || '',
-      image: session.data?.user.image || '',
-      coverImage: session.data?.user.coverImage || '',
+      name: user.name || '',
+      bio: user.bio || '',
+      image: user.image || '',
+      coverImage: user.coverImage || '',
     },
   });
 
@@ -74,14 +77,6 @@ export function EditProfileFormMobile() {
     };
   }, [previews]);
 
-  if (session.isPending) {
-    return (
-      <div className='flex h-dvh w-full items-center justify-center bg-background'>
-        <Spinner className='size-8' />
-      </div>
-    );
-  }
-
   function handleFileChange(
     e: ChangeEvent<HTMLInputElement>,
     field: ControllerRenderProps<EditProfileFormValues, 'image' | 'coverImage'>,
@@ -95,11 +90,9 @@ export function EditProfileFormMobile() {
     editProfile(
       {
         ...values,
-        imageFileId: values.image
-          ? (session.data?.user.imageFileId ?? null)
-          : null,
+        imageFileId: values.image ? (user.imageFileId ?? null) : null,
         coverImageFileId: values.coverImage
-          ? (session.data?.user.coverImageFileId ?? null)
+          ? (user.coverImageFileId ?? null)
           : null,
       },
       {
@@ -136,7 +129,7 @@ export function EditProfileFormMobile() {
           <Button
             type='submit'
             size='sm'
-            className='px-4 w-24 rounded-full '
+            className='px-4 w-24 rounded-full'
             disabled={isUpdating || !isValid}
           >
             {isUpdating ? (
