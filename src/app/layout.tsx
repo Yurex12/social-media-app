@@ -5,8 +5,10 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { LightBox } from '@/components/LightBox';
 import { Toaster } from '@/components/ui/sonner';
 import { NotificationListener } from '@/features/notification/components/NotificationListener';
-import './globals.css';
+
 import Providers from './Providers';
+
+import './globals.css';
 
 import { ThemeProvider } from '@/components/theme-provider';
 

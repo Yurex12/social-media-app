@@ -14,7 +14,7 @@ export function PostPage() {
 
   return (
     <div className='grid xl:grid-cols-[1.2fr_0.8fr] h-full'>
-      <div className='border-r'>
+      <div>
         <Header>
           <BackButton />
           <h3 className='text-lg font-semibold'>Post</h3>

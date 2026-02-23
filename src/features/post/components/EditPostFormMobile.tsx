@@ -137,7 +137,7 @@ export function EditPostFormMobile({ post }: { post: PostEntity }) {
         </div>
 
         {/* Footer */}
-        <div className='border-t px-4 py-2 sticky bottom-0 bg-background'>
+        <div className='border-t px-4 py-2 sticky bottom-0 z-10 bg-background'>
           <div className='px-1 pb-2'>
             {form.formState.errors.content && (
               <p className='text-sm text-destructive'>
