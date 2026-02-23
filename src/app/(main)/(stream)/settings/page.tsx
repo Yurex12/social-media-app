@@ -2,8 +2,10 @@ import SettingsPage from '@/features/settings/components/SettingsPage';
 
 import { BackButton } from '@/components/BackButton';
 import { Header } from '@/components/Header';
+import { getRequiredSession } from '@/lib/session';
 
 export default async function Page() {
+  const { user } = await getRequiredSession();
   return (
     <div className='sm:space-y-4'>
       <Header>
@@ -12,7 +14,7 @@ export default async function Page() {
       </Header>
 
       <div className='flex items-center justify-center flex-col gap-4 sm:px-4 w-full'>
-        <SettingsPage />
+        <SettingsPage email={user.email} />
       </div>
     </div>
   );

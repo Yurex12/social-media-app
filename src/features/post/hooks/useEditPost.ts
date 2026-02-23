@@ -7,8 +7,6 @@ import { toast } from 'sonner';
 import { editPostAction } from '../actions';
 import { PostEditSchema } from '../schema';
 
-let toastId: string | number;
-
 export function useEditPost() {
   const updatePost = useEntityStore((state) => state.updatePost);
   const removePost = useEntityStore((state) => state.removePost);
@@ -23,8 +21,6 @@ export function useEditPost() {
       values: PostEditSchema;
       existingImages: { fileId: string; url: string }[];
     }) => {
-      toastId = toast.loading('Saving changes...', {});
-
       const filesToUpload = values.images.filter(
         (img) => img instanceof File,
       ) as File[];
@@ -61,7 +57,7 @@ export function useEditPost() {
     },
 
     onSuccess(res) {
-      toast.success(res.message, { id: toastId });
+      toast.success(res.message);
 
       const { post: normalizedPost } = normalizePost(res.data);
 
@@ -72,7 +68,7 @@ export function useEditPost() {
       if ('code' in err && err.code === 'NOT_FOUND')
         removePost(variables.postId);
 
-      toast.error(err.message || 'Something went wrong', { id: toastId });
+      toast.error(err.message || 'Something went wrong');
     },
   });
 

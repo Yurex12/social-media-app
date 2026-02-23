@@ -1,14 +1,14 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { ChevronRight, LogOut, UserPen } from 'lucide-react';
+import { ChevronRight, LogOut, Mail, UserPen } from 'lucide-react'; // Added Mail icon
 import Link from 'next/link';
 
 import { ModeToggle } from '@/components/ModeToggle';
 import { Button } from '@/components/ui/button';
 import { signOut } from '@/lib/auth-client';
 
-export default function SettingsPage() {
+export default function SettingsPage({ email }: { email: string }) {
   const queryClient = useQueryClient();
 
   const handleLogout = async () => {
@@ -24,14 +24,24 @@ export default function SettingsPage() {
 
   return (
     <div className='flex flex-col max-w-140 w-full mx-auto'>
-      {/* Header */}
-
       <div className='flex flex-col'>
         {/* Account Section */}
         <section>
           <h2 className='px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider'>
             Account
           </h2>
+
+          <div className='flex items-center justify-between px-4 py-4 border-b'>
+            <div className='flex items-center gap-3'>
+              <div className='p-2 rounded-full bg-muted text-muted-foreground'>
+                <Mail className='size-5' />
+              </div>
+              <div className='flex flex-col'>
+                <span className='font-medium'>Email address</span>
+                <span className='text-xs text-muted-foreground'>{email}</span>
+              </div>
+            </div>
+          </div>
 
           <Link
             href='/settings/username'
@@ -52,7 +62,6 @@ export default function SettingsPage() {
           </Link>
         </section>
 
-        {/* Appearance Section */}
         <section className='mt-2'>
           <h2 className='px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider'>
             Appearance
