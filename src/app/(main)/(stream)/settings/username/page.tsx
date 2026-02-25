@@ -20,7 +20,7 @@ export default async function Page() {
           currentUsername={user.username!}
           usernameSuggestions={usernames}
           className='mt-4 rounded-lg border py-8'
-          redirectUrl='/profile'
+          redirectUrl='/home'
         />
       </div>
     </div>

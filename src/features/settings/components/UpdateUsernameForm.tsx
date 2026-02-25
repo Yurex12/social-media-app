@@ -47,7 +47,7 @@ export function UpdateUsernameForm({
   const form = useForm<UsernameFormValues>({
     resolver: zodResolver(usernameSchema),
     mode: 'onChange',
-    values: { username: '' },
+    defaultValues: { username: '' },
   });
 
   const watchedUsername = useWatch({
@@ -114,7 +114,7 @@ export function UpdateUsernameForm({
       return;
     }
 
-    session.refetch();
+    await session.refetch();
     toast.success('Username updated successfully!');
     if (redirectUrl) router.replace(redirectUrl);
   }

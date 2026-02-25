@@ -1,4 +1,3 @@
-'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle, Camera, X } from 'lucide-react';
 import { ChangeEvent, useEffect, useMemo, useRef } from 'react';
@@ -18,30 +17,33 @@ import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { MAX_FILE_SIZE } from '@/constants';
 import { UserAvatar } from '@/features/profile/components/UserAvatar';
-import { useSession } from '@/lib/auth-client';
-import Image from 'next/image';
-import { useEditProfile } from '../hooks/useEditProfile';
-import { editProfileSchema, type EditProfileFormValues } from '../schema';
 
-export function EditProfileForm({ onClose }: { onClose: VoidFunction }) {
+import Image from 'next/image';
+import { editProfileSchema, type EditProfileFormValues } from '../schema';
+import { EditProfileFormProps } from '../types';
+
+export function EditProfileForm({
+  user,
+  onClose,
+  refetchSession,
+  onEditProfile,
+  isEditingProfile,
+}: EditProfileFormProps) {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
-
-  const { editProfile, isPending: isEditing } = useEditProfile();
-  const session = useSession();
 
   const form = useForm<EditProfileFormValues>({
     resolver: zodResolver(editProfileSchema),
     mode: 'onChange',
     defaultValues: {
-      name: session.data?.user.name || '',
-      bio: session.data?.user.bio || '',
-      image: session.data?.user.image || '',
-      coverImage: session.data?.user.coverImage || '',
+      name: user.name || '',
+      bio: user.bio || '',
+      image: user.image || '',
+      coverImage: user.coverImage || '',
     },
   });
 
-  const isUpdating = form.formState.isSubmitting || isEditing;
+  const isUpdating = form.formState.isSubmitting || isEditingProfile;
   const isValid = form.formState.isValid;
   const errors = form.formState.errors;
 
@@ -74,14 +76,6 @@ export function EditProfileForm({ onClose }: { onClose: VoidFunction }) {
     };
   }, [previews.profile.src, previews.cover.src]);
 
-  if (session.isPending) {
-    return (
-      <div className='flex items-center justify-center p-20'>
-        <Spinner className='size-8' />
-      </div>
-    );
-  }
-
   function handleFileChange(
     e: ChangeEvent<HTMLInputElement>,
     field: ControllerRenderProps<EditProfileFormValues, 'image' | 'coverImage'>,
@@ -92,19 +86,17 @@ export function EditProfileForm({ onClose }: { onClose: VoidFunction }) {
   }
 
   async function onSubmit(values: EditProfileFormValues) {
-    editProfile(
+    onEditProfile(
       {
         ...values,
-        imageFileId: values.image
-          ? (session.data?.user.imageFileId ?? null)
-          : null,
+        imageFileId: values.image ? (user.imageFileId ?? null) : null,
         coverImageFileId: values.coverImage
-          ? (session.data?.user.coverImageFileId ?? null)
+          ? (user.coverImageFileId ?? null)
           : null,
       },
       {
         onSuccess: () => {
-          session.refetch();
+          refetchSession();
           onClose();
         },
       },
@@ -125,7 +117,7 @@ export function EditProfileForm({ onClose }: { onClose: VoidFunction }) {
                   <div className='relative'>
                     <div
                       onClick={() => coverInputRef.current?.click()}
-                      className='relative h-32 w-full bg-muted rounded-lg overflow-hidden border cursor-pointer'
+                      className={`relative h-32 w-full bg-muted rounded-lg overflow-hidden border cursor-pointer ${isUpdating && 'pointer-events-none opacity-60'}`}
                     >
                       {previews.cover.src ? (
                         <Image
@@ -191,11 +183,11 @@ export function EditProfileForm({ onClose }: { onClose: VoidFunction }) {
                     <div className='relative'>
                       <div
                         onClick={() => imageInputRef.current?.click()}
-                        className='relative size-24 rounded-full border-4 border-background cursor-pointer overflow-hidden bg-muted'
+                        className={`relative size-24 rounded-full border-4 border-background cursor-pointer overflow-hidden bg-muted ${isUpdating && 'pointer-events-none opacity-60'}`}
                       >
                         <UserAvatar
                           image={previews.profile.src}
-                          name={session.data?.user.name}
+                          name={user.name}
                           className={`size-full ${previews.profile.isLarge ? 'grayscale brightness-[0.3]' : 'brightness-[0.7]'}`}
                         />
 
@@ -300,8 +292,9 @@ export function EditProfileForm({ onClose }: { onClose: VoidFunction }) {
                 variant='secondary'
                 size='sm'
                 className='px-4 w-24 rounded-full'
-                onClick={onClose}
+                onClick={() => onClose()}
                 disabled={isUpdating}
+                type='button'
               >
                 Cancel
               </Button>

@@ -23,11 +23,13 @@ import { useSession } from '@/lib/auth-client';
 import { MOBILE_BREAK_POINT } from '@/constants';
 
 import { useLightboxStore } from '@/store/useLightboxStore';
+import { useEditProfile } from '../hooks/useEditProfile';
 
 export function ProfileHero() {
   const [openDialog, setOpenDialog] = useState(false);
 
   const { user, isPending, error } = useProfile();
+  const { editProfile, isPending: isEditing } = useEditProfile();
   const { toggleFollow } = useToggleFollow();
   const { openLightbox } = useLightboxStore();
 
@@ -105,9 +107,9 @@ export function ProfileHero() {
                   variant='outline'
                   className='rounded-full cursor-pointer'
                   onClick={handleEdit}
-                  disabled={session.isPending}
+                  disabled={session.isPending || !!session.error}
                 >
-                  Edit profile
+                  {isEditing ? <Spinner /> : <span>Edit Profile</span>}
                 </Button>
               ) : (
                 <>
@@ -184,10 +186,20 @@ export function ProfileHero() {
         <div className='border-b border-border mt-4' />
       </div>
 
-      {openDialog && (
+      {openDialog && session.data?.user && (
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-          <DialogContent showCloseButton={false}>
-            <EditProfileForm onClose={() => setOpenDialog(false)} />
+          <DialogContent
+            showCloseButton={false}
+            onInteractOutside={(e) => isEditing && e.preventDefault()}
+            onEscapeKeyDown={(e) => isEditing && e.preventDefault()}
+          >
+            <EditProfileForm
+              refetchSession={() => session.refetch()}
+              onClose={() => setOpenDialog(false)}
+              user={session.data?.user}
+              isEditingProfile={isEditing}
+              onEditProfile={editProfile}
+            />
           </DialogContent>
         </Dialog>
       )}

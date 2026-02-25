@@ -1,5 +1,10 @@
 import { Prisma } from '@/generated/prisma/client';
 import { getUserSelect } from '@/lib/prisma-fragments';
+import { useEditProfile } from './hooks/useEditProfile';
+
+import { User as UserFromSession } from '@/lib/auth';
+
+type EditProfileMutate = ReturnType<typeof useEditProfile>['editProfile'];
 
 export type UserFromDB = Prisma.UserGetPayload<{
   select: ReturnType<typeof getUserSelect>;
@@ -48,4 +53,12 @@ export type EditProfilePayload = {
   coverImage?: string | File | null;
   imageFileId?: string | null;
   coverImageFileId?: string | null;
+};
+
+export type EditProfileFormProps = {
+  user: UserFromSession;
+  isEditingProfile: boolean;
+  refetchSession: VoidFunction;
+  onClose: VoidFunction;
+  onEditProfile: EditProfileMutate;
 };
